@@ -20,7 +20,7 @@ Experiments were conducted using:
 - Low-level hover setpoints through send_hover_setpoint
 - Custom SITL firmware fault injection and residual motor-control hooks
 
-This phase is simulation-only. No Vicon or physical Crazyflie hardware is used.
+This phase is simulation-only. No physical Crazyflie hardware is used.
 
 ---
 
@@ -209,20 +209,3 @@ The project currently demonstrates:
 5. More severe faults such as eta = 0.45 require a structural degraded-mode controller rather than additive boost tuning.
 
 ---
-
-## 12. Next Research Direction
-
-The next method should not be more blind boost tuning.
-
-The next controller should move toward one of:
-
-- fault-aware constrained control allocation
-- motor-specific residual optimization
-- yaw-sacrificing degraded-mode control
-- birotor-style emergency landing
-- INDI-style acceleration feedback control
-- NMPC with degraded rotor constraints
-
-The most natural next step is:
-
-Design a fault-aware allocation layer that chooses motor-specific residuals subject to thrust, tilt, drift, angular-rate, and saturation constraints, instead of applying equal boost to all healthy motors.
