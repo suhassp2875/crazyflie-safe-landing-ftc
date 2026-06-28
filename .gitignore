@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Runtime logs
+logs/*.csv
+logs/*.log
+logs/sim_*.log
+
+# Models/checkpoints
+models/*
+!models/.gitkeep
+
+# Large/raw archives
+archive/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
