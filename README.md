@@ -209,3 +209,40 @@ The project currently demonstrates:
 5. More severe faults such as eta = 0.45 require a structural degraded-mode controller rather than additive boost tuning.
 
 ---
+
+<!-- RL_GAIN_TUNING_SUMMARY_START -->
+
+## RL / Gain-Tuning Extension
+
+This branch investigates whether learning-based gain tuning can improve the state-aware QP-lite residual allocator without replacing the constrained runtime controller with a black-box neural policy.
+
+The approach is deliberately conservative:
+
+- The runtime controller still selects from constrained residual candidates.
+- The faulted motor receives zero residual command.
+- CEM/evolutionary search tunes allocator scoring weights offline.
+- The learned configuration is validated in CrazySim/SITL using the same first-contact safety metric.
+
+### Main gain-tuning result
+
+| Controller | eta | Safe trials | Interpretation |
+|---|---:|---:|---|
+| Baseline state-aware QP-lite | 0.496 | 7/20 | Below robust boundary |
+| CEM-tuned state-aware QP-lite | 0.496 | 15/20 | Gain tuning improves recoverability |
+| CEM-tuned motor 1 | 0.496 | 5/5 | Recovered |
+| CEM-tuned motor 2 | 0.496 | 0/5 | Still limiting |
+| CEM-tuned motor 3 | 0.496 | 5/5 | Recovered |
+| CEM-tuned motor 4 | 0.496 | 5/5 | Recovered |
+
+### Motor-2 bottleneck check
+
+A focused motor-2 residual-candidate expansion was run at `eta=0.496`.
+
+| Test | Result | Interpretation |
+|---|---:|---|
+| Expanded motor-2 candidates | 1/60 safe | Almost all residual patterns fail |
+| Best-looking candidate `m4only_13000` retest | 0/10 safe | The earlier safe case was not reliable |
+
+Conclusion: CEM/gain tuning improves the allocator for recoverable fault geometries, but motor 2 at `eta=0.496` remains outside the current residual-allocation envelope. This supports treating `eta≈0.497` as the conservative robust boundary for the current CrazySim/SITL setup, while motivating future work on model-based CBF-QP/MPC or structural degraded-mode control for the motor-2 limiting case.
+
+<!-- RL_GAIN_TUNING_SUMMARY_END -->
