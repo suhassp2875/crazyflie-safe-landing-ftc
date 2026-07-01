@@ -212,9 +212,9 @@ The project currently demonstrates:
 
 <!-- RL_GAIN_TUNING_SUMMARY_START -->
 
-## RL / Gain-Tuning Extension
+## CEM-Based Gain-Tuning Extension
 
-This branch investigates whether learning-based gain tuning can improve the state-aware QP-lite residual allocator without replacing the constrained runtime controller with a black-box neural policy.
+This section investigates whether offline evolutionary gain tuning can improve the state-aware QP-lite residual allocator without replacing the constrained runtime controller with a black-box neural policy.
 
 The approach is deliberately conservative:
 
@@ -223,7 +223,7 @@ The approach is deliberately conservative:
 - CEM/evolutionary search tunes allocator scoring weights offline.
 - The learned configuration is validated in CrazySim/SITL using the same first-contact safety metric.
 
-### Main gain-tuning result
+### Main CEM gain-tuning result
 
 | Controller | eta | Safe trials | Interpretation |
 |---|---:|---:|---|
@@ -243,6 +243,6 @@ A focused motor-2 residual-candidate expansion was run at `eta=0.496`.
 | Expanded motor-2 candidates | 1/60 safe | Almost all residual patterns fail |
 | Best-looking candidate `m4only_13000` retest | 0/10 safe | The earlier safe case was not reliable |
 
-Conclusion: CEM/gain tuning improves the allocator for recoverable fault geometries, but motor 2 at `eta=0.496` remains outside the current residual-allocation envelope. This supports treating `eta≈0.497` as the conservative robust boundary for the current CrazySim/SITL setup, while motivating future work on model-based CBF-QP/MPC or structural degraded-mode control for the motor-2 limiting case.
+Conclusion: CEM-based gain tuning improves the allocator for recoverable fault geometries, but motor 2 at `eta=0.496` remains outside the current residual-allocation envelope. This supports treating `eta≈0.497` as the conservative robust boundary for the current CrazySim/SITL setup, while motivating future work on model-based CBF-QP/MPC or structural degraded-mode control for the motor-2 limiting case.
 
 <!-- RL_GAIN_TUNING_SUMMARY_END -->
