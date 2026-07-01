@@ -122,6 +122,7 @@ agg = out.groupby(["protocol_id", "controller", "motor", "eta", "candidate", "r1
     n=("trial_seed", "count"),
     safe_count=("safe_touchdown", "sum"),
     contact_count=("contact_found", "sum"),
+    contact_count=("contact_found", "sum"),
     mean_vz=("vertical_speed_mps", "mean"),
     std_vz=("vertical_speed_mps", "std"),
     min_vz=("vertical_speed_mps", "min"),
