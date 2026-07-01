@@ -16,7 +16,7 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
 
-from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp
+from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp, predict_metrics
 from src.controllers.residual_allocator_tunable import load_weight_config, allocate_residual_tunable
 
 
@@ -201,6 +201,13 @@ def main():
     parser.add_argument("--max-brake-duration", type=float, default=8.0)
     parser.add_argument("--weight-config", default=None,
                         help="Optional JSON config for tunable allocator weights.")
+    parser.add_argument("--manual-residual", action="store_true",
+                        help="Bypass allocator and apply --r1..--r4 once at fault event.")
+    parser.add_argument("--manual-name", default="manual_residual")
+    parser.add_argument("--r1", type=int, default=0)
+    parser.add_argument("--r2", type=int, default=0)
+    parser.add_argument("--r3", type=int, default=0)
+    parser.add_argument("--r4", type=int, default=0)
     args = parser.parse_args()
 
     if args.motor not in [1, 2, 3, 4]:
@@ -296,17 +303,31 @@ def main():
                         fault_t = t
 
                         allocator_state = make_allocator_state(data)
-                        if weight_cfg is not None:
-                            allocation = allocate_residual_tunable(args.motor, args.eta, allocator_state, weight_cfg)
+                        if args.manual_residual:
+                            selected_r = [int(args.r1), int(args.r2), int(args.r3), int(args.r4)]
+                            if selected_r[args.motor - 1] != 0:
+                                raise RuntimeError("Manual residual must be zero on the faulted motor.")
+                            selected_candidate = args.manual_name
+                            selected_pred_vz, selected_pred_drift, selected_pred_tilt = predict_metrics(
+                                fault_motor=args.motor,
+                                eta=args.eta,
+                                state=allocator_state,
+                                residual=selected_r,
+                            )
+                            selected_score = 0.0
+                            allocator_config_name = "manual_residual_sweep"
                         else:
-                            allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
+                            if weight_cfg is not None:
+                                allocation = allocate_residual_tunable(args.motor, args.eta, allocator_state, weight_cfg)
+                            else:
+                                allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
 
-                        selected_candidate = allocation.candidate_name
-                        selected_r = allocation.residual
-                        selected_score = float(allocation.score)
-                        selected_pred_vz = float(allocation.predicted_vz)
-                        selected_pred_drift = float(allocation.predicted_drift)
-                        selected_pred_tilt = float(allocation.predicted_tilt)
+                            selected_candidate = allocation.candidate_name
+                            selected_r = allocation.residual
+                            selected_score = float(allocation.score)
+                            selected_pred_vz = float(allocation.predicted_vz)
+                            selected_pred_drift = float(allocation.predicted_drift)
+                            selected_pred_tilt = float(allocation.predicted_tilt)
 
                         fault_state_snapshot = {
                             "fault_x": allocator_state.x,
