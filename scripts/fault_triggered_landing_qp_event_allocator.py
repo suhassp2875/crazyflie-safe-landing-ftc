@@ -17,6 +17,7 @@ from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
 
 from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp
+from src.controllers.residual_allocator_tunable import load_weight_config, allocate_residual_tunable
 
 
 GROUND_Z = 0.03
@@ -198,6 +199,8 @@ def main():
     parser.add_argument("--tag", default="stateaware_qp")
     parser.add_argument("--log-period-ms", type=int, default=20)
     parser.add_argument("--max-brake-duration", type=float, default=8.0)
+    parser.add_argument("--weight-config", default=None,
+                        help="Optional JSON config for tunable allocator weights.")
     args = parser.parse_args()
 
     if args.motor not in [1, 2, 3, 4]:
@@ -224,6 +227,12 @@ def main():
     selected_pred_vz = 0.0
     selected_pred_drift = 0.0
     selected_pred_tilt = 0.0
+    allocator_config_name = "qplite_builtin"
+    weight_cfg = None
+    if args.weight_config:
+        weight_cfg = load_weight_config(args.weight_config)
+        allocator_config_name = weight_cfg.name
+        print(f"[INFO] Using tunable allocator config: {args.weight_config} ({allocator_config_name})")
 
     fault_state_snapshot = {}
 
@@ -287,7 +296,10 @@ def main():
                         fault_t = t
 
                         allocator_state = make_allocator_state(data)
-                        allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
+                        if weight_cfg is not None:
+                            allocation = allocate_residual_tunable(args.motor, args.eta, allocator_state, weight_cfg)
+                        else:
+                            allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
 
                         selected_candidate = allocation.candidate_name
                         selected_r = allocation.residual
@@ -354,6 +366,7 @@ def main():
                     "motor_m3": int(fget(data, "motor.m3")),
                     "motor_m4": int(fget(data, "motor.m4")),
                     "z_cmd": z_cmd,
+                    "allocator_config": allocator_config_name,
                     "selected_candidate": selected_candidate,
                     "r1": int(selected_r[0]),
                     "r2": int(selected_r[1]),
@@ -386,7 +399,7 @@ def main():
         "gyro_x_deg_s", "gyro_y_deg_s", "gyro_z_deg_s",
         "motor_m1", "motor_m2", "motor_m3", "motor_m4",
         "z_cmd",
-        "selected_candidate", "r1", "r2", "r3", "r4",
+        "allocator_config", "selected_candidate", "r1", "r2", "r3", "r4",
         "qp_score", "qp_predicted_vz", "qp_predicted_drift", "qp_predicted_tilt",
         "fault_x", "fault_y", "fault_z",
         "fault_vx", "fault_vy", "fault_vz",
