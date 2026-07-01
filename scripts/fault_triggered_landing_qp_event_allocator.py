@@ -150,6 +150,9 @@ def evaluate_first_contact(rows, fault_t):
         row = contact[0]
         found = True
     else:
+        # No touchdown within the evaluation window.
+        # This is not a safe touchdown. We still return the minimum-z row for diagnostics,
+        # but the final safe_touchdown flag is forced to False below.
         row = min(post, key=lambda r: r["z"])
         found = False
 
@@ -178,9 +181,10 @@ def evaluate_first_contact(rows, fault_t):
         "drift_ok": drift <= LIMIT_DRIFT,
     }
 
-    safe = all(checks.values())
+    safe = found and all(checks.values())
 
     return row, found, {
+        "contact_found": found,
         "safe_touchdown": safe,
         "vertical_speed_mps": vertical_speed,
         "horizontal_speed_mps": horizontal_speed,

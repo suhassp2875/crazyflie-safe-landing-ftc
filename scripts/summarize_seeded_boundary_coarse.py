@@ -84,9 +84,11 @@ for path in sorted(Path("logs").glob("qp_event_allocator_m*_eta*_seededcoarse_*_
         print(f"[WARN] Skipping {path.name}: {e}")
         continue
 
-    vs, hs, tilt, ar, drift, safe = eval_row(row)
+    vs, hs, tilt, ar, drift, safe_raw = eval_row(row)
+    safe = bool(found) and bool(safe_raw)
 
     rows.append({
+        "contact_found": bool(found),
         "protocol_id": str(row.get("protocol_id", "")),
         "trial_seed": int(row.get("trial_seed", seed)),
         "motor": motor,
@@ -129,6 +131,7 @@ out.to_csv(out_path, index=False)
 agg = out.groupby(["protocol_id", "controller", "motor", "eta"]).agg(
     n=("trial_seed", "count"),
     safe_count=("safe_touchdown", "sum"),
+    contact_count=("contact_found", "sum"),
     mean_vz=("vertical_speed_mps", "mean"),
     std_vz=("vertical_speed_mps", "std"),
     min_vz=("vertical_speed_mps", "min"),
