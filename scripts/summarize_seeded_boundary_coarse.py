@@ -170,7 +170,12 @@ for motor in sorted(out["motor"].unique()):
         y = cdf["safe_rate"].to_numpy()
         lo = cdf["safe_rate_ci_low"].to_numpy()
         hi = cdf["safe_rate_ci_high"].to_numpy()
-        yerr = [y - lo, hi - y]
+
+        # Numerical clipping avoids tiny negative error bars when y or CI limits
+        # are exactly 0 or 1.
+        lower_err = (y - lo).clip(min=0.0)
+        upper_err = (hi - y).clip(min=0.0)
+        yerr = [lower_err, upper_err]
 
         plt.errorbar(
             cdf["eta"],

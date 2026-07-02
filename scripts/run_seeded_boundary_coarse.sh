@@ -49,7 +49,15 @@ run_one_trial() {
     local offset
     offset=$(controller_offset "$controller")
 
-    local seed=$(( BASE_SEED + offset + motor * 100000 + eta_index * 1000 + rep ))
+    # Stable eta-based seed. This avoids changing seeds when ETAS order changes
+    # across resumed/chunked runs.
+    local eta_code
+    eta_code=$(python - <<PY2
+eta = float("$eta")
+print(int(round(eta * 10000)))
+PY2
+)
+    local seed=$(( BASE_SEED + offset + motor * 10000000 + eta_code * 1000 + rep ))
     local eta_tag="${eta/./p}"
     local tag="seededcoarse_${controller}_m${motor}_eta${eta_tag}_seed${seed}"
     local expected_csv="$PROJECT_DIR/logs/qp_event_allocator_m${motor}_eta${eta_tag}_${tag}.csv"
