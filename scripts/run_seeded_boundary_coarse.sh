@@ -18,6 +18,7 @@ POST_FAULT_MODE="${POST_FAULT_MODE:-adaptive_ramp_v1}"
 EVAL_DURATION="${EVAL_DURATION:-18.0}"
 MAX_BRAKE_DURATION="${MAX_BRAKE_DURATION:-6.0}"
 LANDING_DESCENT_RATE="${LANDING_DESCENT_RATE:-0.08}"
+COMMON_SEEDS="${COMMON_SEEDS:-0}"
 
 cleanup_sim() {
     pkill -f "sitl_singleagent.sh" 2>/dev/null || true
@@ -47,7 +48,11 @@ run_one_trial() {
     local rep="$5"
 
     local offset
-    offset=$(controller_offset "$controller")
+    if [ "$COMMON_SEEDS" = "1" ]; then
+        offset=0
+    else
+        offset=$(controller_offset "$controller")
+    fi
 
     # Stable eta-based seed. This avoids changing seeds when ETAS order changes
     # across resumed/chunked runs.
