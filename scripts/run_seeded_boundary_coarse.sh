@@ -14,6 +14,10 @@ REPS="${REPS:-12}"
 BASE_SEED="${BASE_SEED:-20000}"
 
 CEM_CONFIG="${CEM_CONFIG:-configs/allocator_weights/cem_tuned_boundary.json}"
+POST_FAULT_MODE="${POST_FAULT_MODE:-adaptive_ramp_v1}"
+EVAL_DURATION="${EVAL_DURATION:-18.0}"
+MAX_BRAKE_DURATION="${MAX_BRAKE_DURATION:-6.0}"
+LANDING_DESCENT_RATE="${LANDING_DESCENT_RATE:-0.08}"
 
 cleanup_sim() {
     pkill -f "sitl_singleagent.sh" 2>/dev/null || true
@@ -92,7 +96,11 @@ run_one_trial() {
             --spawn-y "$SPAWN_Y" \
             --spawn-yaw-deg "$SPAWN_YAW_DEG" \
             --fault-time "$FAULT_TIME" \
-            --hover-z "$HOVER_Z"
+            --hover-z "$HOVER_Z" \
+            --post-fault-mode "$POST_FAULT_MODE" \
+            --eval-duration "$EVAL_DURATION" \
+            --max-brake-duration "$MAX_BRAKE_DURATION" \
+            --landing-descent-rate "$LANDING_DESCENT_RATE"
     elif [ "$controller" = "cem" ]; then
         timeout 90s python scripts/fault_triggered_landing_qp_event_allocator.py \
             --motor "$motor" \
@@ -105,6 +113,10 @@ run_one_trial() {
             --spawn-yaw-deg "$SPAWN_YAW_DEG" \
             --fault-time "$FAULT_TIME" \
             --hover-z "$HOVER_Z" \
+            --post-fault-mode "$POST_FAULT_MODE" \
+            --eval-duration "$EVAL_DURATION" \
+            --max-brake-duration "$MAX_BRAKE_DURATION" \
+            --landing-descent-rate "$LANDING_DESCENT_RATE" \
             --weight-config "$CEM_CONFIG"
     else
         echo "[ERROR] Unknown controller: $controller"

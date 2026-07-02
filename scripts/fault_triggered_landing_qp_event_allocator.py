@@ -213,6 +213,20 @@ def main():
     parser.add_argument("--spawn-yaw-deg", type=float, default=0.0)
     parser.add_argument("--fault-time", type=float, default=10.0)
     parser.add_argument("--hover-z", type=float, default=0.70)
+
+    # Post-fault landing protocol.
+    # legacy_maxbrake_touchdown reproduces the old pilot protocol:
+    #   fixed high z_cmd brake, then abrupt z_cmd=0.02.
+    # adaptive_ramp_v1 is the publication protocol:
+    #   brake only when descending too fast, otherwise follow a slow descent ramp.
+    parser.add_argument("--post-fault-mode",
+                        choices=["legacy_maxbrake_touchdown", "adaptive_ramp_v1"],
+                        default="legacy_maxbrake_touchdown")
+    parser.add_argument("--eval-duration", type=float, default=-1.0)
+    parser.add_argument("--brake-z-cmd", type=float, default=0.95)
+    parser.add_argument("--brake-vz-threshold", type=float, default=-0.15)
+    parser.add_argument("--landing-descent-rate", type=float, default=0.08)
+    parser.add_argument("--landing-final-z", type=float, default=0.02)
     parser.add_argument("--weight-config", default=None,
                         help="Optional JSON config for tunable allocator weights.")
     parser.add_argument("--manual-residual", action="store_true",
@@ -230,6 +244,13 @@ def main():
     fault_trigger_time = float(args.fault_time)
     hover_z = float(args.hover_z)
     stage1_z = max(0.20, min(0.35, 0.43 * hover_z))
+
+    eval_duration = float(args.eval_duration)
+    if eval_duration <= 0.0:
+        if args.post_fault_mode == "adaptive_ramp_v1":
+            eval_duration = 18.0
+        else:
+            eval_duration = float(args.max_brake_duration) + 2.0
 
     eta_tag = f"{args.eta:.3f}".replace(".", "p")
     out_path = Path("logs") / f"qp_event_allocator_m{args.motor}_eta{eta_tag}_{args.tag}.csv"
@@ -313,14 +334,15 @@ def main():
                     phase = "nominal_hover"
                     z_cmd = hover_z
 
-                elif t < fault_trigger_time + args.max_brake_duration:
-                    z_cmd = 0.95
+                elif t < fault_trigger_time + eval_duration:
+                    tau_fault = t - fault_trigger_time
 
                     if not allocated:
                         phase = "fault_event"
                         fault_t = t
 
                         allocator_state = make_allocator_state(data)
+
                         if args.manual_residual:
                             selected_r = [int(args.r1), int(args.r2), int(args.r3), int(args.r4)]
                             if selected_r[args.motor - 1] != 0:
@@ -373,12 +395,34 @@ def main():
                         apply_residual(cf, selected_r)
                         allocated = True
 
-                    else:
-                        phase = "max_brake_hold"
+                    if phase != "fault_event":
+                        if args.post_fault_mode == "adaptive_ramp_v1":
+                            current_vz = fget(data, "stateEstimate.vz")
+                            ramp_z = max(
+                                float(args.landing_final_z),
+                                hover_z - float(args.landing_descent_rate) * tau_fault,
+                            )
 
-                elif t < fault_trigger_time + args.max_brake_duration + 2.0:
-                    phase = "touchdown_hold"
-                    z_cmd = 0.02
+                            # Brake only when the vehicle is actually descending too fast.
+                            # Otherwise, command a slow ramp to ground. This avoids the old
+                            # artifact where less-severe faults survived the brake phase and
+                            # were then slammed down by an abrupt z_cmd=0.02.
+                            if (
+                                tau_fault <= float(args.max_brake_duration)
+                                and current_vz < float(args.brake_vz_threshold)
+                            ):
+                                phase = "adaptive_brake"
+                                z_cmd = float(args.brake_z_cmd)
+                            else:
+                                phase = "landing_ramp"
+                                z_cmd = ramp_z
+                        else:
+                            if tau_fault < float(args.max_brake_duration):
+                                phase = "max_brake_hold"
+                                z_cmd = float(args.brake_z_cmd)
+                            else:
+                                phase = "touchdown_hold"
+                                z_cmd = float(args.landing_final_z)
 
                 else:
                     break
@@ -393,6 +437,9 @@ def main():
                     "spawn_yaw_deg_cmd": float(args.spawn_yaw_deg),
                     "fault_time_cmd": float(fault_trigger_time),
                     "hover_z_cmd": float(hover_z),
+                    "post_fault_mode": args.post_fault_mode,
+                    "eval_duration_cmd": float(eval_duration),
+                    "landing_descent_rate_cmd": float(args.landing_descent_rate),
                     "stage1_z_cmd": float(stage1_z),
                     "t": t,
                     "phase": phase,
@@ -443,6 +490,7 @@ def main():
         "protocol_id", "trial_seed",
         "spawn_x_cmd", "spawn_y_cmd", "spawn_yaw_deg_cmd",
         "fault_time_cmd", "hover_z_cmd", "stage1_z_cmd",
+        "post_fault_mode", "eval_duration_cmd", "landing_descent_rate_cmd",
         "t", "phase",
         "x", "y", "z", "vx", "vy", "vz",
         "roll_deg", "pitch_deg", "yaw_deg",
