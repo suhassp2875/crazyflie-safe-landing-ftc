@@ -364,6 +364,23 @@ def main():
                                 f"> max_valid_fault_abs_vz={args.max_valid_fault_abs_vz:.6f}"
                             )
 
+                        # Hard pre-fault trial-validity gate.
+                        # A trial is invalid if the vehicle never became properly airborne
+                        # or if the fault would be injected from an excessive vertical-speed state.
+                        if allocator_state.z < float(args.min_valid_fault_z):
+                            raise RuntimeError(
+                                "INVALID_PREFAULT_STATE: "
+                                f"fault_z={allocator_state.z:.6f} "
+                                f"< min_valid_fault_z={args.min_valid_fault_z:.6f}"
+                            )
+
+                        if abs(allocator_state.vz) > float(args.max_valid_fault_abs_vz):
+                            raise RuntimeError(
+                                "INVALID_PREFAULT_STATE: "
+                                f"|fault_vz|={abs(allocator_state.vz):.6f} "
+                                f"> max_valid_fault_abs_vz={args.max_valid_fault_abs_vz:.6f}"
+                            )
+
                         if args.manual_residual:
                             selected_r = [int(args.r1), int(args.r2), int(args.r3), int(args.r4)]
                             if selected_r[args.motor - 1] != 0:
