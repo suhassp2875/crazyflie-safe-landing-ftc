@@ -19,6 +19,9 @@ EVAL_DURATION="${EVAL_DURATION:-18.0}"
 MAX_BRAKE_DURATION="${MAX_BRAKE_DURATION:-6.0}"
 LANDING_DESCENT_RATE="${LANDING_DESCENT_RATE:-0.08}"
 COMMON_SEEDS="${COMMON_SEEDS:-0}"
+MAX_TRIAL_ATTEMPTS="${MAX_TRIAL_ATTEMPTS:-3}"
+MIN_VALID_FAULT_Z="${MIN_VALID_FAULT_Z:-0.50}"
+MAX_VALID_FAULT_ABS_VZ="${MAX_VALID_FAULT_ABS_VZ:-0.25}"
 
 cleanup_sim() {
     pkill -f "sitl_singleagent.sh" 2>/dev/null || true
@@ -113,7 +116,9 @@ PY2
             --post-fault-mode "$POST_FAULT_MODE" \
             --eval-duration "$EVAL_DURATION" \
             --max-brake-duration "$MAX_BRAKE_DURATION" \
-            --landing-descent-rate "$LANDING_DESCENT_RATE"
+            --landing-descent-rate "$LANDING_DESCENT_RATE" \
+            --min-valid-fault-z "$MIN_VALID_FAULT_Z" \
+            --max-valid-fault-abs-vz "$MAX_VALID_FAULT_ABS_VZ"
     elif [ "$controller" = "cem" ]; then
         timeout 90s python scripts/fault_triggered_landing_qp_event_allocator.py \
             --motor "$motor" \
@@ -130,6 +135,8 @@ PY2
             --eval-duration "$EVAL_DURATION" \
             --max-brake-duration "$MAX_BRAKE_DURATION" \
             --landing-descent-rate "$LANDING_DESCENT_RATE" \
+            --min-valid-fault-z "$MIN_VALID_FAULT_Z" \
+            --max-valid-fault-abs-vz "$MAX_VALID_FAULT_ABS_VZ" \
             --weight-config "$CEM_CONFIG"
     else
         echo "[ERROR] Unknown controller: $controller"
@@ -151,7 +158,28 @@ for eta in $ETAS; do
         for motor in $MOTORS; do
             rep=1
             while [ "$rep" -le "$REPS" ]; do
-                run_one_trial "$controller" "$motor" "$eta" "$eta_index" "$rep"
+                attempt=1
+                success=0
+
+                while [ "$attempt" -le "$MAX_TRIAL_ATTEMPTS" ]; do
+                    echo "[ATTEMPT] controller=${controller}, motor=${motor}, eta=${eta}, rep=${rep}, attempt=${attempt}"
+
+                    if run_one_trial "$controller" "$motor" "$eta" "$eta_index" "$rep"; then
+                        success=1
+                        break
+                    fi
+
+                    echo "[WARN] Trial attempt failed. Cleaning simulator before retry."
+                    cleanup_sim
+                    attempt=$((attempt + 1))
+                done
+
+                if [ "$success" -ne 1 ]; then
+                    echo "[ERROR] Trial failed after ${MAX_TRIAL_ATTEMPTS} attempts:"
+                    echo "        controller=${controller}, motor=${motor}, eta=${eta}, rep=${rep}"
+                    exit 1
+                fi
+
                 rep=$((rep + 1))
             done
         done

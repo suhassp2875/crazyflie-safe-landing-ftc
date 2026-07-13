@@ -227,6 +227,10 @@ def main():
     parser.add_argument("--brake-vz-threshold", type=float, default=-0.15)
     parser.add_argument("--landing-descent-rate", type=float, default=0.08)
     parser.add_argument("--landing-final-z", type=float, default=0.02)
+
+    # Trial-validity gate evaluated immediately before fault injection.
+    parser.add_argument("--min-valid-fault-z", type=float, default=0.50)
+    parser.add_argument("--max-valid-fault-abs-vz", type=float, default=0.25)
     parser.add_argument("--weight-config", default=None,
                         help="Optional JSON config for tunable allocator weights.")
     parser.add_argument("--manual-residual", action="store_true",
@@ -342,6 +346,23 @@ def main():
                         fault_t = t
 
                         allocator_state = make_allocator_state(data)
+
+                        # Hard pre-fault trial-validity gate.
+                        # A trial is invalid if the vehicle never became properly airborne
+                        # or if the fault would be injected from an excessive vertical-speed state.
+                        if allocator_state.z < float(args.min_valid_fault_z):
+                            raise RuntimeError(
+                                "INVALID_PREFAULT_STATE: "
+                                f"fault_z={allocator_state.z:.6f} "
+                                f"< min_valid_fault_z={args.min_valid_fault_z:.6f}"
+                            )
+
+                        if abs(allocator_state.vz) > float(args.max_valid_fault_abs_vz):
+                            raise RuntimeError(
+                                "INVALID_PREFAULT_STATE: "
+                                f"|fault_vz|={abs(allocator_state.vz):.6f} "
+                                f"> max_valid_fault_abs_vz={args.max_valid_fault_abs_vz:.6f}"
+                            )
 
                         if args.manual_residual:
                             selected_r = [int(args.r1), int(args.r2), int(args.r3), int(args.r4)]
