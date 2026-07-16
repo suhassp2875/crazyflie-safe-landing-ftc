@@ -437,3 +437,9 @@ motor.m3req
 motor.m4
 motor.m4req
 stabilizer.thrust
+
+========== REQUESTED MOTOR LOG LOCATIONS ==========
+/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/src/modules/src/stabilizer.c:851:LOG_ADD(LOG_INT32, m1req, &motorThrustBatCompUncapped.motors.m1)
+/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/src/modules/src/stabilizer.c:857:LOG_ADD(LOG_INT32, m2req, &motorThrustBatCompUncapped.motors.m2)
+/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/src/modules/src/stabilizer.c:863:LOG_ADD(LOG_INT32, m3req, &motorThrustBatCompUncapped.motors.m3)
+/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/src/modules/src/stabilizer.c:869:LOG_ADD(LOG_INT32, m4req, &motorThrustBatCompUncapped.motors.m4)
