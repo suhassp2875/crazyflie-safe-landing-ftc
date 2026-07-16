@@ -163,3 +163,165 @@ def legacy_mix(
         ],
         dtype=float,
     )
+
+
+def allocation_objective(
+    requested_pwm: np.ndarray,
+    nominal_pwm: np.ndarray,
+    fault_motor: int,
+    eta: float,
+    weights: np.ndarray,
+    regularization: float,
+) -> float:
+    requested = np.asarray(requested_pwm, dtype=float).reshape(4)
+    nominal = np.asarray(nominal_pwm, dtype=float).reshape(4)
+    weights = np.asarray(weights, dtype=float).reshape(4)
+
+    d = effectiveness_matrix(fault_motor, eta)
+    a = MIXER_EFFECTIVENESS
+
+    desired = a @ nominal
+    achieved = a @ d @ requested
+
+    weighted_error = weights * (achieved - desired)
+    deviation = requested - nominal
+
+    return float(
+        weighted_error @ weighted_error
+        + regularization * (deviation @ deviation)
+    )
+
+
+def allocate_fault_aware_bounded(
+    nominal_pwm: np.ndarray,
+    fault_motor: int,
+    eta: float,
+    weights: np.ndarray | None = None,
+    regularization: float = 1e-6,
+    pwm_min: float = 0.0,
+    pwm_max: float = 65535.0,
+) -> AllocationResult:
+    """
+    Exact bounded weighted least-squares allocation for four motors.
+
+    Every motor is enumerated as:
+      -1: fixed at pwm_min
+       0: free
+      +1: fixed at pwm_max
+
+    The reduced regularized least-squares system is solved for the free
+    motors. Infeasible active sets are rejected.
+    """
+
+    from itertools import product
+
+    u0 = np.asarray(nominal_pwm, dtype=float).reshape(4)
+
+    if weights is None:
+        weights = np.array(
+            [1.0, 1.0, 1.0, 0.20],
+            dtype=float,
+        )
+
+    weights = np.asarray(weights, dtype=float).reshape(4)
+
+    if np.any(weights <= 0.0):
+        raise ValueError("All weights must be positive")
+
+    if regularization < 0.0:
+        raise ValueError("regularization must be non-negative")
+
+    a = MIXER_EFFECTIVENESS
+    d = effectiveness_matrix(fault_motor, eta)
+    m = a @ d
+
+    desired = a @ u0
+    w2 = np.diag(weights * weights)
+
+    best_u = None
+    best_objective = np.inf
+
+    for status in product((-1, 0, 1), repeat=4):
+        status = np.asarray(status, dtype=int)
+
+        free = np.flatnonzero(status == 0)
+        fixed = np.flatnonzero(status != 0)
+
+        candidate = np.zeros(4, dtype=float)
+
+        for index in fixed:
+            candidate[index] = (
+                pwm_min if status[index] == -1 else pwm_max
+            )
+
+        if len(free) > 0:
+            m_free = m[:, free]
+
+            if len(fixed) > 0:
+                residual_target = (
+                    desired - m[:, fixed] @ candidate[fixed]
+                )
+            else:
+                residual_target = desired.copy()
+
+            hessian = m_free.T @ w2 @ m_free
+            rhs = m_free.T @ w2 @ residual_target
+
+            if regularization > 0.0:
+                hessian = (
+                    hessian
+                    + regularization * np.eye(len(free))
+                )
+                rhs = rhs + regularization * u0[free]
+
+            try:
+                candidate[free] = np.linalg.solve(
+                    hessian,
+                    rhs,
+                )
+            except np.linalg.LinAlgError:
+                continue
+
+        tolerance = 1e-7
+
+        if np.any(candidate < pwm_min - tolerance):
+            continue
+
+        if np.any(candidate > pwm_max + tolerance):
+            continue
+
+        candidate = np.clip(candidate, pwm_min, pwm_max)
+
+        objective = allocation_objective(
+            requested_pwm=candidate,
+            nominal_pwm=u0,
+            fault_motor=fault_motor,
+            eta=eta,
+            weights=weights,
+            regularization=regularization,
+        )
+
+        if objective < best_objective:
+            best_objective = objective
+            best_u = candidate.copy()
+
+    if best_u is None:
+        raise RuntimeError(
+            "No feasible bounded allocation was found"
+        )
+
+    applied = d @ best_u
+    achieved = a @ applied
+
+    return AllocationResult(
+        nominal_pwm=u0,
+        requested_pwm=best_u,
+        applied_pwm=applied,
+        desired_generalized=desired,
+        achieved_generalized=achieved,
+        generalized_error=achieved - desired,
+        clipped=(
+            np.isclose(best_u, pwm_min)
+            | np.isclose(best_u, pwm_max)
+        ),
+    )

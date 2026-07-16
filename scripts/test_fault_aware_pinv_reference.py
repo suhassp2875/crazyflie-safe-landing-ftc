@@ -164,7 +164,86 @@ def main():
 
     print_boundary_example()
 
+    test_bounded_allocator()
+
     print("\n[DONE] Fault-aware pseudo-inverse reference tests passed.")
+def test_bounded_allocator():
+    from src.controllers.fault_aware_pinv_reference import (
+        allocate_fault_aware_bounded,
+        allocation_objective,
+    )
+
+    weights = np.array(
+        [1.0, 1.0, 1.0, 0.20],
+        dtype=float,
+    )
+    regularization = 1e-6
+
+    u0 = np.array(
+        [32500.0, 32700.0, 32600.0, 32800.0],
+        dtype=float,
+    )
+
+    print("\n[BOUNDED ALLOCATION AT ETA=0.496]")
+
+    for fault_motor in (1, 2, 3, 4):
+        naive = allocate_fault_aware_pinv(
+            nominal_pwm=u0,
+            fault_motor=fault_motor,
+            eta=0.496,
+            weights=weights,
+            regularization=regularization,
+        )
+
+        bounded = allocate_fault_aware_bounded(
+            nominal_pwm=u0,
+            fault_motor=fault_motor,
+            eta=0.496,
+            weights=weights,
+            regularization=regularization,
+        )
+
+        naive_objective = allocation_objective(
+            naive.requested_pwm,
+            u0,
+            fault_motor,
+            0.496,
+            weights,
+            regularization,
+        )
+
+        bounded_objective = allocation_objective(
+            bounded.requested_pwm,
+            u0,
+            fault_motor,
+            0.496,
+            weights,
+            regularization,
+        )
+
+        if np.any(bounded.requested_pwm < 0.0):
+            raise AssertionError("Bounded command below zero")
+
+        if np.any(bounded.requested_pwm > 65535.0):
+            raise AssertionError("Bounded command above UINT16_MAX")
+
+        if bounded_objective > naive_objective + 1e-4:
+            raise AssertionError(
+                "Bounded active-set solution is worse than "
+                "the clipped pseudo-inverse solution"
+            )
+
+        print(
+            f"motor={fault_motor} "
+            f"requested={np.round(bounded.requested_pwm, 2)} "
+            f"applied={np.round(bounded.applied_pwm, 2)} "
+            f"active={bounded.clipped.astype(int)} "
+            f"error={np.round(bounded.generalized_error, 2)} "
+            f"objective={bounded_objective:.2f} "
+            f"naive_objective={naive_objective:.2f}"
+        )
+
+    print("[PASS] Exact bounded active-set allocation")
 
 
 if __name__ == "__main__":
