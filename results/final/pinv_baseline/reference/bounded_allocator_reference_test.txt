@@ -1,0 +1,18 @@
+[PASS] Legacy mixer matrix convention
+[PASS] eta=1 healthy invariance
+[PASS] Unclipped fault compensation
+
+[BOUNDARY EXAMPLES AT ETA=0.496]
+motor=1 requested=[65523.96 32700.1  32599.9  32800.1 ] applied=[32499.88 32700.1  32599.9  32800.1 ] clipped=[0 0 0 0] error=[-0.02  0.02 -0.02 -0.42]
+motor=2 requested=[32500.1 65535.  32600.1 32799.9] applied=[32500.1  32505.36 32600.1  32799.9 ] clipped=[0 1 0 0] error=[-194.54  194.54  194.54  194.94]
+motor=3 requested=[32499.9 32700.1 65535.  32800.1] applied=[32499.9  32700.1  32505.36 32800.1 ] clipped=[0 0 1 0] error=[-94.54 -94.54  94.54 -94.94]
+motor=4 requested=[32500.1 32699.9 32600.1 65535. ] applied=[32500.1  32699.9  32600.1  32505.36] clipped=[0 0 0 1] error=[-294.54 -294.54 -294.54  294.94]
+
+[BOUNDED ALLOCATION AT ETA=0.496]
+motor=1 requested=[65523.96 32700.1  32599.9  32800.1 ] applied=[32499.88 32700.1  32599.9  32800.1 ] active=[0 0 0 0] error=[-0.02  0.02 -0.02 -0.42] objective=1090.59 naive_objective=1090.59
+motor=2 requested=[32666.83 65535.   32766.83 32633.17] applied=[32666.83 32505.36 32766.83 32633.17] active=[0 1 0 0] error=[-27.81  27.81  27.81 695.14] objective=22726.64 naive_objective=116135.09
+motor=3 requested=[32418.88 32781.12 65535.   32881.12] applied=[32418.88 32781.12 32505.36 32881.12] active=[0 0 1 0] error=[ -13.52  -13.52   13.52 -338.  ] objective=6202.87 naive_objective=28258.60
+motor=4 requested=[32752.55 32447.45 32852.55 65535.  ] applied=[32752.55 32447.45 32852.55 32505.36] active=[0 0 0 1] error=[ -42.09  -42.09  -42.09 1052.29] objective=50679.05 naive_objective=264811.26
+[PASS] Exact bounded active-set allocation
+
+[DONE] Fault-aware pseudo-inverse reference tests passed.
