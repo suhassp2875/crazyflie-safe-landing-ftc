@@ -41,6 +41,7 @@ def set_param(cf, name, value, delay=0.01):
     time.sleep(delay)
 
 
+
 def reset_sitl_fault_and_ftc(cf):
     set_param(cf, "sitlFault.enable", 0)
     set_param(cf, "sitlFault.motor", 1)
@@ -53,6 +54,12 @@ def reset_sitl_fault_and_ftc(cf):
     set_param(cf, "sitlFtc.r3", 0)
     set_param(cf, "sitlFtc.r4", 0)
 
+    set_param(cf, "sitlPinv.enable", 0)
+    set_param(cf, "sitlPinv.wThrust", 1.0)
+    set_param(cf, "sitlPinv.wRoll", 1.0)
+    set_param(cf, "sitlPinv.wPitch", 1.0)
+    set_param(cf, "sitlPinv.wYaw", 0.2)
+    set_param(cf, "sitlPinv.lambda", 1.0e-6)
 
 def inject_fault(cf, motor, eta):
     set_param(cf, "sitlFault.motor", int(motor))
@@ -79,6 +86,29 @@ def clear_residual(cf):
     set_param(cf, "sitlFtc.healthyBoost", 0)
     set_param(cf, "sitlFtc.enable", 0)
 
+
+
+def configure_pinv(
+    cf,
+    w_thrust,
+    w_roll,
+    w_pitch,
+    w_yaw,
+    regularization,
+):
+    # PINV and residual allocation are mutually exclusive.
+    clear_residual(cf)
+
+    set_param(cf, "sitlPinv.wThrust", float(w_thrust))
+    set_param(cf, "sitlPinv.wRoll", float(w_roll))
+    set_param(cf, "sitlPinv.wPitch", float(w_pitch))
+    set_param(cf, "sitlPinv.wYaw", float(w_yaw))
+    set_param(cf, "sitlPinv.lambda", float(regularization))
+    set_param(cf, "sitlPinv.enable", 1)
+
+
+def clear_pinv(cf):
+    set_param(cf, "sitlPinv.enable", 0)
 
 def make_log_configs(period_ms):
     state_lg = LogConfig(name="qp_state", period_in_ms=period_ms)
@@ -112,7 +142,45 @@ def make_log_configs(period_ms):
     ]:
         motor_lg.add_variable(name, typ)
 
-    return [state_lg, attitude_lg, motor_lg]
+    pinv_motor_lg = LogConfig(
+        name="pinv_motor_allocation",
+        period_in_ms=period_ms,
+    )
+
+    for name, typ in [
+        ("pinvAlloc.nom1", "uint16_t"),
+        ("pinvAlloc.nom2", "uint16_t"),
+        ("pinvAlloc.nom3", "uint16_t"),
+        ("pinvAlloc.nom4", "uint16_t"),
+        ("pinvAlloc.alloc1", "uint16_t"),
+        ("pinvAlloc.alloc2", "uint16_t"),
+        ("pinvAlloc.alloc3", "uint16_t"),
+        ("pinvAlloc.alloc4", "uint16_t"),
+        ("pinvAlloc.active", "uint8_t"),
+    ]:
+        pinv_motor_lg.add_variable(name, typ)
+
+    pinv_error_lg = LogConfig(
+        name="pinv_allocation_error",
+        period_in_ms=period_ms,
+    )
+
+    for name, typ in [
+        ("pinvAlloc.errT", "float"),
+        ("pinvAlloc.errR", "float"),
+        ("pinvAlloc.errP", "float"),
+        ("pinvAlloc.errY", "float"),
+        ("pinvAlloc.objective", "float"),
+    ]:
+        pinv_error_lg.add_variable(name, typ)
+
+    return [
+        state_lg,
+        attitude_lg,
+        motor_lg,
+        pinv_motor_lg,
+        pinv_error_lg,
+    ]
 
 
 def make_allocator_state(data):
@@ -240,10 +308,75 @@ def main():
     parser.add_argument("--r2", type=int, default=0)
     parser.add_argument("--r3", type=int, default=0)
     parser.add_argument("--r4", type=int, default=0)
+    parser.add_argument(
+        "--controller",
+        choices=["qplite", "pinv"],
+        default="qplite",
+        help=(
+            "qplite uses the empirical residual allocator; "
+            "pinv uses firmware bounded weighted least-squares "
+            "allocation."
+        ),
+    )
+    parser.add_argument(
+        "--pinv-w-thrust",
+        type=float,
+        default=1.0,
+    )
+    parser.add_argument(
+        "--pinv-w-roll",
+        type=float,
+        default=1.0,
+    )
+    parser.add_argument(
+        "--pinv-w-pitch",
+        type=float,
+        default=1.0,
+    )
+    parser.add_argument(
+        "--pinv-w-yaw",
+        type=float,
+        default=0.2,
+    )
+    parser.add_argument(
+        "--pinv-lambda",
+        type=float,
+        default=1.0e-6,
+    )
+
     args = parser.parse_args()
 
     if args.motor not in [1, 2, 3, 4]:
         raise SystemExit("--motor must be 1, 2, 3, or 4")
+
+    if args.controller == "pinv":
+        if getattr(args, "manual_residual", False):
+            raise SystemExit(
+                "--manual-residual cannot be combined with "
+                "--controller pinv"
+            )
+
+        if getattr(args, "weight_config", None):
+            raise SystemExit(
+                "--weight-config applies only to "
+                "--controller qplite"
+            )
+
+    if args.pinv_lambda < 0.0:
+        raise SystemExit(
+            "--pinv-lambda must be non-negative"
+        )
+
+    for option_name, option_value in [
+        ("--pinv-w-thrust", args.pinv_w_thrust),
+        ("--pinv-w-roll", args.pinv_w_roll),
+        ("--pinv-w-pitch", args.pinv_w_pitch),
+        ("--pinv-w-yaw", args.pinv_w_yaw),
+    ]:
+        if option_value <= 0.0:
+            raise SystemExit(
+                f"{option_name} must be positive"
+            )
 
     fault_trigger_time = float(args.fault_time)
     hover_z = float(args.hover_z)
@@ -260,7 +393,10 @@ def main():
     out_path = Path("logs") / f"qp_event_allocator_m{args.motor}_eta{eta_tag}_{args.tag}.csv"
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    print("[INFO] Starting state-aware QP-lite event allocator")
+    print(
+        f"[INFO] Starting fault-triggered landing "
+        f"controller={args.controller}"
+    )
     print(f"[INFO] uri={args.uri}")
     print(f"[INFO] motor={args.motor}, eta={args.eta}")
     print(f"[INFO] log={out_path}")
@@ -277,27 +413,79 @@ def main():
     selected_pred_vz = 0.0
     selected_pred_drift = 0.0
     selected_pred_tilt = 0.0
-    allocator_config_name = "qplite_builtin"
+    allocator_config_name = (
+        "pinv_bounded_wls_"
+        f"w{args.pinv_w_thrust:g}_"
+        f"{args.pinv_w_roll:g}_"
+        f"{args.pinv_w_pitch:g}_"
+        f"{args.pinv_w_yaw:g}_"
+        f"lambda{args.pinv_lambda:g}"
+        if args.controller == "pinv"
+        else "qplite_builtin"
+    )
+
     weight_cfg = None
-    if args.weight_config:
+
+    if args.controller == "qplite" and args.weight_config:
         weight_cfg = load_weight_config(args.weight_config)
         allocator_config_name = weight_cfg.name
-        print(f"[INFO] Using tunable allocator config: {args.weight_config} ({allocator_config_name})")
+        print(
+            "[INFO] Using tunable allocator config: "
+            f"{args.weight_config} "
+            f"({allocator_config_name})"
+        )
 
     fault_state_snapshot = {}
 
     required_keys = [
-        "stateEstimate.x", "stateEstimate.y", "stateEstimate.z",
-        "stateEstimate.vx", "stateEstimate.vy", "stateEstimate.vz",
-        "stabilizer.roll", "stabilizer.pitch", "stabilizer.yaw",
-        "gyro.x", "gyro.y", "gyro.z",
-        "motor.m1", "motor.m2", "motor.m3", "motor.m4",
+        "stateEstimate.x",
+        "stateEstimate.y",
+        "stateEstimate.z",
+        "stateEstimate.vx",
+        "stateEstimate.vy",
+        "stateEstimate.vz",
+        "stabilizer.roll",
+        "stabilizer.pitch",
+        "stabilizer.yaw",
+        "gyro.x",
+        "gyro.y",
+        "gyro.z",
+        "motor.m1",
+        "motor.m2",
+        "motor.m3",
+        "motor.m4",
+        "pinvAlloc.nom1",
+        "pinvAlloc.nom2",
+        "pinvAlloc.nom3",
+        "pinvAlloc.nom4",
+        "pinvAlloc.alloc1",
+        "pinvAlloc.alloc2",
+        "pinvAlloc.alloc3",
+        "pinvAlloc.alloc4",
+        "pinvAlloc.active",
+        "pinvAlloc.errT",
+        "pinvAlloc.errR",
+        "pinvAlloc.errP",
+        "pinvAlloc.errY",
+        "pinvAlloc.objective",
     ]
 
     with SyncCrazyflie(args.uri, cf=Crazyflie()) as scf:
         cf = scf.cf
 
         reset_sitl_fault_and_ftc(cf)
+
+        if args.controller == "pinv":
+            configure_pinv(
+                cf,
+                w_thrust=args.pinv_w_thrust,
+                w_roll=args.pinv_w_roll,
+                w_pitch=args.pinv_w_pitch,
+                w_yaw=args.pinv_w_yaw,
+                regularization=args.pinv_lambda,
+            )
+        else:
+            clear_pinv(cf)
 
         try:
             cf.platform.send_arming_request(True)
@@ -310,8 +498,20 @@ def main():
         t0 = time.time()
 
         with SyncLogger(scf, log_configs) as logger:
-            for _, data, _ in logger:
+            for _, data, log_config in logger:
                 latest.update(data)
+
+                # PINV diagnostics are observational only. Do not allow the
+                # two additional telemetry streams to increase the command,
+                # fault-trigger or trajectory-update cadence relative to the
+                # original three-log landing protocol.
+                log_name = getattr(log_config, "name", "")
+
+                if log_name in {
+                    "pinv_motor_allocation",
+                    "pinv_allocation_error",
+                }:
+                    continue
 
                 if not all(k in latest for k in required_keys):
                     continue
@@ -364,48 +564,81 @@ def main():
                                 f"> max_valid_fault_abs_vz={args.max_valid_fault_abs_vz:.6f}"
                             )
 
-                        # Hard pre-fault trial-validity gate.
-                        # A trial is invalid if the vehicle never became properly airborne
-                        # or if the fault would be injected from an excessive vertical-speed state.
-                        if allocator_state.z < float(args.min_valid_fault_z):
-                            raise RuntimeError(
-                                "INVALID_PREFAULT_STATE: "
-                                f"fault_z={allocator_state.z:.6f} "
-                                f"< min_valid_fault_z={args.min_valid_fault_z:.6f}"
+                        if args.controller == "pinv":
+                            selected_candidate = (
+                                "bounded_fault_aware_wls"
                             )
+                            selected_r = [0, 0, 0, 0]
+                            selected_score = 0.0
+                            selected_pred_vz = 0.0
+                            selected_pred_drift = 0.0
+                            selected_pred_tilt = 0.0
 
-                        if abs(allocator_state.vz) > float(args.max_valid_fault_abs_vz):
-                            raise RuntimeError(
-                                "INVALID_PREFAULT_STATE: "
-                                f"|fault_vz|={abs(allocator_state.vz):.6f} "
-                                f"> max_valid_fault_abs_vz={args.max_valid_fault_abs_vz:.6f}"
-                            )
+                        elif args.manual_residual:
+                            selected_r = [
+                                int(args.r1),
+                                int(args.r2),
+                                int(args.r3),
+                                int(args.r4),
+                            ]
 
-                        if args.manual_residual:
-                            selected_r = [int(args.r1), int(args.r2), int(args.r3), int(args.r4)]
                             if selected_r[args.motor - 1] != 0:
-                                raise RuntimeError("Manual residual must be zero on the faulted motor.")
+                                raise RuntimeError(
+                                    "Manual residual must be zero "
+                                    "on the faulted motor."
+                                )
+
                             selected_candidate = args.manual_name
-                            selected_pred_vz, selected_pred_drift, selected_pred_tilt = predict_metrics(
+
+                            (
+                                selected_pred_vz,
+                                selected_pred_drift,
+                                selected_pred_tilt,
+                            ) = predict_metrics(
                                 fault_motor=args.motor,
                                 eta=args.eta,
                                 state=allocator_state,
                                 residual=selected_r,
                             )
+
                             selected_score = 0.0
-                            allocator_config_name = "manual_residual_sweep"
+                            allocator_config_name = (
+                                "manual_residual_sweep"
+                            )
+
                         else:
                             if weight_cfg is not None:
-                                allocation = allocate_residual_tunable(args.motor, args.eta, allocator_state, weight_cfg)
+                                allocation = (
+                                    allocate_residual_tunable(
+                                        args.motor,
+                                        args.eta,
+                                        allocator_state,
+                                        weight_cfg,
+                                    )
+                                )
                             else:
-                                allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
+                                allocation = allocate_residual_qp(
+                                    args.motor,
+                                    args.eta,
+                                    allocator_state,
+                                )
 
-                            selected_candidate = allocation.candidate_name
+                            selected_candidate = (
+                                allocation.candidate_name
+                            )
                             selected_r = allocation.residual
-                            selected_score = float(allocation.score)
-                            selected_pred_vz = float(allocation.predicted_vz)
-                            selected_pred_drift = float(allocation.predicted_drift)
-                            selected_pred_tilt = float(allocation.predicted_tilt)
+                            selected_score = float(
+                                allocation.score
+                            )
+                            selected_pred_vz = float(
+                                allocation.predicted_vz
+                            )
+                            selected_pred_drift = float(
+                                allocation.predicted_drift
+                            )
+                            selected_pred_tilt = float(
+                                allocation.predicted_tilt
+                            )
 
                         fault_state_snapshot = {
                             "fault_x": allocator_state.x,
@@ -419,7 +652,10 @@ def main():
                             "fault_max_motor_pwm": allocator_state.max_motor_pwm,
                         }
 
-                        print("[QP EVENT ALLOCATION]")
+                        print(
+                            f"[{args.controller.upper()} "
+                            "EVENT ALLOCATION]"
+                        )
                         print(f"fault_t: {fault_t:.3f}")
                         print(f"fault_state: {fault_state_snapshot}")
                         print(f"candidate: {selected_candidate}")
@@ -429,8 +665,23 @@ def main():
                         print(f"predicted_drift: {selected_pred_drift:.6f}")
                         print(f"predicted_tilt: {selected_pred_tilt:.6f}")
 
-                        inject_fault(cf, args.motor, args.eta)
-                        apply_residual(cf, selected_r)
+                        if args.controller == "pinv":
+                            # PINV has already been configured and enabled.
+                            # The healthy fast path kept it transparent until
+                            # this fault becomes active.
+                            inject_fault(
+                                cf,
+                                args.motor,
+                                args.eta,
+                            )
+                        else:
+                            inject_fault(
+                                cf,
+                                args.motor,
+                                args.eta,
+                            )
+                            apply_residual(cf, selected_r)
+
                         allocated = True
 
                     if phase != "fault_event":
@@ -498,7 +749,75 @@ def main():
                     "motor_m3": int(fget(data, "motor.m3")),
                     "motor_m4": int(fget(data, "motor.m4")),
                     "z_cmd": z_cmd,
+                    "controller": args.controller,
                     "allocator_config": allocator_config_name,
+
+                    "pinv_w_thrust": float(
+                        args.pinv_w_thrust
+                    ),
+                    "pinv_w_roll": float(
+                        args.pinv_w_roll
+                    ),
+                    "pinv_w_pitch": float(
+                        args.pinv_w_pitch
+                    ),
+                    "pinv_w_yaw": float(
+                        args.pinv_w_yaw
+                    ),
+                    "pinv_lambda": float(
+                        args.pinv_lambda
+                    ),
+
+                    "pinv_nom_m1": int(
+                        fget(data, "pinvAlloc.nom1")
+                    ),
+                    "pinv_nom_m2": int(
+                        fget(data, "pinvAlloc.nom2")
+                    ),
+                    "pinv_nom_m3": int(
+                        fget(data, "pinvAlloc.nom3")
+                    ),
+                    "pinv_nom_m4": int(
+                        fget(data, "pinvAlloc.nom4")
+                    ),
+
+                    "pinv_alloc_m1": int(
+                        fget(data, "pinvAlloc.alloc1")
+                    ),
+                    "pinv_alloc_m2": int(
+                        fget(data, "pinvAlloc.alloc2")
+                    ),
+                    "pinv_alloc_m3": int(
+                        fget(data, "pinvAlloc.alloc3")
+                    ),
+                    "pinv_alloc_m4": int(
+                        fget(data, "pinvAlloc.alloc4")
+                    ),
+
+                    "pinv_active_mask": int(
+                        fget(data, "pinvAlloc.active")
+                    ),
+                    "pinv_err_thrust": fget(
+                        data,
+                        "pinvAlloc.errT",
+                    ),
+                    "pinv_err_roll": fget(
+                        data,
+                        "pinvAlloc.errR",
+                    ),
+                    "pinv_err_pitch": fget(
+                        data,
+                        "pinvAlloc.errP",
+                    ),
+                    "pinv_err_yaw": fget(
+                        data,
+                        "pinvAlloc.errY",
+                    ),
+                    "pinv_objective": fget(
+                        data,
+                        "pinvAlloc.objective",
+                    ),
+
                     "selected_candidate": selected_candidate,
                     "r1": int(selected_r[0]),
                     "r2": int(selected_r[1]),
@@ -519,6 +838,7 @@ def main():
             pass
 
         clear_residual(cf)
+        clear_pinv(cf)
         set_param(cf, "sitlFault.enable", 0)
 
     if not rows:
@@ -535,7 +855,29 @@ def main():
         "gyro_x_deg_s", "gyro_y_deg_s", "gyro_z_deg_s",
         "motor_m1", "motor_m2", "motor_m3", "motor_m4",
         "z_cmd",
-        "allocator_config", "selected_candidate", "r1", "r2", "r3", "r4",
+        "controller",
+        "allocator_config",
+        "selected_candidate",
+        "pinv_w_thrust",
+        "pinv_w_roll",
+        "pinv_w_pitch",
+        "pinv_w_yaw",
+        "pinv_lambda",
+        "pinv_nom_m1",
+        "pinv_nom_m2",
+        "pinv_nom_m3",
+        "pinv_nom_m4",
+        "pinv_alloc_m1",
+        "pinv_alloc_m2",
+        "pinv_alloc_m3",
+        "pinv_alloc_m4",
+        "pinv_active_mask",
+        "pinv_err_thrust",
+        "pinv_err_roll",
+        "pinv_err_pitch",
+        "pinv_err_yaw",
+        "pinv_objective",
+        "r1", "r2", "r3", "r4",
         "qp_score", "qp_predicted_vz", "qp_predicted_drift", "qp_predicted_tilt",
         "fault_x", "fault_y", "fault_z",
         "fault_vx", "fault_vy", "fault_vz",
@@ -574,7 +916,13 @@ def main():
         "roll_deg", "pitch_deg", "yaw_deg",
         "gyro_x_deg_s", "gyro_y_deg_s", "gyro_z_deg_s",
         "motor_m1", "motor_m2", "motor_m3", "motor_m4",
-        "z_cmd", "selected_candidate", "r1", "r2", "r3", "r4",
+        "z_cmd", "controller", "selected_candidate",
+        "r1", "r2", "r3", "r4",
+        "pinv_active_mask",
+        "pinv_alloc_m1", "pinv_alloc_m2",
+        "pinv_alloc_m3", "pinv_alloc_m4",
+        "pinv_err_thrust", "pinv_err_yaw",
+        "pinv_objective",
         "qp_score", "qp_predicted_vz",
     ]:
         print(f"{k}: {contact_row.get(k, '')}")

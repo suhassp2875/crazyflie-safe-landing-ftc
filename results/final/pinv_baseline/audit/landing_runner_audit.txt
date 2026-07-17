@@ -1,0 +1,1305 @@
+========== CANDIDATE LANDING SCRIPTS ==========
+scripts/analyze_seeded_boundary_mechanism.py
+scripts/audit_all_seededfine_prefault_validity.py
+scripts/audit_invalid_prefault_trials.py
+scripts/bootstrap_seeded_boundary_shifts.py
+scripts/cem_tune_allocator_weights.py
+scripts/check_sitl_fault_params.py
+scripts/fault_triggered_landing_motorloss_adaptive.py
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py
+scripts/fault_triggered_landing_motorloss_cbf_v4.py
+scripts/fault_triggered_landing_motorloss_cbf_v5.py
+scripts/fault_triggered_landing_motorloss_cbf_v6.py
+scripts/fault_triggered_landing_motorloss_ftcboost.py
+scripts/fault_triggered_landing_motorloss_maxbrake.py
+scripts/fault_triggered_landing_motorloss_param_pwm.py
+scripts/fault_triggered_landing_motorloss_param.py
+scripts/fault_triggered_landing_motorloss_v1.py
+scripts/fault_triggered_landing_qp_event_allocator.py
+scripts/fault_triggered_landing_v0.py
+scripts/fault_triggered_landing_v1.py
+scripts/fit_seeded_boundary_logistic.py
+scripts/__pycache__/analyze_seeded_boundary_mechanism.cpython-310.pyc
+scripts/__pycache__/audit_all_seededfine_prefault_validity.cpython-310.pyc
+scripts/__pycache__/audit_invalid_prefault_trials.cpython-310.pyc
+scripts/__pycache__/bootstrap_seeded_boundary_shifts.cpython-310.pyc
+scripts/__pycache__/cem_tune_allocator_weights.cpython-310.pyc
+scripts/__pycache__/fault_triggered_landing_qp_event_allocator.cpython-310.pyc
+scripts/__pycache__/fault_triggered_landing_residual_safety_filter.cpython-310.pyc
+scripts/__pycache__/fit_seeded_boundary_logistic.cpython-310.pyc
+scripts/__pycache__/seeded_trial_params.cpython-310.pyc
+scripts/__pycache__/smoke_test_pinv_fault.cpython-310.pyc
+scripts/__pycache__/summarize_qp_event_allocator_cem_eta0p496_allmotors.cpython-310.pyc
+scripts/__pycache__/summarize_seeded_boundary_coarse.cpython-310.pyc
+scripts/__pycache__/summarize_seeded_residual_dose_response.cpython-310.pyc
+scripts/__pycache__/summarize_seeded_trials.cpython-310.pyc
+scripts/__pycache__/test_fault_aware_pinv_reference.cpython-310.pyc
+scripts/recheck_first_contact_all_logs.py
+scripts/run_seeded_boundary_coarse.sh
+scripts/run_seeded_boundary_fine.sh
+scripts/run_seeded_qp_event_smoke.sh
+scripts/run_seeded_residual_dose_response.sh
+scripts/seeded_trial_params.py
+scripts/smoke_test_pinv_fault.py
+scripts/summarize_seeded_boundary_coarse.py
+scripts/summarize_seeded_boundary_fine.py
+scripts/summarize_seeded_residual_dose_response.py
+scripts/summarize_seeded_trials.py
+scripts/test_fault_aware_pinv_reference.py
+src/controllers/fault_aware_pinv_reference.py
+src/controllers/__pycache__/fault_aware_pinv_reference.cpython-310.pyc
+src/eval/touchdown_metrics.py
+
+========== FIRST-CONTACT DEFINITIONS ==========
+scripts/fault_triggered_landing_motorloss_param.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_param.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_param.py:208:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_param.py:211:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_param.py:214:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_param.py:220:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_param.py:232:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_param.py:243:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_param.py:316:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_param.py:317:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_param.py:318:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_param.py:336:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_param.py:338:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_param.py:339:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_param.py:342:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_param.py:351:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_param.py:352:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_param.py:355:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/plot_motorloss_baseline_maps.py:14:safe_pivot = df_main.pivot(index="motor", columns="eta", values="safe_touchdown")
+scripts/plot_motorloss_baseline_maps.py:15:vz_pivot = df_main.pivot(index="motor", columns="eta", values="vertical_speed_mps")
+scripts/plot_motorloss_baseline_maps.py:30:plt.title("Scripted emergency landing: safe touchdown map")
+scripts/plot_motorloss_baseline_maps.py:38:plt.colorbar(label="safe_touchdown")
+scripts/plot_motorloss_baseline_maps.py:40:plt.savefig(ROOT / "results" / "safe_touchdown_heatmap.png", dpi=200)
+scripts/plot_motorloss_baseline_maps.py:42:# 2. Vertical touchdown speed vs eta
+scripts/plot_motorloss_baseline_maps.py:46:    plt.plot(d["eta"], d["vertical_speed_mps"], marker="o", label=f"motor {motor}")
+scripts/plot_motorloss_baseline_maps.py:48:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/plot_motorloss_baseline_maps.py:50:plt.ylabel("Vertical touchdown speed [m/s]")
+scripts/plot_motorloss_baseline_maps.py:51:plt.title("Touchdown vertical speed under motor loss")
+scripts/plot_motorloss_baseline_maps.py:55:plt.savefig(ROOT / "results" / "vertical_speed_vs_eta.png", dpi=200)
+scripts/plot_motorloss_baseline_maps.py:72:print(ROOT / "results" / "safe_touchdown_heatmap.png")
+scripts/plot_motorloss_baseline_maps.py:73:print(ROOT / "results" / "vertical_speed_vs_eta.png")
+scripts/fault_triggered_landing_v1.py:19:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_v1.py:33:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_v1.py:204:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_v1.py:207:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_v1.py:210:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_v1.py:216:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_v1.py:228:    return evaluate_touchdown(
+scripts/fault_triggered_landing_v1.py:239:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_v1.py:286:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_v1.py:287:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_v1.py:288:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_v1.py:298:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_v1.py:300:        if touchdown is None:
+scripts/fault_triggered_landing_v1.py:301:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_v1.py:304:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_v1.py:313:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_v1.py:314:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_v1.py:317:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_seeded_boundary_fine.py:21:def first_contact_row(df):
+scripts/summarize_seeded_boundary_fine.py:47:    vertical_speed = abs(vz)
+scripts/summarize_seeded_boundary_fine.py:54:        vertical_speed <= 0.35
+scripts/summarize_seeded_boundary_fine.py:61:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_seeded_boundary_fine.py:82:        row, found = first_contact_row(df)
+scripts/summarize_seeded_boundary_fine.py:111:        "vertical_speed_mps": vs,
+scripts/summarize_seeded_boundary_fine.py:116:        "safe_touchdown": safe,
+scripts/summarize_seeded_boundary_fine.py:133:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_seeded_boundary_fine.py:135:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_seeded_boundary_fine.py:136:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_seeded_boundary_fine.py:137:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_seeded_boundary_fine.py:138:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_seeded_boundary_fine.py:157:print(f"safe_count_total: {int(out['safe_touchdown'].sum())}/{len(out)}")
+scripts/summarize_seeded_boundary_fine.py:190:    plt.ylabel("Safe-touchdown probability")
+scripts/analyze_transient_statistics.py:20:    "touchdown_vertical_speed_mps",
+scripts/analyze_transient_statistics.py:102:        # longer recovery time vs touchdown speed
+scripts/analyze_transient_statistics.py:110:                cdf["touchdown_vertical_speed_mps"],
+scripts/analyze_transient_statistics.py:115:                cdf["touchdown_vertical_speed_mps"],
+scripts/analyze_transient_statistics.py:121:                    f"time_vs_touchdown_correlation_{controller}",
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:245:    v_safe = 0.35       # touchdown vertical speed limit
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:252:    touchdown_detected = False
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:262:            touchdown_detected = True
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:303:        if z == z and z < 0.35 and vz < -0.01:
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:325:        f"[CBF_V5] touchdown_detected={touchdown_detected}, "
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:331:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:334:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:337:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:343:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:355:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:366:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:439:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:440:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:441:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:459:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:461:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:462:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:465:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:474:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:475:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:478:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_ftcboost_fine_boundary_m1.py:10:def first_contact_row(df):
+scripts/summarize_ftcboost_fine_boundary_m1.py:36:    vertical_speed = abs(vz)
+scripts/summarize_ftcboost_fine_boundary_m1.py:43:        vertical_speed <= 0.35
+scripts/summarize_ftcboost_fine_boundary_m1.py:50:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcboost_fine_boundary_m1.py:68:    row, found = first_contact_row(df)
+scripts/summarize_ftcboost_fine_boundary_m1.py:69:    vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe = eval_row(row)
+scripts/summarize_ftcboost_fine_boundary_m1.py:77:        "vertical_speed_mps": vertical_speed,
+scripts/summarize_ftcboost_fine_boundary_m1.py:82:        "safe_touchdown": safe,
+scripts/summarize_ftcboost_fine_boundary_m1.py:98:    "vertical_speed_mps",
+scripts/summarize_ftcboost_fine_boundary_m1.py:102:    "safe_touchdown",
+scripts/summarize_ftcboost_fine_boundary_m1.py:109:    plt.plot(sub["eta"], sub["vertical_speed_mps"], marker="o", label=f"boost {boost}")
+scripts/summarize_ftcboost_fine_boundary_m1.py:111:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcboost_fine_boundary_m1.py:113:plt.ylabel("First-contact vertical speed [m/s]")
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:10:def first_contact_row(df):
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:31:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:38:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:45:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:66:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:79:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:84:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:104:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:105:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:106:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:107:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:114:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:138:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:140:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/bootstrap_seeded_boundary_shifts.py:18:    y = df["safe_touchdown"].astype(int).to_numpy(dtype=float)
+scripts/bootstrap_seeded_boundary_shifts.py:74:    df["safe_touchdown"] = df["safe_touchdown"].astype(bool)
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:11:LIMIT_VERTICAL_SPEED = 0.35
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:18:def first_contact_row(df):
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:42:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:49:        vertical_speed <= LIMIT_VERTICAL_SPEED
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:56:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:79:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:95:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:100:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:120:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:121:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:122:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:123:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:130:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:161:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:163:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/summarize_seeded_boundary_coarse.py:21:def first_contact_row(df):
+scripts/summarize_seeded_boundary_coarse.py:47:    vertical_speed = abs(vz)
+scripts/summarize_seeded_boundary_coarse.py:54:        vertical_speed <= 0.35
+scripts/summarize_seeded_boundary_coarse.py:61:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_seeded_boundary_coarse.py:82:        row, found = first_contact_row(df)
+scripts/summarize_seeded_boundary_coarse.py:111:        "vertical_speed_mps": vs,
+scripts/summarize_seeded_boundary_coarse.py:116:        "safe_touchdown": safe,
+scripts/summarize_seeded_boundary_coarse.py:133:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_seeded_boundary_coarse.py:135:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_seeded_boundary_coarse.py:136:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_seeded_boundary_coarse.py:137:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_seeded_boundary_coarse.py:138:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_seeded_boundary_coarse.py:157:print(f"safe_count_total: {int(out['safe_touchdown'].sum())}/{len(out)}")
+scripts/summarize_seeded_boundary_coarse.py:190:    plt.ylabel("Safe-touchdown probability")
+scripts/summarize_qp_selected_eta0p497_allmotors.py:10:def first_contact_row(df):
+scripts/summarize_qp_selected_eta0p497_allmotors.py:30:    vertical_speed = abs(vz)
+scripts/summarize_qp_selected_eta0p497_allmotors.py:37:        vertical_speed <= 0.35
+scripts/summarize_qp_selected_eta0p497_allmotors.py:44:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_qp_selected_eta0p497_allmotors.py:66:    row, found = first_contact_row(df)
+scripts/summarize_qp_selected_eta0p497_allmotors.py:79:        "vertical_speed_mps": vs,
+scripts/summarize_qp_selected_eta0p497_allmotors.py:84:        "safe_touchdown": safe,
+scripts/summarize_qp_selected_eta0p497_allmotors.py:102:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:103:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:104:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:105:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:112:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:131:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_qp_selected_eta0p497_allmotors.py:133:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_maxbrake.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_maxbrake.py:251:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_maxbrake.py:254:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_maxbrake.py:257:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_maxbrake.py:263:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_maxbrake.py:275:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_maxbrake.py:286:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_maxbrake.py:359:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:360:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:361:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_maxbrake.py:379:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_maxbrake.py:381:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_maxbrake.py:382:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:385:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_maxbrake.py:394:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:395:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_maxbrake.py:398:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/cem_tune_allocator_weights.py:179:    # Safety metric is strict at 0.35 m/s. We optimize for margin below 0.345.
+scripts/cem_tune_allocator_weights.py:182:    unsafe = max(0.0, corrected_vz - 0.350)
+scripts/recheck_first_contact_all_logs.py:11:MAX_VERTICAL_SPEED = 0.35       # m/s
+scripts/recheck_first_contact_all_logs.py:51:def first_contact_row(df):
+scripts/recheck_first_contact_all_logs.py:69:def compute_touchdown_metrics(row):
+scripts/recheck_first_contact_all_logs.py:82:    vertical_speed = abs(vz)
+scripts/recheck_first_contact_all_logs.py:91:        "vertical_speed_ok": vertical_speed <= MAX_VERTICAL_SPEED,
+scripts/recheck_first_contact_all_logs.py:101:        "safe_touchdown": safe,
+scripts/recheck_first_contact_all_logs.py:102:        "vertical_speed_mps": vertical_speed,
+scripts/recheck_first_contact_all_logs.py:143:        row, found_contact = first_contact_row(df)
+scripts/recheck_first_contact_all_logs.py:144:        metrics = compute_touchdown_metrics(row)
+scripts/recheck_first_contact_all_logs.py:152:            "phase_at_first_contact": row.get("phase", ""),
+scripts/recheck_first_contact_all_logs.py:157:            "safe_touchdown": metrics["safe_touchdown"],
+scripts/recheck_first_contact_all_logs.py:158:            "vertical_speed_mps": metrics["vertical_speed_mps"],
+scripts/recheck_first_contact_all_logs.py:163:            "vertical_speed_ok": metrics["vertical_speed_ok"],
+scripts/recheck_first_contact_all_logs.py:184:    out_path = Path("results/tables/first_contact_recheck_summary.csv")
+scripts/recheck_first_contact_all_logs.py:198:            "phase_at_first_contact",
+scripts/recheck_first_contact_all_logs.py:202:            "vertical_speed_mps",
+scripts/recheck_first_contact_all_logs.py:203:            "safe_touchdown",
+scripts/summarize_m2_eta0p497_boost_repeats.py:10:def first_contact_row(df):
+scripts/summarize_m2_eta0p497_boost_repeats.py:30:    vertical_speed = abs(vz)
+scripts/summarize_m2_eta0p497_boost_repeats.py:37:        vertical_speed <= 0.35
+scripts/summarize_m2_eta0p497_boost_repeats.py:44:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_m2_eta0p497_boost_repeats.py:57:    row, found = first_contact_row(df)
+scripts/summarize_m2_eta0p497_boost_repeats.py:65:        "vertical_speed_mps": vs,
+scripts/summarize_m2_eta0p497_boost_repeats.py:70:        "safe_touchdown": safe,
+scripts/summarize_m2_eta0p497_boost_repeats.py:84:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_m2_eta0p497_boost_repeats.py:85:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_m2_eta0p497_boost_repeats.py:86:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_m2_eta0p497_boost_repeats.py:87:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_m2_eta0p497_boost_repeats.py:89:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_m2_eta0p497_boost_repeats.py:106:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_m2_eta0p497_boost_repeats.py:108:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/analyze_aggregate_transient_mechanism.py:26:def first_contact_index(df, fault_idx):
+scripts/analyze_aggregate_transient_mechanism.py:76:        contact_idx = first_contact_index(df, fault_idx)
+scripts/analyze_aggregate_transient_mechanism.py:101:            "touchdown_vertical_speed_mps":
+scripts/analyze_aggregate_transient_mechanism.py:102:                float(meta["vertical_speed_mps"]),
+scripts/analyze_aggregate_transient_mechanism.py:131:            "safe_touchdown":
+scripts/analyze_aggregate_transient_mechanism.py:132:                bool(meta["safe_touchdown"]),
+scripts/analyze_aggregate_transient_mechanism.py:150:            safe_count=("safe_touchdown", "sum"),
+scripts/analyze_aggregate_transient_mechanism.py:157:            mean_touchdown_vz=
+scripts/analyze_aggregate_transient_mechanism.py:158:                ("touchdown_vertical_speed_mps", "mean"),
+scripts/analyze_aggregate_transient_mechanism.py:159:            std_touchdown_vz=
+scripts/analyze_aggregate_transient_mechanism.py:160:                ("touchdown_vertical_speed_mps", "std"),
+scripts/analyze_aggregate_transient_mechanism.py:216:            "qplite_minus_cem_touchdown_vz":
+scripts/analyze_aggregate_transient_mechanism.py:217:                q["mean_touchdown_vz"]
+scripts/analyze_aggregate_transient_mechanism.py:218:                - c["mean_touchdown_vz"],
+scripts/analyze_aggregate_transient_mechanism.py:284:        # Touchdown vertical speed
+scripts/analyze_aggregate_transient_mechanism.py:288:            ]["touchdown_vertical_speed_mps"],
+scripts/analyze_aggregate_transient_mechanism.py:291:            ]["touchdown_vertical_speed_mps"],
+scripts/analyze_aggregate_transient_mechanism.py:301:            0.35,
+scripts/analyze_aggregate_transient_mechanism.py:306:            "First-contact vertical speed [m/s]"
+scripts/analyze_aggregate_transient_mechanism.py:309:            f"Touchdown speed — motor {motor}, eta={TARGET_ETA}"
+scripts/analyze_aggregate_transient_mechanism.py:316:            f"motor{motor}_touchdown_speed_distribution.png",
+scripts/analyze_aggregate_transient_mechanism.py:321:        # Fault-to-contact time vs touchdown speed
+scripts/analyze_aggregate_transient_mechanism.py:331:                cdf["touchdown_vertical_speed_mps"],
+scripts/analyze_aggregate_transient_mechanism.py:336:            0.35,
+scripts/analyze_aggregate_transient_mechanism.py:343:            "First-contact vertical speed [m/s]"
+scripts/analyze_aggregate_transient_mechanism.py:346:            f"Recovery time vs touchdown speed — "
+scripts/analyze_aggregate_transient_mechanism.py:355:            f"motor{motor}_time_vs_touchdown_speed.png",
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:243:    # Touchdown safety limit from our evaluator
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:244:    v_safe = 0.35  # m/s
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:257:    touchdown_detected = False
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:266:            touchdown_detected = True
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:321:        f"[CBF_V4] touchdown_detected={touchdown_detected}, "
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:326:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:329:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:332:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:338:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:350:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:361:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:434:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:435:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:436:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:454:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:456:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:457:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:460:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:469:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:470:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:473:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/fault_triggered_landing_motorloss_v1.py:19:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_v1.py:33:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_v1.py:207:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_v1.py:210:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_v1.py:213:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_v1.py:219:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_v1.py:231:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_v1.py:242:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_v1.py:292:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_v1.py:293:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_v1.py:294:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_v1.py:312:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_v1.py:314:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_v1.py:315:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_v1.py:318:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_v1.py:327:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_v1.py:328:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_v1.py:331:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:10:def first_contact_row(df):
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:30:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:37:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:44:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:64:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:76:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:81:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:91:    "safe_touchdown",
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:92:    "vertical_speed_mps",
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:107:    "vertical_speed_mps",
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:111:    "safe_touchdown",
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:121:plt.bar(range(len(top)), top["vertical_speed_mps"])
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:122:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:124:plt.ylabel("First-contact vertical speed [m/s]")
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:11:LIMIT_VERTICAL_SPEED = 0.35
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:18:def first_contact_row(df):
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:42:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:49:        vertical_speed <= LIMIT_VERTICAL_SPEED
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:56:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:78:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:94:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:99:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:119:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:120:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:121:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:122:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:129:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:161:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_m2_eta0p497_policy_refine.py:163:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/summarize_seeded_trials.py:12:def first_contact_row(df):
+scripts/summarize_seeded_trials.py:39:    vertical_speed = abs(vz)
+scripts/summarize_seeded_trials.py:46:        vertical_speed <= 0.35
+scripts/summarize_seeded_trials.py:53:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_seeded_trials.py:72:        row, found = first_contact_row(df)
+scripts/summarize_seeded_trials.py:101:        "vertical_speed_mps": vs,
+scripts/summarize_seeded_trials.py:106:        "safe_touchdown": safe,
+scripts/summarize_seeded_trials.py:123:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_seeded_trials.py:125:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_seeded_trials.py:126:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_seeded_trials.py:127:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_seeded_trials.py:128:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_seeded_trials.py:143:print(f"safe_count_total: {int(out['safe_touchdown'].sum())}/{len(out)}")
+scripts/summarize_seeded_trials.py:146:plt.bar(out["trial_seed"].astype(str), out["vertical_speed_mps"])
+scripts/summarize_seeded_trials.py:147:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_seeded_trials.py:149:plt.ylabel("First-contact vertical speed [m/s]")
+scripts/summarize_seeded_trials.py:155:fig_path = Path("results/figures/seeded_smoke_vertical_speed.png")
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:10:def first_contact_row(df):
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:31:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:38:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:45:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:66:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:79:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:84:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:104:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:105:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:106:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:107:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:114:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:136:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:138:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/fit_residual_dose_response_logistic.py:195:                boot["safe_touchdown"].astype(int),
+scripts/fit_residual_dose_response_logistic.py:250:        "safe_touchdown",
+scripts/fit_residual_dose_response_logistic.py:260:    df["safe_touchdown"] = parse_bool(
+scripts/fit_residual_dose_response_logistic.py:261:        df["safe_touchdown"]
+scripts/fit_residual_dose_response_logistic.py:264:    if df["safe_touchdown"].isna().any():
+scripts/fit_residual_dose_response_logistic.py:266:            "[ERROR] Could not parse safe_touchdown values."
+scripts/fit_residual_dose_response_logistic.py:289:            sub["safe_touchdown"].astype(int),
+scripts/fit_residual_dose_response_logistic.py:323:                sub["safe_touchdown"].sum()
+scripts/fit_residual_dose_response_logistic.py:479:                safe_count=("safe_touchdown", "sum"),
+scripts/fit_residual_dose_response_logistic.py:545:            "Safe-touchdown probability"
+scripts/summarize_motorloss_sweep.py:11:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/summarize_motorloss_sweep.py:31:def find_touchdown_row(df):
+scripts/summarize_motorloss_sweep.py:32:    touchdown_phases = {"emergency_landing", "touchdown_hold", "stop"}
+scripts/summarize_motorloss_sweep.py:35:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/summarize_motorloss_sweep.py:40:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/summarize_motorloss_sweep.py:75:                "safe_touchdown": False,
+scripts/summarize_motorloss_sweep.py:76:                "vertical_speed_mps": float("nan"),
+scripts/summarize_motorloss_sweep.py:78:                "touchdown_tilt_deg": float("nan"),
+scripts/summarize_motorloss_sweep.py:79:                "touchdown_angular_rate_radps": float("nan"),
+scripts/summarize_motorloss_sweep.py:88:        touchdown = find_touchdown_row(df)
+scripts/summarize_motorloss_sweep.py:90:        if touchdown is None:
+scripts/summarize_motorloss_sweep.py:95:                "safe_touchdown": False,
+scripts/summarize_motorloss_sweep.py:96:                "vertical_speed_mps": float("nan"),
+scripts/summarize_motorloss_sweep.py:98:                "touchdown_tilt_deg": float("nan"),
+scripts/summarize_motorloss_sweep.py:99:                "touchdown_angular_rate_radps": float("nan"),
+scripts/summarize_motorloss_sweep.py:104:                "status": "NO_TOUCHDOWN_ROW",
+scripts/summarize_motorloss_sweep.py:108:        result = evaluate_touchdown(
+scripts/summarize_motorloss_sweep.py:109:            vx=float(touchdown["vx"]),
+scripts/summarize_motorloss_sweep.py:110:            vy=float(touchdown["vy"]),
+scripts/summarize_motorloss_sweep.py:111:            vz=float(touchdown["vz"]),
+scripts/summarize_motorloss_sweep.py:112:            roll=deg_to_rad(float(touchdown["roll_deg"])),
+scripts/summarize_motorloss_sweep.py:113:            pitch=deg_to_rad(float(touchdown["pitch_deg"])),
+scripts/summarize_motorloss_sweep.py:114:            wx=deg_to_rad(float(touchdown["gyro_x_deg_s"])),
+scripts/summarize_motorloss_sweep.py:115:            wy=deg_to_rad(float(touchdown["gyro_y_deg_s"])),
+scripts/summarize_motorloss_sweep.py:116:            wz=deg_to_rad(float(touchdown["gyro_z_deg_s"])),
+scripts/summarize_motorloss_sweep.py:117:            x=float(touchdown["x"]),
+scripts/summarize_motorloss_sweep.py:118:            y=float(touchdown["y"]),
+scripts/summarize_motorloss_sweep.py:119:            limits=TouchdownLimits(),
+scripts/summarize_motorloss_sweep.py:122:        fault_landing = df[df["phase"].isin(["fault_event", "emergency_landing", "touchdown_hold"])]
+scripts/summarize_motorloss_sweep.py:131:            "safe_touchdown": result["safe_touchdown"],
+scripts/summarize_motorloss_sweep.py:132:            "vertical_speed_mps": result["vertical_speed_mps"],
+scripts/summarize_motorloss_sweep.py:134:            "touchdown_tilt_deg": result["max_tilt_deg"],
+scripts/summarize_motorloss_sweep.py:135:            "touchdown_angular_rate_radps": result["angular_rate_radps"],
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:245:    touchdown_detected = False
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:257:            touchdown_detected = True
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:300:    print(f"[ADAPTIVE_V2] touchdown_detected={touchdown_detected}, final z_cmd={z_cmd:.3f}")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:303:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:306:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:309:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:315:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:327:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:338:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:411:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:412:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:413:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:431:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:433:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:434:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:437:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:446:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:447:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:450:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:10:def first_contact_row(df):
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:30:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:37:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:44:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:65:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:78:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:83:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:103:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:104:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:105:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:106:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:111:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:138:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:140:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/summarize_ftcboost_boundary_m1.py:12:def first_contact_row(df):
+scripts/summarize_ftcboost_boundary_m1.py:39:    vertical_speed = abs(vz)
+scripts/summarize_ftcboost_boundary_m1.py:46:        vertical_speed <= 0.35
+scripts/summarize_ftcboost_boundary_m1.py:53:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcboost_boundary_m1.py:74:        row, found = first_contact_row(df)
+scripts/summarize_ftcboost_boundary_m1.py:75:        vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe = eval_row(row)
+scripts/summarize_ftcboost_boundary_m1.py:87:            "vertical_speed_mps": vertical_speed,
+scripts/summarize_ftcboost_boundary_m1.py:92:            "safe_touchdown": safe,
+scripts/summarize_ftcboost_boundary_m1.py:108:        "vertical_speed_mps",
+scripts/summarize_ftcboost_boundary_m1.py:112:        "safe_touchdown",
+scripts/summarize_ftcboost_boundary_m1.py:120:        plt.plot(sub["eta"], sub["vertical_speed_mps"], marker="o", label=f"boost {boost}")
+scripts/summarize_ftcboost_boundary_m1.py:122:    plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcboost_boundary_m1.py:124:    plt.ylabel("First-contact vertical speed [m/s]")
+scripts/summarize_ftcboost_boundary_m1.py:135:    safe = out[out["safe_touchdown"] == True].copy()
+scripts/summarize_ftcboost_boundary_m1.py:142:            "vertical_speed_mps",
+scripts/analyze_pwm_boundary_cases.py:30:    after_fault = df[df["phase"].isin(["fault_event", "emergency_landing", "touchdown_hold"])]
+scripts/fault_triggered_landing_motorloss_param_pwm.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_param_pwm.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_param_pwm.py:231:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_param_pwm.py:234:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_param_pwm.py:237:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_param_pwm.py:243:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_param_pwm.py:255:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_param_pwm.py:266:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_param_pwm.py:339:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:340:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:341:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_param_pwm.py:359:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_param_pwm.py:361:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_param_pwm.py:362:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:365:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_param_pwm.py:374:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:375:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_param_pwm.py:378:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/fit_seeded_boundary_logistic.py:106:                boot["safe_touchdown"].astype(int).to_numpy(),
+scripts/fit_seeded_boundary_logistic.py:144:        "safe_touchdown",
+scripts/fit_seeded_boundary_logistic.py:151:    df["safe_touchdown"] = df["safe_touchdown"].astype(bool)
+scripts/fit_seeded_boundary_logistic.py:172:                sub["safe_touchdown"].astype(int).to_numpy(),
+scripts/fit_seeded_boundary_logistic.py:188:                "safe_count": int(sub["safe_touchdown"].sum()),
+scripts/fit_seeded_boundary_logistic.py:277:                    safe_count=("safe_touchdown", "sum"),
+scripts/fit_seeded_boundary_logistic.py:323:        plt.ylabel("Safe-touchdown probability")
+scripts/fault_triggered_landing_motorloss_adaptive.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_adaptive.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_adaptive.py:268:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_adaptive.py:271:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_adaptive.py:274:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive.py:280:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive.py:292:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_adaptive.py:303:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_adaptive.py:376:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_adaptive.py:377:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_adaptive.py:378:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_adaptive.py:396:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_adaptive.py:398:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_adaptive.py:399:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_adaptive.py:402:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_adaptive.py:411:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_adaptive.py:412:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_adaptive.py:415:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:12:def first_contact_row(df):
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:36:    vertical_speed = abs(vz)
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:43:        vertical_speed <= 0.35
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:50:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:68:    row, found = first_contact_row(df)
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:76:        "vertical_speed_mps": vs,
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:81:        "safe_touchdown": safe,
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:96:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:97:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:98:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:99:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:101:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:122:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:124:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/fault_triggered_landing_v0.py:19:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_v0.py:203:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_v0.py:224:    return evaluate_touchdown(
+scripts/fault_triggered_landing_v0.py:235:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_v0.py:290:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_v0.py:292:        if touchdown is None:
+scripts/fault_triggered_landing_v0.py:293:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_v0.py:296:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_v0.py:305:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_v0.py:306:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_v0.py:309:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_seeded_residual_dose_response.py:28:VERTICAL_SPEED_LIMIT = 0.35
+scripts/summarize_seeded_residual_dose_response.py:69:def first_contact_row(df: pd.DataFrame):
+scripts/summarize_seeded_residual_dose_response.py:95:            "safe_touchdown": False,
+scripts/summarize_seeded_residual_dose_response.py:96:            "vertical_speed_mps": math.nan,
+scripts/summarize_seeded_residual_dose_response.py:103:    vertical_speed = abs(float(row["vz"]))
+scripts/summarize_seeded_residual_dose_response.py:129:        vertical_speed <= VERTICAL_SPEED_LIMIT
+scripts/summarize_seeded_residual_dose_response.py:138:        "safe_touchdown": bool(safe),
+scripts/summarize_seeded_residual_dose_response.py:139:        "vertical_speed_mps": vertical_speed,
+scripts/summarize_seeded_residual_dose_response.py:193:        contact, fault_t, found = first_contact_row(df)
+scripts/summarize_seeded_residual_dose_response.py:238:            "safe_touchdown": metrics["safe_touchdown"],
+scripts/summarize_seeded_residual_dose_response.py:243:            "vertical_speed_mps":
+scripts/summarize_seeded_residual_dose_response.py:244:                metrics["vertical_speed_mps"],
+scripts/summarize_seeded_residual_dose_response.py:281:            safe_count=("safe_touchdown", "sum"),
+scripts/summarize_seeded_residual_dose_response.py:282:            mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_seeded_residual_dose_response.py:283:            std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_seeded_residual_dose_response.py:284:            min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_seeded_residual_dose_response.py:285:            max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_seeded_residual_dose_response.py:386:        plt.ylabel("Safe-touchdown probability")
+scripts/summarize_seeded_residual_dose_response.py:413:            VERTICAL_SPEED_LIMIT,
+scripts/summarize_seeded_residual_dose_response.py:415:            label="vertical-speed safety limit",
+scripts/summarize_seeded_residual_dose_response.py:419:            "First-contact vertical speed [m/s]"
+scripts/summarize_seeded_residual_dose_response.py:422:            f"Touchdown-speed dose response — "
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:10:def first_contact_row(df):
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:30:    vertical_speed = abs(vz)
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:37:        vertical_speed <= 0.35
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:44:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:57:    row, found = first_contact_row(df)
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:65:        "vertical_speed_mps": vs,
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:70:        "safe_touchdown": safe,
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:84:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:85:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:86:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:87:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:89:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:106:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:108:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/summarize_ftcboost_sweep.py:10:SAFE_VZ = 0.35
+scripts/summarize_ftcboost_sweep.py:26:def first_contact_row(df):
+scripts/summarize_ftcboost_sweep.py:53:    vertical_speed = abs(vz)
+scripts/summarize_ftcboost_sweep.py:60:        vertical_speed <= 0.35
+scripts/summarize_ftcboost_sweep.py:67:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcboost_sweep.py:79:        row, found_contact = first_contact_row(df)
+scripts/summarize_ftcboost_sweep.py:80:        vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe = eval_row(row)
+scripts/summarize_ftcboost_sweep.py:90:            "vertical_speed_mps": vertical_speed,
+scripts/summarize_ftcboost_sweep.py:95:            "safe_touchdown": safe,
+scripts/summarize_ftcboost_sweep.py:119:        "vertical_speed_mps",
+scripts/summarize_ftcboost_sweep.py:123:        "safe_touchdown",
+scripts/summarize_ftcboost_sweep.py:127:    # Plot vertical speed vs boost
+scripts/summarize_ftcboost_sweep.py:129:    plt.plot(out["boost"], out["vertical_speed_mps"], marker="o")
+scripts/summarize_ftcboost_sweep.py:130:    plt.axhline(SAFE_VZ, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcboost_sweep.py:132:    plt.ylabel("First-contact vertical speed [m/s]")
+scripts/summarize_ftcboost_sweep.py:136:    fig_path = Path("results/figures/ftcboost_m1_eta0p50_vertical_speed_vs_boost.png")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:246:    v_safe = 0.35
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:257:    touchdown_detected = False
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:276:            touchdown_detected = True
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:329:        f"[CBF_V6] touchdown_detected={touchdown_detected}, "
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:335:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:338:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:341:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:347:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:359:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:370:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:443:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:444:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:445:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:463:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:465:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:466:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:469:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:478:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:479:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:482:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/summarize_ftcresid_patterns.py:12:def first_contact_row(df):
+scripts/summarize_ftcresid_patterns.py:39:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_patterns.py:46:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_patterns.py:53:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_patterns.py:67:        row, found = first_contact_row(df)
+scripts/summarize_ftcresid_patterns.py:68:        vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe = eval_row(row)
+scripts/summarize_ftcresid_patterns.py:81:            "vertical_speed_mps": vertical_speed,
+scripts/summarize_ftcresid_patterns.py:86:            "safe_touchdown": safe,
+scripts/summarize_ftcresid_patterns.py:97:    out = pd.DataFrame(rows).sort_values("vertical_speed_mps")
+scripts/summarize_ftcresid_patterns.py:105:        "vertical_speed_mps",
+scripts/summarize_ftcresid_patterns.py:109:        "safe_touchdown",
+scripts/summarize_ftcresid_patterns.py:115:    plt.bar(range(len(out)), out["vertical_speed_mps"])
+scripts/summarize_ftcresid_patterns.py:116:    plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_patterns.py:118:    plt.ylabel("First-contact vertical speed [m/s]")
+scripts/analyze_motor_authority_mechanism.py:29:def first_contact_index(df: pd.DataFrame, fault_idx: int):
+scripts/analyze_motor_authority_mechanism.py:36:    med = summary_sub["vertical_speed_mps"].median()
+scripts/analyze_motor_authority_mechanism.py:38:        summary_sub["vertical_speed_mps"] - med
+scripts/analyze_motor_authority_mechanism.py:90:        contact_idx = first_contact_index(df, fault_idx)
+scripts/analyze_motor_authority_mechanism.py:92:            raise RuntimeError(f"No first contact in {filename}")
+scripts/analyze_motor_authority_mechanism.py:122:            "touchdown_vertical_speed_mps":
+scripts/analyze_motor_authority_mechanism.py:123:                float(row["vertical_speed_mps"]),
+scripts/analyze_motor_authority_mechanism.py:199:        # Vertical speed
+scripts/analyze_motor_authority_mechanism.py:209:            0.35,
+scripts/analyze_motor_authority_mechanism.py:211:            label="vertical-speed safety limit",
+scripts/analyze_motor_authority_mechanism.py:216:            f"Post-fault vertical speed — motor {motor}, eta={TARGET_ETA}"
+scripts/analyze_motor_authority_mechanism.py:222:            FIG_DIR / f"motor{motor}_vertical_speed_comparison.png",
+scripts/audit_all_seededfine_prefault_validity.py:62:            reasons.append("fault_state_vertical_speed_too_large")
+scripts/fault_triggered_landing_qp_event_allocator.py:25:LIMIT_VERTICAL_SPEED = 0.35
+scripts/fault_triggered_landing_qp_event_allocator.py:145:def evaluate_first_contact(rows, fault_t):
+scripts/fault_triggered_landing_qp_event_allocator.py:153:        # No touchdown within the evaluation window.
+scripts/fault_triggered_landing_qp_event_allocator.py:154:        # This is not a safe touchdown. We still return the minimum-z row for diagnostics,
+scripts/fault_triggered_landing_qp_event_allocator.py:155:        # but the final safe_touchdown flag is forced to False below.
+scripts/fault_triggered_landing_qp_event_allocator.py:170:    vertical_speed = abs(vz)
+scripts/fault_triggered_landing_qp_event_allocator.py:177:        "vertical_speed_ok": vertical_speed <= LIMIT_VERTICAL_SPEED,
+scripts/fault_triggered_landing_qp_event_allocator.py:188:        "safe_touchdown": safe,
+scripts/fault_triggered_landing_qp_event_allocator.py:189:        "vertical_speed_mps": vertical_speed,
+scripts/fault_triggered_landing_qp_event_allocator.py:218:    # legacy_maxbrake_touchdown reproduces the old pilot protocol:
+scripts/fault_triggered_landing_qp_event_allocator.py:223:                        choices=["legacy_maxbrake_touchdown", "adaptive_ramp_v1"],
+scripts/fault_triggered_landing_qp_event_allocator.py:224:                        default="legacy_maxbrake_touchdown")
+scripts/fault_triggered_landing_qp_event_allocator.py:250:    stage1_z = max(0.20, min(0.35, 0.43 * hover_z))
+scripts/fault_triggered_landing_qp_event_allocator.py:352:                        # or if the fault would be injected from an excessive vertical-speed state.
+scripts/fault_triggered_landing_qp_event_allocator.py:369:                        # or if the fault would be injected from an excessive vertical-speed state.
+scripts/fault_triggered_landing_qp_event_allocator.py:462:                                phase = "touchdown_hold"
+scripts/fault_triggered_landing_qp_event_allocator.py:568:    contact_row, found, eval_result = evaluate_first_contact(rows, fault_t)
+scripts/fault_triggered_landing_qp_event_allocator.py:570:    print("\n[FIRST CONTACT ROW USED]")
+scripts/fault_triggered_landing_qp_event_allocator.py:582:    print("\n[FIRST CONTACT EVALUATION]")
+scripts/hover_land_log.py:15:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/hover_land_log.py:211:            print("[RESULT] No valid touchdown row found.")
+scripts/hover_land_log.py:214:        result = evaluate_touchdown(
+scripts/hover_land_log.py:225:            limits=TouchdownLimits(),
+scripts/hover_land_log.py:232:        print("\n[TOUCHDOWN EVALUATION]")
+scripts/audit_near_zero_contact_trajectories.py:20:def first_contact_index(df):
+scripts/audit_near_zero_contact_trajectories.py:38:    if row["vertical_speed_mps"] < 0.05:
+scripts/audit_near_zero_contact_trajectories.py:41:    if bool(row["safe_touchdown"]):
+scripts/audit_near_zero_contact_trajectories.py:90:        # Representative trial closest to class median vertical speed.
+scripts/audit_near_zero_contact_trajectories.py:91:        med = sub["vertical_speed_mps"].median()
+scripts/audit_near_zero_contact_trajectories.py:93:            sub["vertical_speed_mps"] - med
+scripts/audit_near_zero_contact_trajectories.py:117:        contact_idx, fault_idx = first_contact_index(df)
+scripts/audit_near_zero_contact_trajectories.py:125:        # Window around first contact.
+scripts/audit_near_zero_contact_trajectories.py:148:            "summary_vertical_speed_mps":
+scripts/audit_near_zero_contact_trajectories.py:149:                float(row["vertical_speed_mps"]),
+scripts/audit_near_zero_contact_trajectories.py:180:            label="detected first contact",
+scripts/audit_near_zero_contact_trajectories.py:199:        # Vertical speed trajectory
+scripts/audit_near_zero_contact_trajectories.py:207:            0.35,
+scripts/audit_near_zero_contact_trajectories.py:214:            label="detected first contact",
+scripts/audit_near_zero_contact_trajectories.py:217:        plt.ylabel("Vertical speed magnitude [m/s]")
+scripts/audit_near_zero_contact_trajectories.py:219:            f"Vertical speed around detected contact\n"
+scripts/audit_near_zero_contact_trajectories.py:244:            label="detected first contact",
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:10:def first_contact_row(df):
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:31:    vertical_speed = abs(vz)
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:38:        vertical_speed <= 0.35
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:45:    return vertical_speed, horizontal_speed, max_tilt, angular_rate, drift, safe
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:66:    row, found = first_contact_row(df)
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:78:        "vertical_speed_mps": vs,
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:83:        "safe_touchdown": safe,
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:103:    mean_vz=("vertical_speed_mps", "mean"),
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:104:    std_vz=("vertical_speed_mps", "std"),
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:105:    min_vz=("vertical_speed_mps", "min"),
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:106:    max_vz=("vertical_speed_mps", "max"),
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:113:    safe_count=("safe_touchdown", "sum"),
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:135:plt.axhline(0.35, linestyle="--", label="safe limit 0.35 m/s")
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:137:plt.ylabel("Mean first-contact vertical speed [m/s]")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_ftcboost.py:215:def find_first_contact_row(rows):
+scripts/fault_triggered_landing_motorloss_ftcboost.py:248:    vertical_speed = abs(vz)
+scripts/fault_triggered_landing_motorloss_ftcboost.py:255:        "vertical_speed_ok": vertical_speed <= 0.35,
+scripts/fault_triggered_landing_motorloss_ftcboost.py:263:        "safe_touchdown": all(checks.values()),
+scripts/fault_triggered_landing_motorloss_ftcboost.py:264:        "vertical_speed_mps": vertical_speed,
+scripts/fault_triggered_landing_motorloss_ftcboost.py:373:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:374:            print(f"[CMD] touchdown hold z={FINAL_Z_M:.2f}")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:375:            send_hover_for(cf, logger, FINAL_Z_M, TOUCHDOWN_HOLD_S)
+scripts/fault_triggered_landing_motorloss_ftcboost.py:404:        row, found_contact = find_first_contact_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_ftcboost.py:407:        print("\n[FIRST CONTACT ROW USED]")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:418:        print("\n[FIRST CONTACT EVALUATION]")
+scripts/analyze_seeded_boundary_mechanism.py:43:        "vertical_speed_mps",
+scripts/analyze_seeded_boundary_mechanism.py:48:        "safe_touchdown",
+scripts/analyze_seeded_boundary_mechanism.py:64:    sub["safe_touchdown"] = (
+scripts/analyze_seeded_boundary_mechanism.py:65:        sub["safe_touchdown"]
+scripts/analyze_seeded_boundary_mechanism.py:69:        .fillna(sub["safe_touchdown"])
+scripts/analyze_seeded_boundary_mechanism.py:85:            safe_count=("safe_touchdown", "sum"),
+scripts/analyze_seeded_boundary_mechanism.py:86:            safe_rate=("safe_touchdown", safe_rate),
+scripts/analyze_seeded_boundary_mechanism.py:87:            mean_vz=("vertical_speed_mps", "mean"),
+scripts/analyze_seeded_boundary_mechanism.py:88:            std_vz=("vertical_speed_mps", "std"),
+scripts/analyze_seeded_boundary_mechanism.py:89:            median_vz=("vertical_speed_mps", "median"),
+scripts/analyze_seeded_boundary_mechanism.py:90:            min_vz=("vertical_speed_mps", "min"),
+scripts/analyze_seeded_boundary_mechanism.py:91:            max_vz=("vertical_speed_mps", "max"),
+scripts/analyze_seeded_boundary_mechanism.py:132:            safe_count=("safe_touchdown", "sum"),
+scripts/analyze_seeded_boundary_mechanism.py:133:            safe_rate=("safe_touchdown", safe_rate),
+scripts/analyze_seeded_boundary_mechanism.py:134:            mean_vz=("vertical_speed_mps", "mean"),
+scripts/analyze_seeded_boundary_mechanism.py:135:            std_vz=("vertical_speed_mps", "std"),
+scripts/analyze_seeded_boundary_mechanism.py:214:    # 4. Plot touchdown vertical speed distributions
+scripts/analyze_seeded_boundary_mechanism.py:222:            ["vertical_speed_mps"]
+scripts/analyze_seeded_boundary_mechanism.py:228:            ["vertical_speed_mps"]
+scripts/analyze_seeded_boundary_mechanism.py:245:            0.35,
+scripts/analyze_seeded_boundary_mechanism.py:247:            label="Vertical-speed safety limit",
+scripts/analyze_seeded_boundary_mechanism.py:251:            "First-contact vertical speed [m/s]"
+scripts/analyze_seeded_boundary_mechanism.py:255:            f"Near-boundary touchdown speed — "
+scripts/analyze_seeded_boundary_mechanism.py:265:            f"eta0p496_vertical_speed_motor{motor}.png"
+scripts/analyze_seeded_boundary_mechanism.py:307:        width = 0.35
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:20:from eval.touchdown_metrics import evaluate_touchdown, TouchdownLimits
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:34:TOUCHDOWN_HOLD_S = 2.0
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:229:    - Once vertical speed is controlled, descend slowly again.
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:236:    touchdown_detected = False
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:249:        # Stop once first contact is detected. The evaluator will use this row.
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:251:            touchdown_detected = True
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:259:        if z == z and z < 0.35 and vz < -0.22:
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:265:            z_cmd = min(max(z_cmd, z + 0.16), 0.35)
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:295:    print(f"[ADAPTIVE_V3] touchdown_detected={touchdown_detected}, final z_cmd={z_cmd:.3f}")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:298:def find_touchdown_row(rows):
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:301:    touchdown_phases = {"emergency_landing", "touchdown_hold"}
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:304:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:310:        if row.get("phase") in touchdown_phases and finite_row(row):
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:322:    return evaluate_touchdown(
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:333:        limits=TouchdownLimits(),
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:406:            logger.set_phase("touchdown_hold")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:407:            print(f"[CMD] holding low altitude z = {FINAL_Z_M:.2f} m for {TOUCHDOWN_HOLD_S:.1f} s before stop")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:408:            send_hover_for(cf, logger, TOUCHDOWN_HOLD_S, FINAL_Z_M)
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:426:        touchdown = find_touchdown_row(logger.rows)
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:428:        if touchdown is None:
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:429:            print("[RESULT] No touchdown row found.")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:432:        result = evaluate_row(touchdown)
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:441:        print("\n[TOUCHDOWN ROW USED]")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:442:        for k, v in touchdown.items():
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:445:        print("\n[TOUCHDOWN EVALUATION]")
+src/controllers/residual_allocator_qp.py:175:    # Calibrated from eta=0.496/0.497/0.498 first-contact experiments.
+src/controllers/residual_allocator_qp.py:178:    base_vz = 0.350 + 6.0 * severity
+src/controllers/residual_allocator_qp.py:180:    # If currently descending fast or low, increase predicted touchdown speed.
+src/controllers/residual_allocator_qp.py:182:    base_vz += 0.06 * max(0.0, 0.35 - state.z)
+src/controllers/residual_allocator_qp.py:224:    hard_vertical_violation = max(0.0, pred_vz - 0.350)
+src/controllers/residual_allocator_tunable.py:43:    hard_vertical_threshold: float = 0.350
+src/eval/touchdown_metrics.py:6:class TouchdownLimits:
+src/eval/touchdown_metrics.py:7:    max_vertical_speed_mps: float = 0.35
+src/eval/touchdown_metrics.py:18:def evaluate_touchdown(
+src/eval/touchdown_metrics.py:31:    limits: TouchdownLimits = TouchdownLimits(),
+src/eval/touchdown_metrics.py:34:    vertical_speed = abs(vz)
+src/eval/touchdown_metrics.py:40:        "vertical_speed_ok": vertical_speed <= limits.max_vertical_speed_mps,
+src/eval/touchdown_metrics.py:48:        "safe_touchdown": all(checks.values()),
+src/eval/touchdown_metrics.py:49:        "vertical_speed_mps": vertical_speed,
+src/eval/touchdown_metrics.py:59:    result = evaluate_touchdown(
+
+========== CONTROLLER SELECTION ==========
+scripts/run_seeded_boundary_coarse.sh:9:#   CONTROLLERS="qplite" MOTORS="2" ETAS="0.48 0.49 0.50" REPS=12 ./scripts/run_seeded_boundary_coarse.sh
+scripts/run_seeded_boundary_coarse.sh:10:CONTROLLERS="${CONTROLLERS:-qplite cem}"
+scripts/run_seeded_boundary_coarse.sh:16:CEM_CONFIG="${CEM_CONFIG:-configs/allocator_weights/cem_tuned_boundary.json}"
+scripts/run_seeded_boundary_coarse.sh:37:    if [ "$controller" = "qplite" ]; then
+scripts/run_seeded_boundary_coarse.sh:39:    elif [ "$controller" = "cem" ]; then
+scripts/run_seeded_boundary_coarse.sh:104:    if [ "$controller" = "qplite" ]; then
+scripts/run_seeded_boundary_coarse.sh:122:    elif [ "$controller" = "cem" ]; then
+scripts/run_seeded_boundary_coarse.sh:140:            --weight-config "$CEM_CONFIG"
+scripts/validate_pinv_healthy_invariance.py:46:        set_param(scf, "sitlFtc.enable", "0")
+scripts/run_ftcresid_tuned_eta0p497_allmotors.sh:21:set_residuals_for_motor() {
+scripts/run_ftcresid_tuned_eta0p497_allmotors.sh:49:    set_residuals_for_motor "$motor"
+scripts/run_ftcresid_tuned_eta0p497_allmotors.sh:52:    echo "[TUNED RESIDUAL] motor=${motor}, eta=${ETA}, rep=${rep}, r=[$r1,$r2,$r3,$r4]"
+scripts/run_ftcresid_tuned_eta0p497_allmotors.sh:104:echo "[DONE] Tuned residual all-motor eta=0.497 sweep completed."
+scripts/run_seeded_residual_dose_response.sh:10:RESIDUALS="${RESIDUALS:-8000 9000 10000 11000 12000 13000 14000}"
+scripts/run_seeded_residual_dose_response.sh:34:residual_vector() {
+scripts/run_seeded_residual_dose_response.sh:36:    local residual="$2"
+scripts/run_seeded_residual_dose_response.sh:40:            echo "0 0 $residual 0"
+scripts/run_seeded_residual_dose_response.sh:43:            echo "0 $residual 0 0"
+scripts/run_seeded_residual_dose_response.sh:55:    local residual="$2"
+scripts/run_seeded_residual_dose_response.sh:59:    local seed=$(( BASE_SEED + motor * 10000000 + residual * 100 + rep ))
+scripts/run_seeded_residual_dose_response.sh:61:    read -r r1 r2 r3 r4 <<< "$(residual_vector "$motor" "$residual")"
+scripts/run_seeded_residual_dose_response.sh:63:    local tag="seededdose_m${motor}_eta${eta_tag}_r${residual}_seed${seed}"
+scripts/run_seeded_residual_dose_response.sh:79:    echo "residual=${residual}"
+scripts/run_seeded_residual_dose_response.sh:98:        > "$PROJECT_DIR/logs/sim_seededdose_m${motor}_eta${eta_tag}_r${residual}_seed${seed}.log" \
+scripts/run_seeded_residual_dose_response.sh:129:        --manual-residual \
+scripts/run_seeded_residual_dose_response.sh:130:        --manual-name "dose_r${residual}" \
+scripts/run_seeded_residual_dose_response.sh:148:    for residual in $RESIDUALS; do
+scripts/run_seeded_residual_dose_response.sh:156:                echo "[ATTEMPT] motor=${motor}, residual=${residual}, rep=${rep}, attempt=${attempt}"
+scripts/run_seeded_residual_dose_response.sh:158:                if run_one_trial "$motor" "$residual" "$rep"; then
+scripts/run_seeded_residual_dose_response.sh:170:                echo "motor=${motor}, residual=${residual}, rep=${rep}"
+scripts/run_seeded_residual_dose_response.sh:179:echo "[DONE] Seeded residual dose-response sweep completed."
+scripts/check_sitl_ftc_params.py:19:    print("[INFO] Checking sitlFtc params...")
+scripts/check_sitl_ftc_params.py:20:    cf.param.set_value("sitlFtc.healthyBoost", "5000")
+scripts/check_sitl_ftc_params.py:21:    cf.param.set_value("sitlFtc.enable", "1")
+scripts/check_sitl_ftc_params.py:25:    cf.param.set_value("sitlFtc.enable", "0")
+scripts/check_sitl_ftc_params.py:26:    cf.param.set_value("sitlFtc.healthyBoost", "0")
+scripts/check_sitl_ftc_params.py:31:    print("[OK] sitlFault and sitlFtc params are available and writable.")
+scripts/summarize_seeded_boundary_fine.py:66:    r"qp_event_allocator_m(\d+)_eta([0-9p]+)_seededfine_(qplite|cem)_m\d+_eta[0-9p]+_seed(\d+)\.csv"
+scripts/summarize_seeded_boundary_fine.py:97:        "allocator_config": str(row.get("allocator_config", "qplite_builtin")),
+scripts/analyze_transient_statistics.py:68:            cem = mdf[
+scripts/analyze_transient_statistics.py:69:                mdf["controller"] == "cem"
+scripts/analyze_transient_statistics.py:73:                mdf["controller"] == "qplite"
+scripts/analyze_transient_statistics.py:77:                cem, qp, equal_var=False
+scripts/analyze_transient_statistics.py:81:                cem, qp, alternative="two-sided"
+scripts/analyze_transient_statistics.py:85:                bootstrap_mean_diff(cem, qp)
+scripts/analyze_transient_statistics.py:90:                "cem_mean": np.mean(cem),
+scripts/analyze_transient_statistics.py:91:                "qplite_mean": np.mean(qp),
+scripts/analyze_transient_statistics.py:92:                "cem_minus_qplite": diff,
+scripts/analyze_transient_statistics.py:97:                "cohens_d_cem_minus_qplite":
+scripts/analyze_transient_statistics.py:98:                    cohens_d(cem, qp),
+scripts/analyze_transient_statistics.py:103:        for controller in ["qplite", "cem"]:
+scripts/analyze_transient_statistics.py:122:                "cem_mean": np.nan,
+scripts/analyze_transient_statistics.py:123:                "qplite_mean": np.nan,
+scripts/analyze_transient_statistics.py:124:                "cem_minus_qplite": np.nan,
+scripts/analyze_transient_statistics.py:129:                "cohens_d_cem_minus_qplite": np.nan,
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:99:print("\n[M3 ETA=0.497 RESIDUAL TUNING REPEATS]")
+scripts/summarize_ftcresid_m3_eta0p497_tune_repeats.py:141:plt.title("Motor 3 eta=0.497 residual tuning")
+scripts/bootstrap_seeded_boundary_shifts.py:83:            & (df["controller"] == "qplite")
+scripts/bootstrap_seeded_boundary_shifts.py:88:            & (df["controller"] == "cem")
+scripts/bootstrap_seeded_boundary_shifts.py:133:        # Bootstrap probability that CEM has the lower boundary.
+scripts/bootstrap_seeded_boundary_shifts.py:134:        p_cem_better = float(np.mean(deltas > 0.0))
+scripts/bootstrap_seeded_boundary_shifts.py:141:            "qplite_eta50": q_eta50,
+scripts/bootstrap_seeded_boundary_shifts.py:142:            "cem_eta50": c_eta50,
+scripts/bootstrap_seeded_boundary_shifts.py:143:            "observed_delta_eta50_qplite_minus_cem": observed_delta,
+scripts/bootstrap_seeded_boundary_shifts.py:146:            "bootstrap_probability_cem_lower_boundary": p_cem_better,
+scripts/bootstrap_seeded_boundary_shifts.py:147:            "qplite_eta50_boot_median": float(np.median(q_boot)),
+scripts/bootstrap_seeded_boundary_shifts.py:148:            "cem_eta50_boot_median": float(np.median(c_boot)),
+scripts/bootstrap_seeded_boundary_shifts.py:155:            f"P(CEM lower boundary)={p_cem_better:.4f}"
+scripts/summarize_ftcresid_policy_eta0p497_allmotors.py:164:plt.title("Event-triggered residual policy map, eta=0.497")
+scripts/summarize_seeded_boundary_coarse.py:66:    r"qp_event_allocator_m(\d+)_eta([0-9p]+)_seededcoarse_(qplite|cem)_m\d+_eta[0-9p]+_seed(\d+)\.csv"
+scripts/summarize_seeded_boundary_coarse.py:97:        "allocator_config": str(row.get("allocator_config", "qplite_builtin")),
+scripts/summarize_qp_selected_eta0p497_allmotors.py:134:plt.title("QP-selected residual allocation, eta=0.497")
+scripts/run_qp_selected_eta0p497_allmotors.sh:21:select_residual() {
+scripts/run_qp_selected_eta0p497_allmotors.sh:26:from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp
+scripts/run_qp_selected_eta0p497_allmotors.sh:34:res = allocate_residual_qp(motor, eta, state)
+scripts/run_qp_selected_eta0p497_allmotors.sh:35:print(res.candidate_name, *res.residual)
+scripts/run_qp_selected_eta0p497_allmotors.sh:44:    read -r candidate r1 r2 r3 r4 <<< "$(select_residual "$motor")"
+scripts/run_qp_selected_eta0p497_allmotors.sh:99:echo "[DONE] QP-selected residual eta=0.497 all-motor sweep completed."
+scripts/cem_tune_allocator_weights.py:4:Offline CEM tuner for the tunable residual allocator.
+scripts/cem_tune_allocator_weights.py:9:- Runtime allocation remains constrained to the empirical residual candidate set.
+scripts/cem_tune_allocator_weights.py:31:from src.controllers.residual_allocator_qp import AllocatorState
+scripts/cem_tune_allocator_weights.py:32:from src.controllers.residual_allocator_tunable import (
+scripts/cem_tune_allocator_weights.py:34:    allocate_residual_tunable,
+scripts/cem_tune_allocator_weights.py:68:def vector_to_config(vec: np.ndarray, name: str = "cem_candidate") -> AllocatorWeightConfig:
+scripts/cem_tune_allocator_weights.py:130:    This is NOT a replacement for validation; it only guides offline search.
+scripts/cem_tune_allocator_weights.py:152:    result = allocate_residual_tunable(motor, eta, state, cfg)
+scripts/cem_tune_allocator_weights.py:157:    residual = [float(v) for v in result.residual]
+scripts/cem_tune_allocator_weights.py:187:    effort = sum(v * v for v in residual)
+scripts/cem_tune_allocator_weights.py:188:    max_resid = max(residual)
+scripts/cem_tune_allocator_weights.py:197:    # Keep the learned config from becoming purely "always use maximum residual".
+scripts/cem_tune_allocator_weights.py:216:            "r1": result.residual[0],
+scripts/cem_tune_allocator_weights.py:217:            "r2": result.residual[1],
+scripts/cem_tune_allocator_weights.py:218:            "r3": result.residual[2],
+scripts/cem_tune_allocator_weights.py:219:            "r4": result.residual[3],
+scripts/cem_tune_allocator_weights.py:244:    parser.add_argument("--baseline", default="configs/allocator_weights/qplite_baseline.json")
+scripts/cem_tune_allocator_weights.py:245:    parser.add_argument("--out-config", default="configs/allocator_weights/cem_tuned_boundary.json")
+scripts/cem_tune_allocator_weights.py:263:    baseline_choices.to_csv(out_dir / "cem_baseline_candidate_choices.csv", index=False)
+scripts/cem_tune_allocator_weights.py:286:            cfg = vector_to_config(vec, name=f"cem_gen{gen}")
+scripts/cem_tune_allocator_weights.py:318:    best_cfg.name = "cem_tuned_boundary"
+scripts/cem_tune_allocator_weights.py:325:    history_df.to_csv(out_dir / "cem_tuning_history.csv", index=False)
+scripts/cem_tune_allocator_weights.py:328:    best_choices.to_csv(out_dir / "cem_tuned_candidate_choices.csv", index=False)
+scripts/cem_tune_allocator_weights.py:337:    print(f"Saved history: {out_dir / 'cem_tuning_history.csv'}")
+scripts/cem_tune_allocator_weights.py:338:    print(f"Saved tuned choices: {out_dir / 'cem_tuned_candidate_choices.csv'}")
+scripts/cem_tune_allocator_weights.py:344:    plt.ylabel("CEM objective loss")
+scripts/cem_tune_allocator_weights.py:345:    plt.title("CEM allocator-weight tuning")
+scripts/cem_tune_allocator_weights.py:349:    plt.savefig(out_dir / "cem_tuning_history.png", dpi=200)
+scripts/cem_tune_allocator_weights.py:354:    for label, cfg in [("baseline", baseline_cfg), ("cem_tuned", best_cfg)]:
+scripts/cem_tune_allocator_weights.py:361:    compare.to_csv(out_dir / "cem_baseline_vs_tuned_scenario_rows.csv", index=False)
+scripts/cem_tune_allocator_weights.py:375:    comp_summary.to_csv(out_dir / "cem_baseline_vs_tuned_summary.csv", index=False)
+scripts/summarize_m2_eta0p497_boost_repeats.py:107:plt.xlabel("Healthy-motor residual boost [PWM]")
+scripts/analyze_aggregate_transient_mechanism.py:195:            & (aggregate["controller"] == "qplite")
+scripts/analyze_aggregate_transient_mechanism.py:200:            & (aggregate["controller"] == "cem")
+scripts/analyze_aggregate_transient_mechanism.py:212:            "cem_minus_qplite_fault_to_contact_s":
+scripts/analyze_aggregate_transient_mechanism.py:216:            "qplite_minus_cem_touchdown_vz":
+scripts/analyze_aggregate_transient_mechanism.py:220:            "qplite_minus_cem_peak_abs_vz":
+scripts/analyze_aggregate_transient_mechanism.py:224:            "qplite_minus_cem_mean_abs_vz":
+scripts/analyze_aggregate_transient_mechanism.py:228:            "qplite_minus_cem_integral_abs_vz_dt":
+scripts/analyze_aggregate_transient_mechanism.py:232:            "cem_minus_qplite_mean_max_pwm":
+scripts/analyze_aggregate_transient_mechanism.py:258:                mdf["controller"] == "qplite"
+scripts/analyze_aggregate_transient_mechanism.py:261:                mdf["controller"] == "cem"
+scripts/analyze_aggregate_transient_mechanism.py:268:            tick_labels=["QP-lite", "CEM"],
+scripts/analyze_aggregate_transient_mechanism.py:287:                mdf["controller"] == "qplite"
+scripts/analyze_aggregate_transient_mechanism.py:290:                mdf["controller"] == "cem"
+scripts/analyze_aggregate_transient_mechanism.py:297:            tick_labels=["QP-lite", "CEM"],
+scripts/analyze_aggregate_transient_mechanism.py:324:        for controller in ["qplite", "cem"]:
+scripts/analyze_aggregate_transient_mechanism.py:363:                mdf["controller"] == "qplite"
+scripts/analyze_aggregate_transient_mechanism.py:366:                mdf["controller"] == "cem"
+scripts/analyze_aggregate_transient_mechanism.py:373:            tick_labels=["QP-lite", "CEM"],
+scripts/run_ftcresid_patterns_m1_eta0p45.sh:46:    echo "[FTC RESIDUAL PATTERN] ${name}: r=[$r1,$r2,$r3,$r4]"
+scripts/run_ftcresid_patterns_m1_eta0p45.sh:87:echo "[DONE] FTC residual pattern sweep completed."
+scripts/audit_invalid_prefault_trials.py:8:    "qp_event_allocator_m1_eta0p496_seededfine_qplite_m1_eta0p496_seed14980005.csv",
+scripts/audit_invalid_prefault_trials.py:9:    "qp_event_allocator_m1_eta0p496_seededfine_qplite_m1_eta0p496_seed14980010.csv",
+scripts/audit_invalid_prefault_trials.py:10:    "qp_event_allocator_m1_eta0p496_seededfine_qplite_m1_eta0p496_seed14980026.csv",
+scripts/audit_invalid_prefault_trials.py:11:    "qp_event_allocator_m3_eta0p496_seededfine_qplite_m3_eta0p496_seed34980012.csv",
+scripts/audit_invalid_prefault_trials.py:12:    "qp_event_allocator_m3_eta0p496_seededfine_cem_m3_eta0p496_seed39980011.csv",
+scripts/audit_invalid_prefault_trials.py:13:    "qp_event_allocator_m3_eta0p496_seededfine_cem_m3_eta0p496_seed39980022.csv",
+scripts/run_ftcresid_m3_eta0p497_tune_repeats.sh:101:echo "[DONE] Motor 3 eta=0.497 residual tuning repeats completed."
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:88:    raise SystemExit("[ERROR] No asymmetric residual logs found.")
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:100:print("\n[M2 ETA=0.497 ASYMMETRIC RESIDUAL PATTERNS]")
+scripts/summarize_ftcresid_m2_eta0p497_patterns.py:125:plt.title("Motor 2 eta=0.497 asymmetric residual search")
+scripts/summarize_seeded_trials.py:87:        "allocator_config": str(row.get("allocator_config", "qplite_builtin")),
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:73:        "opposite_residual": 10000,
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:91:    raise SystemExit("[ERROR] No opposite residual logs found.")
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:99:print("\n[OPPOSITE RESIDUAL ETA=0.497 ALL MOTORS]")
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:102:agg = out.groupby(["motor", "eta", "boost", "opposite_residual", "r1", "r2", "r3", "r4"]).agg(
+scripts/summarize_ftcresid_opposite_eta0p497_allmotors.py:139:plt.title("Opposite-motor residual, eta=0.497, all motors")
+scripts/fit_residual_dose_response_logistic.py:15:    "seeded_residual_dose_response.csv"
+scripts/fit_residual_dose_response_logistic.py:20:    "seeded_residual_dose_logistic_fits.csv"
+scripts/fit_residual_dose_response_logistic.py:25:    "seeded_residual_dose_thresholds.csv"
+scripts/fit_residual_dose_response_logistic.py:30:    "seeded_residual_dose_motor_comparison.csv"
+scripts/fit_residual_dose_response_logistic.py:35:    "seeded_residual_dose_bootstrap_samples.csv.gz"
+scripts/fit_residual_dose_response_logistic.py:67:def fit_logistic(residual, safe):
+scripts/fit_residual_dose_response_logistic.py:71:        P(safe) = sigmoid(a + b * residual)
+scripts/fit_residual_dose_response_logistic.py:73:    The residual is centered and scaled to improve numerical conditioning.
+scripts/fit_residual_dose_response_logistic.py:74:    Positive slope is enforced because greater residual authority should not
+scripts/fit_residual_dose_response_logistic.py:78:    x = np.asarray(residual, dtype=float)
+scripts/fit_residual_dose_response_logistic.py:127:        "residual_center": x_center,
+scripts/fit_residual_dose_response_logistic.py:128:        "residual_scale": x_scale,
+scripts/fit_residual_dose_response_logistic.py:144:    residual,
+scripts/fit_residual_dose_response_logistic.py:149:        intercept + slope * np.asarray(residual, dtype=float)
+scripts/fit_residual_dose_response_logistic.py:162:    Trials are resampled independently within each residual level so that
+scripts/fit_residual_dose_response_logistic.py:167:    residual_levels = sorted(df["residual"].unique())
+scripts/fit_residual_dose_response_logistic.py:174:        for residual in residual_levels:
+scripts/fit_residual_dose_response_logistic.py:175:            sub = df[df["residual"] == residual]
+scripts/fit_residual_dose_response_logistic.py:194:                boot["residual"],
+scripts/fit_residual_dose_response_logistic.py:248:        "residual",
+scripts/fit_residual_dose_response_logistic.py:282:    print("\n[RESIDUAL DOSE-RESPONSE LOGISTIC FITS]")
+scripts/fit_residual_dose_response_logistic.py:288:            sub["residual"],
+scripts/fit_residual_dose_response_logistic.py:320:            "residual_min": int(sub["residual"].min()),
+scripts/fit_residual_dose_response_logistic.py:321:            "residual_max": int(sub["residual"].max()),
+scripts/fit_residual_dose_response_logistic.py:342:                "residual_threshold_pwm":
+scripts/fit_residual_dose_response_logistic.py:404:            # Positive value means motor B requires more residual authority.
+scripts/fit_residual_dose_response_logistic.py:417:                ]["residual_threshold_pwm"].iloc[0]
+scripts/fit_residual_dose_response_logistic.py:427:                ]["residual_threshold_pwm"].iloc[0]
+scripts/fit_residual_dose_response_logistic.py:456:    print("\n[RESIDUAL THRESHOLDS]")
+scripts/fit_residual_dose_response_logistic.py:466:    residual_grid = np.linspace(
+scripts/fit_residual_dose_response_logistic.py:467:        float(df["residual"].min()) - 500.0,
+scripts/fit_residual_dose_response_logistic.py:468:        float(df["residual"].max()) + 500.0,
+scripts/fit_residual_dose_response_logistic.py:476:            sub.groupby("residual")
+scripts/fit_residual_dose_response_logistic.py:491:            residual_grid,
+scripts/fit_residual_dose_response_logistic.py:503:            agg["residual"],
+scripts/fit_residual_dose_response_logistic.py:510:            residual_grid,
+scripts/fit_residual_dose_response_logistic.py:522:                threshold_row["residual_threshold_pwm"]
+scripts/fit_residual_dose_response_logistic.py:542:            "Opposite-motor residual [PWM]"
+scripts/fit_residual_dose_response_logistic.py:548:            f"Residual recoverability curve — motor {motor}, "
+scripts/fit_residual_dose_response_logistic.py:558:            f"seeded_residual_dose_logistic_motor{motor}.png"
+scripts/fit_residual_dose_response_logistic.py:589:            "residual_threshold_pwm"
+scripts/fit_residual_dose_response_logistic.py:623:        "Required opposite-motor residual [PWM]"
+scripts/fit_residual_dose_response_logistic.py:626:        "Residual authority required for recoverability"
+scripts/fit_residual_dose_response_logistic.py:634:        "seeded_residual_dose_threshold_comparison.png"
+scripts/fit_residual_dose_response_logistic.py:652:        "\n[DONE] Residual dose-response logistic "
+scripts/summarize_ftcresid_m2_eta0p497_best_repeats.py:141:plt.title("Motor 2 eta=0.497 asymmetric residual repeats")
+scripts/test_residual_allocator_qp.py:9:from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp
+scripts/test_residual_allocator_qp.py:13:    result = allocate_residual_qp(motor, eta, state)
+scripts/test_residual_allocator_qp.py:16:        f"candidate={result.candidate_name}, r={result.residual}, "
+scripts/run_ftcresid_m3dominant_m1_eta0p45.sh:50:    echo "[M3-DOMINANT RESIDUAL] ${name}: r=[$r1,$r2,$r3,$r4]"
+scripts/run_ftcresid_m3dominant_m1_eta0p45.sh:91:echo "[DONE] M3-dominant residual sweep completed."
+scripts/run_ftcresid_m2_eta0p497_patterns.sh:119:echo "[DONE] Motor 2 eta=0.497 asymmetric residual pattern sweep completed."
+scripts/fit_seeded_boundary_logistic.py:84:    Resamples trials with replacement independently within each eta,
+scripts/fit_seeded_boundary_logistic.py:179:                + (0 if controller == "qplite" else 1),
+scripts/fit_seeded_boundary_logistic.py:223:        if "qplite" not in mfit.index or "cem" not in mfit.index:
+scripts/fit_seeded_boundary_logistic.py:226:        q = mfit.loc["qplite"]
+scripts/fit_seeded_boundary_logistic.py:227:        c = mfit.loc["cem"]
+scripts/fit_seeded_boundary_logistic.py:234:            "qplite_eta50": float(q["eta50"]),
+scripts/fit_seeded_boundary_logistic.py:235:            "cem_eta50": float(c["eta50"]),
+scripts/fit_seeded_boundary_logistic.py:236:            "eta50_improvement_qplite_minus_cem": delta,
+scripts/fit_seeded_boundary_logistic.py:238:                "CEM lower boundary"
+scripts/fit_seeded_boundary_logistic.py:264:        for controller in ["qplite", "cem"]:
+scripts/summarize_ftcboost_boundary_repeats_allmotors.py:125:plt.title("All-motor residual FTC boundary, boost=10000")
+scripts/set_sitl_ftc_residuals.py:25:        cf.param.set_value("sitlFtc.r1", str(args.r1))
+scripts/set_sitl_ftc_residuals.py:26:        cf.param.set_value("sitlFtc.r2", str(args.r2))
+scripts/set_sitl_ftc_residuals.py:27:        cf.param.set_value("sitlFtc.r3", str(args.r3))
+scripts/set_sitl_ftc_residuals.py:28:        cf.param.set_value("sitlFtc.r4", str(args.r4))
+scripts/set_sitl_ftc_residuals.py:31:        print("[OK] Set residuals:")
+scripts/set_sitl_ftc_residuals.py:32:        print(f"sitlFtc.r1 = {args.r1}")
+scripts/set_sitl_ftc_residuals.py:33:        print(f"sitlFtc.r2 = {args.r2}")
+scripts/set_sitl_ftc_residuals.py:34:        print(f"sitlFtc.r3 = {args.r3}")
+scripts/set_sitl_ftc_residuals.py:35:        print(f"sitlFtc.r4 = {args.r4}")
+scripts/summarize_seeded_residual_dose_response.py:16:    "seeded_residual_dose_response.csv"
+scripts/summarize_seeded_residual_dose_response.py:20:    "seeded_residual_dose_response_aggregate.csv"
+scripts/summarize_seeded_residual_dose_response.py:39:    r"_r(?P<residual>\d+)"
+scripts/summarize_seeded_residual_dose_response.py:50:    residual: int,
+scripts/summarize_seeded_residual_dose_response.py:58:           + residual * 100
+scripts/summarize_seeded_residual_dose_response.py:65:        - residual * 100
+scripts/summarize_seeded_residual_dose_response.py:170:        residual = int(match.group("residual"))
+scripts/summarize_seeded_residual_dose_response.py:175:            residual=residual,
+scripts/summarize_seeded_residual_dose_response.py:207:        # Residual and candidate should be constant after allocation.
+scripts/summarize_seeded_residual_dose_response.py:229:            "residual": residual,
+scripts/summarize_seeded_residual_dose_response.py:262:        ["motor", "residual", "rep"]
+scripts/summarize_seeded_residual_dose_response.py:277:        summary.groupby(["motor", "eta", "residual"])
+scripts/summarize_seeded_residual_dose_response.py:337:        ["motor", "residual"]
+scripts/summarize_seeded_residual_dose_response.py:342:    print("\n[SEEDED RESIDUAL DOSE-RESPONSE AGGREGATE]")
+scripts/summarize_seeded_residual_dose_response.py:379:            sub["residual"],
+scripts/summarize_seeded_residual_dose_response.py:385:        plt.xlabel("Opposite-motor residual [PWM]")
+scripts/summarize_seeded_residual_dose_response.py:388:            f"Residual-strength dose response — "
+scripts/summarize_seeded_residual_dose_response.py:397:            f"seeded_residual_dose_motor{motor}.png"
+scripts/summarize_seeded_residual_dose_response.py:406:            sub["residual"],
+scripts/summarize_seeded_residual_dose_response.py:417:        plt.xlabel("Opposite-motor residual [PWM]")
+scripts/summarize_seeded_residual_dose_response.py:431:            f"seeded_residual_dose_vz_motor{motor}.png"
+scripts/summarize_m2_eta0p497_lowerboost_repeats.py:107:plt.xlabel("Healthy-motor residual boost [PWM]")
+scripts/run_ftcresid_opposite_eta0p497_allmotors.sh:22:set_residuals_for_motor() {
+scripts/run_ftcresid_opposite_eta0p497_allmotors.sh:50:    set_residuals_for_motor "$motor"
+scripts/run_ftcresid_opposite_eta0p497_allmotors.sh:53:    echo "[OPPOSITE RESIDUAL] motor=${motor}, eta=${ETA}, rep=${rep}, r=[$r1,$r2,$r3,$r4]"
+scripts/run_ftcresid_opposite_eta0p497_allmotors.sh:105:echo "[DONE] Opposite-motor residual all-motor eta=0.497 sweep completed."
+scripts/run_ftcresid_policy_eta0p497_allmotors.sh:16:# m1 fault -> opposite m3 residual
+scripts/run_ftcresid_policy_eta0p497_allmotors.sh:17:# m2 fault -> best empirical asymmetric residual
+scripts/run_ftcresid_policy_eta0p497_allmotors.sh:18:# m3 fault -> opposite m1 residual, tuned to 12000
+scripts/run_ftcresid_policy_eta0p497_allmotors.sh:19:# m4 fault -> opposite m2 residual
+scripts/summarize_ftcresid_patterns.py:94:        print("[ERROR] No residual pattern logs found.")
+scripts/summarize_ftcresid_patterns.py:102:    print("\n[FTC RESIDUAL PATTERNS: M1 ETA=0.45]")
+scripts/summarize_ftcresid_patterns.py:119:    plt.title("Asymmetric residual patterns: m1 eta=0.45")
+scripts/analyze_motor_authority_mechanism.py:55:        for controller in ["qplite", "cem"]:
+scripts/analyze_motor_authority_mechanism.py:164:        for controller in ["qplite", "cem"]:
+scripts/test_residual_allocator_tunable.py:9:from src.controllers.residual_allocator_qp import AllocatorState
+scripts/test_residual_allocator_tunable.py:10:from src.controllers.residual_allocator_tunable import (
+scripts/test_residual_allocator_tunable.py:12:    allocate_residual_tunable,
+scripts/test_residual_allocator_tunable.py:17:    result = allocate_residual_tunable(motor, eta, state, cfg)
+scripts/test_residual_allocator_tunable.py:20:        f"candidate={result.candidate_name}, r={result.residual}, "
+scripts/test_residual_allocator_tunable.py:26:    cfg = load_weight_config("configs/allocator_weights/qplite_baseline.json")
+scripts/fault_triggered_landing_qp_event_allocator.py:19:from src.controllers.residual_allocator_qp import AllocatorState, allocate_residual_qp, predict_metrics
+scripts/fault_triggered_landing_qp_event_allocator.py:20:from src.controllers.residual_allocator_tunable import load_weight_config, allocate_residual_tunable
+scripts/fault_triggered_landing_qp_event_allocator.py:49:    set_param(cf, "sitlFtc.enable", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:50:    set_param(cf, "sitlFtc.healthyBoost", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:51:    set_param(cf, "sitlFtc.r1", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:52:    set_param(cf, "sitlFtc.r2", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:53:    set_param(cf, "sitlFtc.r3", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:54:    set_param(cf, "sitlFtc.r4", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:63:def apply_residual(cf, r):
+scripts/fault_triggered_landing_qp_event_allocator.py:66:    set_param(cf, "sitlFtc.healthyBoost", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:67:    set_param(cf, "sitlFtc.r1", r1)
+scripts/fault_triggered_landing_qp_event_allocator.py:68:    set_param(cf, "sitlFtc.r2", r2)
+scripts/fault_triggered_landing_qp_event_allocator.py:69:    set_param(cf, "sitlFtc.r3", r3)
+scripts/fault_triggered_landing_qp_event_allocator.py:70:    set_param(cf, "sitlFtc.r4", r4)
+scripts/fault_triggered_landing_qp_event_allocator.py:71:    set_param(cf, "sitlFtc.enable", 1)
+scripts/fault_triggered_landing_qp_event_allocator.py:74:def clear_residual(cf):
+scripts/fault_triggered_landing_qp_event_allocator.py:75:    set_param(cf, "sitlFtc.r1", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:76:    set_param(cf, "sitlFtc.r2", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:77:    set_param(cf, "sitlFtc.r3", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:78:    set_param(cf, "sitlFtc.r4", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:79:    set_param(cf, "sitlFtc.healthyBoost", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:80:    set_param(cf, "sitlFtc.enable", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:236:    parser.add_argument("--manual-residual", action="store_true",
+scripts/fault_triggered_landing_qp_event_allocator.py:238:    parser.add_argument("--manual-name", default="manual_residual")
+scripts/fault_triggered_landing_qp_event_allocator.py:280:    allocator_config_name = "qplite_builtin"
+scripts/fault_triggered_landing_qp_event_allocator.py:384:                        if args.manual_residual:
+scripts/fault_triggered_landing_qp_event_allocator.py:387:                                raise RuntimeError("Manual residual must be zero on the faulted motor.")
+scripts/fault_triggered_landing_qp_event_allocator.py:393:                                residual=selected_r,
+scripts/fault_triggered_landing_qp_event_allocator.py:396:                            allocator_config_name = "manual_residual_sweep"
+scripts/fault_triggered_landing_qp_event_allocator.py:399:                                allocation = allocate_residual_tunable(args.motor, args.eta, allocator_state, weight_cfg)
+scripts/fault_triggered_landing_qp_event_allocator.py:401:                                allocation = allocate_residual_qp(args.motor, args.eta, allocator_state)
+scripts/fault_triggered_landing_qp_event_allocator.py:404:                            selected_r = allocation.residual
+scripts/fault_triggered_landing_qp_event_allocator.py:426:                        print(f"residual: {selected_r}")
+scripts/fault_triggered_landing_qp_event_allocator.py:433:                        apply_residual(cf, selected_r)
+scripts/fault_triggered_landing_qp_event_allocator.py:521:        clear_residual(cf)
+scripts/audit_near_zero_contact_trajectories.py:69:    # one QP-lite unsafe and one CEM safe for motors 1 and 4,
+scripts/audit_near_zero_contact_trajectories.py:72:        (1, "qplite", "normal_unsafe"),
+scripts/audit_near_zero_contact_trajectories.py:73:        (1, "cem", "normal_safe"),
+scripts/audit_near_zero_contact_trajectories.py:74:        (3, "qplite", "normal_safe"),
+scripts/audit_near_zero_contact_trajectories.py:75:        (3, "cem", "normal_safe"),
+scripts/audit_near_zero_contact_trajectories.py:76:        (4, "qplite", "normal_unsafe"),
+scripts/audit_near_zero_contact_trajectories.py:77:        (4, "cem", "normal_safe"),
+scripts/smoke_test_pinv_fault.py:145:            "sitlFtc.enable",
+scripts/smoke_test_pinv_fault.py:168:        set_param(scf, "sitlFtc.enable", "0")
+scripts/run_seeded_boundary_fine.sh:9:#   CONTROLLERS="qplite" MOTORS="2" ETAS="0.48 0.49 0.50" REPS=12 ./scripts/run_seeded_boundary_coarse.sh
+scripts/run_seeded_boundary_fine.sh:10:CONTROLLERS="${CONTROLLERS:-qplite cem}"
+scripts/run_seeded_boundary_fine.sh:16:CEM_CONFIG="${CEM_CONFIG:-configs/allocator_weights/cem_tuned_boundary.json}"
+scripts/run_seeded_boundary_fine.sh:37:    if [ "$controller" = "qplite" ]; then
+scripts/run_seeded_boundary_fine.sh:39:    elif [ "$controller" = "cem" ]; then
+scripts/run_seeded_boundary_fine.sh:104:    if [ "$controller" = "qplite" ]; then
+scripts/run_seeded_boundary_fine.sh:122:    elif [ "$controller" = "cem" ]; then
+scripts/run_seeded_boundary_fine.sh:140:            --weight-config "$CEM_CONFIG"
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:90:    raise SystemExit("[ERROR] No tuned residual logs found.")
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:98:print("\n[TUNED RESIDUAL ETA=0.497 ALL MOTORS]")
+scripts/summarize_ftcresid_tuned_eta0p497_allmotors.py:138:plt.title("Tuned residual allocation, eta=0.497, all motors")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:279:    parser.add_argument("--r1", type=float, default=0.0, help="Explicit residual PWM for motor 1")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:280:    parser.add_argument("--r2", type=float, default=0.0, help="Explicit residual PWM for motor 2")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:281:    parser.add_argument("--r3", type=float, default=0.0, help="Explicit residual PWM for motor 3")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:282:    parser.add_argument("--r4", type=float, default=0.0, help="Explicit residual PWM for motor 4")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:288:    residuals = [float(args.r1), float(args.r2), float(args.r3), float(args.r4)]
+scripts/fault_triggered_landing_motorloss_ftcboost.py:291:    r_tag = f"r{int(residuals[0])}_{int(residuals[1])}_{int(residuals[2])}_{int(residuals[3])}"
+scripts/fault_triggered_landing_motorloss_ftcboost.py:300:    print(f"residuals PWM: {residuals}")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:319:            cf.param.set_value("sitlFtc.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:320:            cf.param.set_value("sitlFtc.healthyBoost", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:321:            cf.param.set_value("sitlFtc.r1", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:322:            cf.param.set_value("sitlFtc.r2", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:323:            cf.param.set_value("sitlFtc.r3", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:324:            cf.param.set_value("sitlFtc.r4", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:356:            cf.param.set_value("sitlFtc.healthyBoost", str(healthy_boost))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:357:            cf.param.set_value("sitlFtc.r1", str(residuals[0]))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:358:            cf.param.set_value("sitlFtc.r2", str(residuals[1]))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:359:            cf.param.set_value("sitlFtc.r3", str(residuals[2]))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:360:            cf.param.set_value("sitlFtc.r4", str(residuals[3]))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:362:            ftc_enabled = healthy_boost > 0 or any(abs(r) > 0 for r in residuals)
+scripts/fault_triggered_landing_motorloss_ftcboost.py:363:            cf.param.set_value("sitlFtc.enable", "1" if ftc_enabled else "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:365:            print(f"[FTC] explicit residuals enabled: r1={residuals[0]:.1f}, r2={residuals[1]:.1f}, r3={residuals[2]:.1f}, r4={residuals[3]:.1f}")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:386:                cf.param.set_value("sitlFtc.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:387:                cf.param.set_value("sitlFtc.healthyBoost", "0")
+scripts/analyze_seeded_boundary_mechanism.py:156:    # 3. Compare QP-lite vs CEM aggregate deltas
+scripts/analyze_seeded_boundary_mechanism.py:177:                & (outcome["controller"] == "qplite")
+scripts/analyze_seeded_boundary_mechanism.py:182:                & (outcome["controller"] == "cem")
+scripts/analyze_seeded_boundary_mechanism.py:190:            "safe_rate_cem_minus_qplite":
+scripts/analyze_seeded_boundary_mechanism.py:192:            "mean_vz_qplite_minus_cem":
+scripts/analyze_seeded_boundary_mechanism.py:194:            "mean_drift_qplite_minus_cem":
+scripts/analyze_seeded_boundary_mechanism.py:196:            "mean_tilt_qplite_minus_cem":
+scripts/analyze_seeded_boundary_mechanism.py:198:            "mean_angrate_qplite_minus_cem":
+scripts/analyze_seeded_boundary_mechanism.py:221:            mdf[mdf["controller"] == "qplite"]
+scripts/analyze_seeded_boundary_mechanism.py:227:            mdf[mdf["controller"] == "cem"]
+scripts/analyze_seeded_boundary_mechanism.py:240:            tick_labels=["QP-lite", "CEM"],
+scripts/analyze_seeded_boundary_mechanism.py:274:    # 5. Plot residual vectors
+scripts/analyze_seeded_boundary_mechanism.py:277:    residual_summary = (
+scripts/analyze_seeded_boundary_mechanism.py:284:    residual_path = (
+scripts/analyze_seeded_boundary_mechanism.py:286:        "eta0p496_mean_residual_vectors.csv"
+scripts/analyze_seeded_boundary_mechanism.py:289:    residual_summary.to_csv(
+scripts/analyze_seeded_boundary_mechanism.py:290:        residual_path,
+scripts/analyze_seeded_boundary_mechanism.py:294:    print("\n[MEAN RESIDUAL VECTORS]")
+scripts/analyze_seeded_boundary_mechanism.py:295:    print(residual_summary.to_string(index=False))
+scripts/analyze_seeded_boundary_mechanism.py:298:        mdf = residual_summary[
+scripts/analyze_seeded_boundary_mechanism.py:299:            residual_summary["motor"] == motor
+scripts/analyze_seeded_boundary_mechanism.py:310:            mdf["controller"] == "qplite"
+scripts/analyze_seeded_boundary_mechanism.py:314:            mdf["controller"] == "cem"
+scripts/analyze_seeded_boundary_mechanism.py:336:            label="CEM",
+scripts/analyze_seeded_boundary_mechanism.py:340:        plt.ylabel("Mean residual command [PWM]")
+scripts/analyze_seeded_boundary_mechanism.py:342:            f"Residual allocation at eta={TARGET_ETA:.3f} "
+scripts/analyze_seeded_boundary_mechanism.py:352:            f"eta0p496_residual_vector_motor{motor}.png"
+scripts/analyze_seeded_boundary_mechanism.py:364:    print(residual_path)
+src/controllers/residual_allocator_qp.py:4:Fault-aware residual allocation QP-lite.
+src/controllers/residual_allocator_qp.py:6:This module computes motor residuals
+src/controllers/residual_allocator_qp.py:17:    3. residual effort penalty,
+src/controllers/residual_allocator_qp.py:22:between the static residual policy map and a future CBF-QP/MPC layer.
+src/controllers/residual_allocator_qp.py:33:Residual = List[int]
+src/controllers/residual_allocator_qp.py:52:    residual: Residual
+src/controllers/residual_allocator_qp.py:71:def empirical_prior_candidates(fault_motor: int) -> List[Tuple[str, Residual]]:
+src/controllers/residual_allocator_qp.py:73:    Candidate set centered around experimentally useful residual structures.
+src/controllers/residual_allocator_qp.py:77:    because residual values are applied through CFLib params and the dynamics are
+src/controllers/residual_allocator_qp.py:130:def nominal_reference(fault_motor: int, eta: float) -> Residual:
+src/controllers/residual_allocator_qp.py:153:    residual: Residual,
+src/controllers/residual_allocator_qp.py:163:    r = [float(v) for v in residual]
+src/controllers/residual_allocator_qp.py:184:    # Residual authority model.
+src/controllers/residual_allocator_qp.py:185:    # Opposite-motor residual is the main authority term.
+src/controllers/residual_allocator_qp.py:186:    # Support residual is deliberately weaker because experiments showed
+src/controllers/residual_allocator_qp.py:190:    # Over-boost penalty: experiments showed too much residual can worsen motor 2.
+src/controllers/residual_allocator_qp.py:209:    residual: Residual,
+src/controllers/residual_allocator_qp.py:210:    ref: Residual,
+src/controllers/residual_allocator_qp.py:212:    pred_vz, pred_drift, pred_tilt = predict_metrics(fault_motor, eta, state, residual)
+src/controllers/residual_allocator_qp.py:214:    r = [float(v) for v in residual]
+src/controllers/residual_allocator_qp.py:231:    # Important: penalize support residual separately so the allocator does not
+src/controllers/residual_allocator_qp.py:247:    if fault_motor == 2 and residual[3] > 12500:
+src/controllers/residual_allocator_qp.py:251:    opp = residual[opposite_motor(fault_motor) - 1]
+src/controllers/residual_allocator_qp.py:270:def allocate_residual_qp(
+src/controllers/residual_allocator_qp.py:280:    for name, residual in candidates:
+src/controllers/residual_allocator_qp.py:281:        if residual[fault_motor - 1] != 0:
+src/controllers/residual_allocator_qp.py:284:        score, details = score_candidate(fault_motor, eta, state, residual, ref)
+src/controllers/residual_allocator_qp.py:288:                residual=[int(v) for v in residual],
+src/controllers/residual_allocator_qp.py:298:        raise RuntimeError("No feasible residual candidate found.")
+src/controllers/residual_allocator_qp.py:332:    result = allocate_residual_qp(args.motor, args.eta, state)
+src/controllers/residual_allocator_qp.py:338:    print(f"residual: {result.residual}")
+src/controllers/fault_aware_pinv_reference.py:261:                residual_target = (
+src/controllers/fault_aware_pinv_reference.py:265:                residual_target = desired.copy()
+src/controllers/fault_aware_pinv_reference.py:268:            rhs = m_free.T @ w2 @ residual_target
+src/controllers/residual_allocator_tunable.py:4:Tunable fault-aware residual allocator.
+src/controllers/residual_allocator_tunable.py:6:This wrapper keeps the existing residual candidate set and surrogate model,
+src/controllers/residual_allocator_tunable.py:8:that RL / CEM / Bayesian optimization will tune.
+src/controllers/residual_allocator_tunable.py:28:from src.controllers.residual_allocator_qp import (
+src/controllers/residual_allocator_tunable.py:40:    name: str = "qplite_baseline"
+src/controllers/residual_allocator_tunable.py:76:    residual: list[int],
+src/controllers/residual_allocator_tunable.py:84:        residual=residual,
+src/controllers/residual_allocator_tunable.py:87:    r = [float(v) for v in residual]
+src/controllers/residual_allocator_tunable.py:116:    if fault_motor == 2 and residual[3] > 12500:
+src/controllers/residual_allocator_tunable.py:119:    opp = residual[opp_idx]
+src/controllers/residual_allocator_tunable.py:142:def allocate_residual_tunable(
+src/controllers/residual_allocator_tunable.py:156:    for name, residual in candidates:
+src/controllers/residual_allocator_tunable.py:157:        if residual[fault_motor - 1] != 0:
+src/controllers/residual_allocator_tunable.py:164:            residual=residual,
+src/controllers/residual_allocator_tunable.py:171:                residual=[int(v) for v in residual],
+src/controllers/residual_allocator_tunable.py:188:    parser.add_argument("--config", default="configs/allocator_weights/qplite_baseline.json")
+src/controllers/residual_allocator_tunable.py:216:    result = allocate_residual_tunable(args.motor, args.eta, state, cfg)
+src/controllers/residual_allocator_tunable.py:223:    print(f"residual: {result.residual}")
+
+========== FAULT PARAMETER SETUP ==========
+scripts/validate_pinv_healthy_invariance.py:45:        set_param(scf, "sitlFault.enable", "0")
+scripts/validate_pinv_healthy_invariance.py:46:        set_param(scf, "sitlFtc.enable", "0")
+scripts/fault_triggered_landing_motorloss_param.py:307:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_param.py:308:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_param.py:309:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_param.py:328:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_param.py:329:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/check_sitl_ftc_params.py:14:    cf.param.set_value("sitlFault.motor", "1")
+scripts/check_sitl_ftc_params.py:15:    cf.param.set_value("sitlFault.eta", "0.50")
+scripts/check_sitl_ftc_params.py:16:    cf.param.set_value("sitlFault.enable", "1")
+scripts/check_sitl_ftc_params.py:21:    cf.param.set_value("sitlFtc.enable", "1")
+scripts/check_sitl_ftc_params.py:25:    cf.param.set_value("sitlFtc.enable", "0")
+scripts/check_sitl_ftc_params.py:27:    cf.param.set_value("sitlFault.enable", "0")
+scripts/check_sitl_ftc_params.py:28:    cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:430:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:431:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:432:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:451:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_cbf_v5.py:452:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:350:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_maxbrake.py:351:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_maxbrake.py:352:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:371:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_maxbrake.py:372:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/check_sitl_fault_params.py:15:        cf.param.set_value("sitlFault.enable", "0")
+scripts/check_sitl_fault_params.py:16:        cf.param.set_value("sitlFault.motor", "1")
+scripts/check_sitl_fault_params.py:17:        cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:425:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:426:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:427:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:446:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_cbf_v4.py:447:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_v1.py:283:            cf.param.set_value("sitlFault.motor", str(FAULT_MOTOR))
+scripts/fault_triggered_landing_motorloss_v1.py:284:            cf.param.set_value("sitlFault.eta", str(FAULT_ETA))
+scripts/fault_triggered_landing_motorloss_v1.py:285:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_v1.py:304:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_v1.py:305:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:402:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:403:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:404:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:423:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_adaptive_v2.py:424:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:330:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_param_pwm.py:331:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_param_pwm.py:332:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:351:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_param_pwm.py:352:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_adaptive.py:367:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_adaptive.py:368:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_adaptive.py:369:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_adaptive.py:388:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_adaptive.py:389:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:434:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:435:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:436:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:455:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_cbf_v6.py:456:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_qp_event_allocator.py:45:    set_param(cf, "sitlFault.enable", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:46:    set_param(cf, "sitlFault.motor", 1)
+scripts/fault_triggered_landing_qp_event_allocator.py:47:    set_param(cf, "sitlFault.eta", 1.0)
+scripts/fault_triggered_landing_qp_event_allocator.py:49:    set_param(cf, "sitlFtc.enable", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:58:    set_param(cf, "sitlFault.motor", int(motor))
+scripts/fault_triggered_landing_qp_event_allocator.py:59:    set_param(cf, "sitlFault.eta", float(eta))
+scripts/fault_triggered_landing_qp_event_allocator.py:60:    set_param(cf, "sitlFault.enable", 1)
+scripts/fault_triggered_landing_qp_event_allocator.py:71:    set_param(cf, "sitlFtc.enable", 1)
+scripts/fault_triggered_landing_qp_event_allocator.py:80:    set_param(cf, "sitlFtc.enable", 0)
+scripts/fault_triggered_landing_qp_event_allocator.py:522:        set_param(cf, "sitlFault.enable", 0)
+scripts/smoke_test_pinv_fault.py:142:            "sitlFault.enable",
+scripts/smoke_test_pinv_fault.py:143:            "sitlFault.motor",
+scripts/smoke_test_pinv_fault.py:144:            "sitlFault.eta",
+scripts/smoke_test_pinv_fault.py:145:            "sitlFtc.enable",
+scripts/smoke_test_pinv_fault.py:167:        set_param(scf, "sitlFault.enable", "0")
+scripts/smoke_test_pinv_fault.py:168:        set_param(scf, "sitlFtc.enable", "0")
+scripts/smoke_test_pinv_fault.py:177:        set_param(scf, "sitlFault.motor", str(args.motor))
+scripts/smoke_test_pinv_fault.py:178:        set_param(scf, "sitlFault.eta", str(args.eta))
+scripts/smoke_test_pinv_fault.py:328:            set_param(scf, "sitlFault.enable", "1")
+scripts/smoke_test_pinv_fault.py:340:            set_param(scf, "sitlFault.enable", "0")
+scripts/smoke_test_pinv_fault.py:394:            set_param(scf, "sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:319:            cf.param.set_value("sitlFtc.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:325:            cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:326:            cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:352:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:353:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_ftcboost.py:354:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:363:            cf.param.set_value("sitlFtc.enable", "1" if ftc_enabled else "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:386:                cf.param.set_value("sitlFtc.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:388:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_ftcboost.py:389:                cf.param.set_value("sitlFault.eta", "1.0")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:397:            cf.param.set_value("sitlFault.motor", str(fault_motor))
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:398:            cf.param.set_value("sitlFault.eta", str(fault_eta))
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:399:            cf.param.set_value("sitlFault.enable", "1")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:418:                cf.param.set_value("sitlFault.enable", "0")
+scripts/fault_triggered_landing_motorloss_adaptive_v3.py:419:                cf.param.set_value("sitlFault.eta", "1.0")
