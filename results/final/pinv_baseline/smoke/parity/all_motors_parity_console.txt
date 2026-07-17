@@ -1,0 +1,64 @@
+
+========== MOTOR 1 PARITY ==========
+
+========== FIRMWARE / REFERENCE PARITY ==========
+total_fault_phase_rows=50
+allocator_engaged_rows=50
+transition_or_healthy_rows=0
+exact_command_match_rows=50/50
+active_mask_match_rows=50/50
+motor=1 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=2 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=3 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=4 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+overall_max_abs_difference_pwm=0.000
+[SAVED] results/final/pinv_baseline/smoke/motor1_eta0p496/reference_parity.csv
+[PASS] Firmware matches the bounded-allocation reference.
+
+========== MOTOR 2 PARITY ==========
+
+========== FIRMWARE / REFERENCE PARITY ==========
+total_fault_phase_rows=51
+allocator_engaged_rows=51
+transition_or_healthy_rows=0
+exact_command_match_rows=51/51
+active_mask_match_rows=51/51
+motor=1 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=2 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=3 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=4 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+overall_max_abs_difference_pwm=0.000
+[SAVED] results/final/pinv_baseline/smoke/motor2_eta0p496/reference_parity.csv
+[PASS] Firmware matches the bounded-allocation reference.
+
+========== MOTOR 3 PARITY ==========
+
+========== FIRMWARE / REFERENCE PARITY ==========
+total_fault_phase_rows=51
+allocator_engaged_rows=51
+transition_or_healthy_rows=0
+exact_command_match_rows=51/51
+active_mask_match_rows=51/51
+motor=1 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=2 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=3 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=4 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+overall_max_abs_difference_pwm=0.000
+[SAVED] results/final/pinv_baseline/smoke/motor3_eta0p496/reference_parity.csv
+[PASS] Firmware matches the bounded-allocation reference.
+
+========== MOTOR 4 PARITY ==========
+
+========== FIRMWARE / REFERENCE PARITY ==========
+total_fault_phase_rows=51
+allocator_engaged_rows=51
+transition_or_healthy_rows=0
+exact_command_match_rows=51/51
+active_mask_match_rows=51/51
+motor=1 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=2 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=3 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+motor=4 max_abs_difference_pwm=0.000 mean_abs_difference_pwm=0.000
+overall_max_abs_difference_pwm=0.000
+[SAVED] results/final/pinv_baseline/smoke/motor4_eta0p496/reference_parity.csv
+[PASS] Firmware matches the bounded-allocation reference.
