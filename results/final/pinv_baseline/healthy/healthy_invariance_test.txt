@@ -1,0 +1,27 @@
+[CONNECTED]
+[PARAM] sitlFault.enable requested=0 actual=0
+[PARAM] sitlFtc.enable requested=0 actual=0
+[PARAM] sitlPinv.wThrust requested=1.0 actual=1.0
+[PARAM] sitlPinv.wRoll requested=1.0 actual=1.0
+[PARAM] sitlPinv.wPitch requested=1.0 actual=1.0
+[PARAM] sitlPinv.wYaw requested=0.2 actual=0.20000000298023224
+[PARAM] sitlPinv.lambda requested=0.000001 actual=9.999999974752427e-07
+[PARAM] sitlPinv.enable requested=1 actual=1
+[FLIGHT] Settling at low command
+[FLIGHT] Rising to hover
+[FLIGHT] Healthy allocator hover
+[FLIGHT] Controlled descent
+[PARAM] sitlPinv.enable requested=0 actual=0
+
+========== HEALTHY INVARIANCE SUMMARY ==========
+motor=1 samples=471 max_abs_alloc_minus_nom=0.000
+motor=2 samples=471 max_abs_alloc_minus_nom=0.000
+motor=3 samples=471 max_abs_alloc_minus_nom=0.000
+motor=4 samples=471 max_abs_alloc_minus_nom=0.000
+active_mask_nonzero_samples=0/471
+pinvAlloc.errT_max_abs=0.000000
+pinvAlloc.errR_max_abs=0.000000
+pinvAlloc.errP_max_abs=0.000000
+pinvAlloc.errY_max_abs=0.000000
+pinvAlloc.objective_max=0.000000
+[PASS] Healthy allocator invariance verified.

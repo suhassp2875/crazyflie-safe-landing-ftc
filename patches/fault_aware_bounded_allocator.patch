@@ -1,0 +1,758 @@
+diff --git a/src/modules/src/power_distribution_sitl.c b/src/modules/src/power_distribution_sitl.c
+index f9fe7e88..7bc7c036 100644
+--- a/src/modules/src/power_distribution_sitl.c
++++ b/src/modules/src/power_distribution_sitl.c
+@@ -40,6 +40,7 @@
+ 
+ #include "config.h"
+ #include "math.h"
++#include <float.h>
+ 
+ #include "crtp.h"
+ 
+@@ -202,21 +203,666 @@ uint16_t getMotorRatio(int id)
+     case 1: return motorPower.m2;
+     case 2: return motorPower.m3;
+     case 3: return motorPower.m4;
++    default: return 0;
+   }
+ }
++
++// SITL actuator fault injection parameters.
++// enable = 0: healthy motors
++// enable = 1: apply loss-of-effectiveness to selected motor
++// motor  = 1, 2, 3, or 4
++// eta    = motor effectiveness multiplier, clipped to [0, 1]
++//          eta = 1.0 means healthy, eta = 0.6 means 40% loss.
++static uint8_t sitlFaultEnable = 0;
++static uint8_t sitlFaultMotor = 1;
++static float sitlFaultEta = 1.0f;
++
++static uint8_t sitlFtcEnable = 0;
++static float sitlFtcHealthyBoost = 0.0f;
++static float sitlFtcResidualM1 = 0.0f;
++static float sitlFtcResidualM2 = 0.0f;
++static float sitlFtcResidualM3 = 0.0f;
++static float sitlFtcResidualM4 = 0.0f;
++
++
++static uint8_t sitlPinvEnable = 0;
++
++static float sitlPinvWeightThrust = 1.0f;
++static float sitlPinvWeightRoll = 1.0f;
++static float sitlPinvWeightPitch = 1.0f;
++static float sitlPinvWeightYaw = 0.20f;
++static float sitlPinvLambda = 1.0e-6f;
++
++static uint16_t sitlPinvNominalM1 = 0;
++static uint16_t sitlPinvNominalM2 = 0;
++static uint16_t sitlPinvNominalM3 = 0;
++static uint16_t sitlPinvNominalM4 = 0;
++
++static uint16_t sitlPinvAllocatedM1 = 0;
++static uint16_t sitlPinvAllocatedM2 = 0;
++static uint16_t sitlPinvAllocatedM3 = 0;
++static uint16_t sitlPinvAllocatedM4 = 0;
++
++static uint8_t sitlPinvActiveMask = 0;
++
++static float sitlPinvErrorThrust = 0.0f;
++static float sitlPinvErrorRoll = 0.0f;
++static float sitlPinvErrorPitch = 0.0f;
++static float sitlPinvErrorYaw = 0.0f;
++static float sitlPinvObjective = 0.0f;
++
++static uint16_t applySitlMotorFault(uint8_t motorIndex, uint16_t pwm)
++{
++  if (!sitlFaultEnable) {
++    return pwm;
++  }
++
++  if (sitlFaultMotor != motorIndex) {
++    return pwm;
++  }
++
++  float eta = sitlFaultEta;
++
++  if (eta < 0.0f) {
++    eta = 0.0f;
++  }
++
++  if (eta > 1.0f) {
++    eta = 1.0f;
++  }
++
++  return (uint16_t)((float)pwm * eta);
++}
++
++
++static uint16_t clampSitlPwmFloat(float pwm)
++{
++  if (pwm < 0.0f) {
++    return 0;
++  }
++
++  if (pwm > 65535.0f) {
++    return 65535;
++  }
++
++  return (uint16_t)pwm;
++}
++
++
++static float clampSitlEta(float eta)
++{
++  if (eta < 0.0f) {
++    return 0.0f;
++  }
++
++  if (eta > 1.0f) {
++    return 1.0f;
++  }
++
++  return eta;
++}
++
++
++static bool solveSitlLinearSystem(float matrix[4][4],
++                                  float rhs[4],
++                                  float solution[4],
++                                  int dimension)
++{
++  for (int pivotColumn = 0;
++       pivotColumn < dimension;
++       pivotColumn++) {
++    int pivotRow = pivotColumn;
++    float pivotMagnitude =
++      fabsf(matrix[pivotRow][pivotColumn]);
++
++    for (int row = pivotColumn + 1;
++         row < dimension;
++         row++) {
++      const float magnitude =
++        fabsf(matrix[row][pivotColumn]);
++
++      if (magnitude > pivotMagnitude) {
++        pivotMagnitude = magnitude;
++        pivotRow = row;
++      }
++    }
++
++    if (pivotMagnitude < 1.0e-10f) {
++      return false;
++    }
++
++    if (pivotRow != pivotColumn) {
++      for (int column = pivotColumn;
++           column < dimension;
++           column++) {
++        const float temporary =
++          matrix[pivotColumn][column];
++
++        matrix[pivotColumn][column] =
++          matrix[pivotRow][column];
++
++        matrix[pivotRow][column] = temporary;
++      }
++
++      const float temporaryRhs = rhs[pivotColumn];
++      rhs[pivotColumn] = rhs[pivotRow];
++      rhs[pivotRow] = temporaryRhs;
++    }
++
++    const float pivot =
++      matrix[pivotColumn][pivotColumn];
++
++    for (int row = pivotColumn + 1;
++         row < dimension;
++         row++) {
++      const float factor =
++        matrix[row][pivotColumn] / pivot;
++
++      matrix[row][pivotColumn] = 0.0f;
++
++      for (int column = pivotColumn + 1;
++           column < dimension;
++           column++) {
++        matrix[row][column] -=
++          factor * matrix[pivotColumn][column];
++      }
++
++      rhs[row] -= factor * rhs[pivotColumn];
++    }
++  }
++
++  for (int row = dimension - 1;
++       row >= 0;
++       row--) {
++    float value = rhs[row];
++
++    for (int column = row + 1;
++         column < dimension;
++         column++) {
++      value -=
++        matrix[row][column] * solution[column];
++    }
++
++    const float diagonal = matrix[row][row];
++
++    if (fabsf(diagonal) < 1.0e-10f) {
++      return false;
++    }
++
++    solution[row] = value / diagonal;
++  }
++
++  return true;
++}
++
++
++static void computeSitlLegacyGeneralized(
++  const float motor[4],
++  float generalized[4])
++{
++  generalized[0] =
++    motor[0] + motor[1] + motor[2] + motor[3];
++
++  generalized[1] =
++    -motor[0] - motor[1] + motor[2] + motor[3];
++
++  generalized[2] =
++    motor[0] - motor[1] - motor[2] + motor[3];
++
++  generalized[3] =
++    motor[0] - motor[1] + motor[2] - motor[3];
++}
++
++
++static float computeSitlAllocationObjective(
++  const float requested[4],
++  const float nominal[4],
++  const float effectiveness[4],
++  const float weights[4],
++  float lambda)
++{
++  float applied[4];
++
++  for (int motor = 0; motor < 4; motor++) {
++    applied[motor] =
++      effectiveness[motor] * requested[motor];
++  }
++
++  float desired[4];
++  float achieved[4];
++
++  computeSitlLegacyGeneralized(nominal, desired);
++  computeSitlLegacyGeneralized(applied, achieved);
++
++  float objective = 0.0f;
++
++  for (int axis = 0; axis < 4; axis++) {
++    const float weightedError =
++      weights[axis] * (achieved[axis] - desired[axis]);
++
++    objective += weightedError * weightedError;
++  }
++
++  for (int motor = 0; motor < 4; motor++) {
++    const float deviation =
++      requested[motor] - nominal[motor];
++
++    objective += lambda * deviation * deviation;
++  }
++
++  return objective;
++}
++
++
++static void applySitlFaultAwareBoundedAllocator(
++  const uint16_t nominalPwm[4],
++  uint16_t allocatedPwm[4])
++{
++  const float legacyA[4][4] = {
++    { 1.0f,  1.0f,  1.0f,  1.0f},
++    {-1.0f, -1.0f,  1.0f,  1.0f},
++    { 1.0f, -1.0f, -1.0f,  1.0f},
++    { 1.0f, -1.0f,  1.0f, -1.0f},
++  };
++
++  float nominal[4] = {
++    (float)nominalPwm[0],
++    (float)nominalPwm[1],
++    (float)nominalPwm[2],
++    (float)nominalPwm[3],
++  };
++
++
++  // Fault-inactive healthy fast path.
++  //
++  // The stock mixer output is already the exact desired allocation when
++  // there is no active loss of effectiveness. Bypassing the active-set
++  // search guarantees healthy invariance, avoids ambiguous zero-command
++  // active sets and removes unnecessary runtime work.
++  const float effectiveEta =
++    clampSitlEta(sitlFaultEta);
++
++  if (!sitlFaultEnable ||
++      sitlFaultMotor < 1 ||
++      sitlFaultMotor > 4 ||
++      effectiveEta >= 0.999999f) {
++    for (int motor = 0; motor < 4; motor++) {
++      allocatedPwm[motor] = nominalPwm[motor];
++    }
++
++    sitlPinvActiveMask = 0;
++    sitlPinvErrorThrust = 0.0f;
++    sitlPinvErrorRoll = 0.0f;
++    sitlPinvErrorPitch = 0.0f;
++    sitlPinvErrorYaw = 0.0f;
++    sitlPinvObjective = 0.0f;
++
++    return;
++  }
++
++  float effectiveness[4] = {
++    1.0f, 1.0f, 1.0f, 1.0f
++  };
++
++  if (sitlFaultEnable &&
++      sitlFaultMotor >= 1 &&
++      sitlFaultMotor <= 4) {
++    effectiveness[sitlFaultMotor - 1] =
++      clampSitlEta(sitlFaultEta);
++  }
++
++  float weights[4] = {
++    fmaxf(sitlPinvWeightThrust, 1.0e-4f),
++    fmaxf(sitlPinvWeightRoll, 1.0e-4f),
++    fmaxf(sitlPinvWeightPitch, 1.0e-4f),
++    fmaxf(sitlPinvWeightYaw, 1.0e-4f),
++  };
++
++  float weightSquared[4];
++
++  for (int axis = 0; axis < 4; axis++) {
++    weightSquared[axis] =
++      weights[axis] * weights[axis];
++  }
++
++  const float lambda =
++    fmaxf(sitlPinvLambda, 0.0f);
++
++  float desired[4];
++  computeSitlLegacyGeneralized(nominal, desired);
++
++  float effectivenessMatrix[4][4];
++
++  for (int axis = 0; axis < 4; axis++) {
++    for (int motor = 0; motor < 4; motor++) {
++      effectivenessMatrix[axis][motor] =
++        legacyA[axis][motor] * effectiveness[motor];
++    }
++  }
++
++  float bestRequested[4] = {
++    nominal[0],
++    nominal[1],
++    nominal[2],
++    nominal[3],
++  };
++
++  float bestObjective = FLT_MAX;
++  uint8_t bestActiveMask = 0;
++  bool foundFeasible = false;
++
++  for (int encodedStatus = 0;
++       encodedStatus < 81;
++       encodedStatus++) {
++    int statusCode = encodedStatus;
++
++    int status[4];
++    int freeIndices[4];
++    int fixedIndices[4];
++
++    int freeCount = 0;
++    int fixedCount = 0;
++
++    float candidate[4] = {
++      0.0f, 0.0f, 0.0f, 0.0f
++    };
++
++    uint8_t activeMask = 0;
++
++    for (int motor = 0; motor < 4; motor++) {
++      status[motor] = statusCode % 3;
++      statusCode /= 3;
++
++      if (status[motor] == 1) {
++        freeIndices[freeCount++] = motor;
++      } else {
++        fixedIndices[fixedCount++] = motor;
++
++        candidate[motor] =
++          status[motor] == 0
++          ? 0.0f
++          : 65535.0f;
++
++        activeMask |=
++          (uint8_t)(1U << motor);
++      }
++    }
++
++    if (freeCount > 0) {
++      float reducedTarget[4] = {
++        desired[0],
++        desired[1],
++        desired[2],
++        desired[3],
++      };
++
++      for (int position = 0;
++           position < fixedCount;
++           position++) {
++        const int fixedMotor =
++          fixedIndices[position];
++
++        for (int axis = 0; axis < 4; axis++) {
++          reducedTarget[axis] -=
++            effectivenessMatrix[axis][fixedMotor]
++            * candidate[fixedMotor];
++        }
++      }
++
++      float hessian[4][4] = {{0.0f}};
++      float rhs[4] = {0.0f};
++      float solution[4] = {0.0f};
++
++      for (int freeRow = 0;
++           freeRow < freeCount;
++           freeRow++) {
++        const int motorRow =
++          freeIndices[freeRow];
++
++        for (int freeColumn = 0;
++             freeColumn < freeCount;
++             freeColumn++) {
++          const int motorColumn =
++            freeIndices[freeColumn];
++
++          float value = 0.0f;
++
++          for (int axis = 0; axis < 4; axis++) {
++            value +=
++              effectivenessMatrix[axis][motorRow]
++              * weightSquared[axis]
++              * effectivenessMatrix[axis][motorColumn];
++          }
++
++          if (freeRow == freeColumn) {
++            value += lambda;
++          }
++
++          hessian[freeRow][freeColumn] = value;
++        }
++
++        float rhsValue = 0.0f;
++
++        for (int axis = 0; axis < 4; axis++) {
++          rhsValue +=
++            effectivenessMatrix[axis][motorRow]
++            * weightSquared[axis]
++            * reducedTarget[axis];
++        }
++
++        rhsValue += lambda * nominal[motorRow];
++        rhs[freeRow] = rhsValue;
++      }
++
++      if (!solveSitlLinearSystem(
++            hessian,
++            rhs,
++            solution,
++            freeCount)) {
++        continue;
++      }
++
++      for (int freePosition = 0;
++           freePosition < freeCount;
++           freePosition++) {
++        candidate[freeIndices[freePosition]] =
++          solution[freePosition];
++      }
++    }
++
++    bool feasible = true;
++
++    for (int motor = 0; motor < 4; motor++) {
++      if (candidate[motor] < -1.0e-3f ||
++          candidate[motor] > 65535.0f + 1.0e-3f) {
++        feasible = false;
++        break;
++      }
++
++      if (candidate[motor] < 0.0f) {
++        candidate[motor] = 0.0f;
++      }
++
++      if (candidate[motor] > 65535.0f) {
++        candidate[motor] = 65535.0f;
++      }
++    }
++
++    if (!feasible) {
++      continue;
++    }
++
++    const float objective =
++      computeSitlAllocationObjective(
++        candidate,
++        nominal,
++        effectiveness,
++        weights,
++        lambda);
++
++    if (!foundFeasible ||
++        objective < bestObjective) {
++      foundFeasible = true;
++      bestObjective = objective;
++      bestActiveMask = activeMask;
++
++      for (int motor = 0; motor < 4; motor++) {
++        bestRequested[motor] = candidate[motor];
++      }
++    }
++  }
++
++  if (!foundFeasible) {
++    for (int motor = 0; motor < 4; motor++) {
++      bestRequested[motor] = nominal[motor];
++    }
++
++    bestObjective =
++      computeSitlAllocationObjective(
++        bestRequested,
++        nominal,
++        effectiveness,
++        weights,
++        lambda);
++
++    bestActiveMask = 0;
++  }
++
++  for (int motor = 0; motor < 4; motor++) {
++    allocatedPwm[motor] =
++      clampSitlPwmFloat(bestRequested[motor]);
++  }
++
++  float applied[4];
++
++  for (int motor = 0; motor < 4; motor++) {
++    applied[motor] =
++      effectiveness[motor]
++      * (float)allocatedPwm[motor];
++  }
++
++  float achieved[4];
++  computeSitlLegacyGeneralized(applied, achieved);
++
++  sitlPinvErrorThrust =
++    achieved[0] - desired[0];
++
++  sitlPinvErrorRoll =
++    achieved[1] - desired[1];
++
++  sitlPinvErrorPitch =
++    achieved[2] - desired[2];
++
++  sitlPinvErrorYaw =
++    achieved[3] - desired[3];
++
++  sitlPinvObjective = bestObjective;
++  sitlPinvActiveMask = bestActiveMask;
++}
++
++
++static uint16_t applySitlFtcHealthyBoost(uint8_t motorIndex, uint16_t pwm)
++{
++  if (!sitlFtcEnable) {
++    return pwm;
++  }
++
++  float residual = 0.0f;
++
++  // Old behavior: equal boost to healthy motors only.
++  if (motorIndex != sitlFaultMotor) {
++    residual += sitlFtcHealthyBoost;
++  }
++
++  // New behavior: explicit per-motor residuals.
++  // These are applied before the LoE fault model, so a residual on the
++  // faulty motor is also degraded by sitlFaultEta.
++  if (motorIndex == 1) {
++    residual += sitlFtcResidualM1;
++  } else if (motorIndex == 2) {
++    residual += sitlFtcResidualM2;
++  } else if (motorIndex == 3) {
++    residual += sitlFtcResidualM3;
++  } else if (motorIndex == 4) {
++    residual += sitlFtcResidualM4;
++  }
++
++  return clampSitlPwmFloat((float)pwm + residual);
++}
++
++
+ void motorsSetRatio(const motors_thrust_pwm_t* motorPwm)
+ {
+-  motorPower.m1 = motorPwm->motors.m1;
+-  motorPower.m2 = motorPwm->motors.m2;
+-  motorPower.m3 = motorPwm->motors.m3;
+-  motorPower.m4 = motorPwm->motors.m4;
++  const uint16_t nominal[4] = {
++    motorPwm->motors.m1,
++    motorPwm->motors.m2,
++    motorPwm->motors.m3,
++    motorPwm->motors.m4,
++  };
++
++  uint16_t allocated[4] = {
++    nominal[0],
++    nominal[1],
++    nominal[2],
++    nominal[3],
++  };
++
++  sitlPinvNominalM1 = nominal[0];
++  sitlPinvNominalM2 = nominal[1];
++  sitlPinvNominalM3 = nominal[2];
++  sitlPinvNominalM4 = nominal[3];
++
++  if (sitlPinvEnable) {
++    applySitlFaultAwareBoundedAllocator(
++      nominal,
++      allocated);
++  } else {
++    sitlPinvActiveMask = 0;
++    sitlPinvErrorThrust = 0.0f;
++    sitlPinvErrorRoll = 0.0f;
++    sitlPinvErrorPitch = 0.0f;
++    sitlPinvErrorYaw = 0.0f;
++    sitlPinvObjective = 0.0f;
++  }
++
++  sitlPinvAllocatedM1 = allocated[0];
++  sitlPinvAllocatedM2 = allocated[1];
++  sitlPinvAllocatedM3 = allocated[2];
++  sitlPinvAllocatedM4 = allocated[3];
++
++  uint16_t m1 =
++    applySitlFtcHealthyBoost(1, allocated[0]);
++
++  uint16_t m2 =
++    applySitlFtcHealthyBoost(2, allocated[1]);
++
++  uint16_t m3 =
++    applySitlFtcHealthyBoost(3, allocated[2]);
++
++  uint16_t m4 =
++    applySitlFtcHealthyBoost(4, allocated[3]);
++
++  motorPower.m1 =
++    applySitlMotorFault(1, m1);
++
++  motorPower.m2 =
++    applySitlMotorFault(2, m2);
++
++  motorPower.m3 =
++    applySitlMotorFault(3, m3);
++
++  motorPower.m4 =
++    applySitlMotorFault(4, m4);
++
++  if (xTaskGetTickCount() - lastSentTime >= M2T(1)) {
++    memcpy(
++      p.data,
++      (uint8_t*)&motorPower,
++      p.size);
+ 
+-  if (xTaskGetTickCount() - lastSentTime >= M2T(1)){
+-    memcpy(p.data , (uint8_t *) &motorPower , p.size);
+     crtpSendPacket(&p);
+     lastSentTime = xTaskGetTickCount();
+   }
+-  // DEBUG_PRINT("%d , %d , %d , %d  \n", (int) motorPower.m1 , (int) motorPower.m2 , (int) motorPower.m3 , (int) motorPower.m4 );
+ }
+ /**
+  * Power distribution parameters
+@@ -249,6 +895,39 @@ PARAM_ADD(PARAM_FLOAT, pwmToThrustB, &pwmToThrustB)
+ PARAM_ADD(PARAM_FLOAT, armLength, &armLength)
+ PARAM_GROUP_STOP(quadSysId)
+ 
++/**
++ * SITL actuator fault injection parameters.
++ *
++ * enable: 0 disables motor fault, 1 enables motor fault.
++ * motor: selected motor index, 1 to 4.
++ * eta: effectiveness multiplier in [0, 1].
++ */
++PARAM_GROUP_START(sitlFault)
++PARAM_ADD(PARAM_UINT8, enable, &sitlFaultEnable)
++PARAM_ADD(PARAM_UINT8, motor, &sitlFaultMotor)
++PARAM_ADD(PARAM_FLOAT, eta, &sitlFaultEta)
++PARAM_GROUP_STOP(sitlFault)
++
++PARAM_GROUP_START(sitlFtc)
++PARAM_ADD(PARAM_UINT8, enable, &sitlFtcEnable)
++PARAM_ADD(PARAM_FLOAT, healthyBoost, &sitlFtcHealthyBoost)
++PARAM_ADD(PARAM_FLOAT, r1, &sitlFtcResidualM1)
++PARAM_ADD(PARAM_FLOAT, r2, &sitlFtcResidualM2)
++PARAM_ADD(PARAM_FLOAT, r3, &sitlFtcResidualM3)
++PARAM_ADD(PARAM_FLOAT, r4, &sitlFtcResidualM4)
++PARAM_GROUP_STOP(sitlFtc)
++
++
++PARAM_GROUP_START(sitlPinv)
++PARAM_ADD(PARAM_UINT8, enable, &sitlPinvEnable)
++PARAM_ADD(PARAM_FLOAT, wThrust, &sitlPinvWeightThrust)
++PARAM_ADD(PARAM_FLOAT, wRoll, &sitlPinvWeightRoll)
++PARAM_ADD(PARAM_FLOAT, wPitch, &sitlPinvWeightPitch)
++PARAM_ADD(PARAM_FLOAT, wYaw, &sitlPinvWeightYaw)
++PARAM_ADD(PARAM_FLOAT, lambda, &sitlPinvLambda)
++PARAM_GROUP_STOP(sitlPinv)
++
++
+ /**
+  * Motor output related log variables.
+  */
+@@ -269,4 +948,29 @@ LOG_ADD_CORE(LOG_UINT16, m3, &motorPower.m3)
+  * @brief Motor power (PWM value) for M4 [0 - UINT16_MAX]
+  */
+ LOG_ADD_CORE(LOG_UINT16, m4, &motorPower.m4)
+-LOG_GROUP_STOP(motor)
+\ No newline at end of file
++
++
++LOG_GROUP_STOP(motor)
++
++LOG_GROUP_START(pinvAlloc)
++
++LOG_ADD(LOG_UINT16, nom1, &sitlPinvNominalM1)
++LOG_ADD(LOG_UINT16, nom2, &sitlPinvNominalM2)
++LOG_ADD(LOG_UINT16, nom3, &sitlPinvNominalM3)
++LOG_ADD(LOG_UINT16, nom4, &sitlPinvNominalM4)
++
++LOG_ADD(LOG_UINT16, alloc1, &sitlPinvAllocatedM1)
++LOG_ADD(LOG_UINT16, alloc2, &sitlPinvAllocatedM2)
++LOG_ADD(LOG_UINT16, alloc3, &sitlPinvAllocatedM3)
++LOG_ADD(LOG_UINT16, alloc4, &sitlPinvAllocatedM4)
++
++LOG_ADD(LOG_UINT8, active, &sitlPinvActiveMask)
++
++LOG_ADD(LOG_FLOAT, errT, &sitlPinvErrorThrust)
++LOG_ADD(LOG_FLOAT, errR, &sitlPinvErrorRoll)
++LOG_ADD(LOG_FLOAT, errP, &sitlPinvErrorPitch)
++LOG_ADD(LOG_FLOAT, errY, &sitlPinvErrorYaw)
++
++LOG_ADD(LOG_FLOAT, objective, &sitlPinvObjective)
++
++LOG_GROUP_STOP(pinvAlloc)
