@@ -1,0 +1,13 @@
+========== PINV ETA=0.496 · 30 SEEDED TRIALS PER MOTOR ==========
+M1: contact=30/30 safe=26/30 rate=0.867 Wilson95=[0.703, 0.947] mean_vz=0.344684 range=[0.333516, 0.356363] vertical_failures=4
+M2: contact=30/30 safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.318369 range=[0.211337, 0.340986] vertical_failures=0
+M3: contact=30/30 safe=19/30 rate=0.633 Wilson95=[0.455, 0.781] mean_vz=0.300100 range=[0.242950, 0.368940] vertical_failures=11
+M4: contact=30/30 safe=0/30 rate=0.000 Wilson95=[0.000, 0.114] mean_vz=0.375360 range=[0.362041, 0.388039] vertical_failures=30
+
+========== OVERALL ==========
+contact=120/120
+safe=75/120
+non_vertical_safety_failures=0
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/all_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/aggregate_by_motor.csv
+[PASS] Official 120-trial aggregation complete.

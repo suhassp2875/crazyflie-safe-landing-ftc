@@ -25,3 +25,9 @@ archive/
 .DS_Store
 .vscode/
 .idea/
+/results/final/pinv_baseline/audit/
+/results/final/pinv_baseline/seeded_eta0p496/production_30/trials/
+/results/final/pinv_baseline/seeded_eta0p496/production_30/summaries/
+/results/final/pinv_baseline/seeded_eta0p496/production_30/batch_console.txt
+/results/final/pinv_baseline/seeded_eta0p496/production_30/validation_console.txt
+/results/final/pinv_baseline/seeded_eta0p496/production_30/repair_console.txt

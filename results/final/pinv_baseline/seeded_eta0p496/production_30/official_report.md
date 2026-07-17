@@ -1,0 +1,36 @@
+# Fault-Aware Bounded WLS Landing Results
+
+## Experiment
+
+- Controller: fault-aware bounded weighted least squares
+- Fault effectiveness: `eta = 0.496`
+- Allocation weights: `[1.0, 1.0, 1.0, 0.2]`
+- Regularization: `1e-6`
+- Trials: `30` seeded trials per failed motor
+- Total trials: `120`
+- First contact: first post-fault sample with `z <= 0.03 m`
+- Safe vertical-speed threshold: `0.35 m/s`
+
+## Success rates
+
+| Motor | Safe | Rate | Wilson 95% CI | Mean vertical speed | Maximum vertical speed |
+|---:|---:|---:|---:|---:|---:|
+| M1 | 26/30 | 86.7% | [70.3%, 94.7%] | 0.344684 m/s | 0.356363 m/s |
+| M2 | 30/30 | 100.0% | [88.6%, 100.0%] | 0.318369 m/s | 0.340986 m/s |
+| M3 | 19/30 | 63.3% | [45.5%, 78.1%] | 0.300100 m/s | 0.368940 m/s |
+| M4 | 0/30 | 0.0% | [0.0%, 11.4%] | 0.375360 m/s | 0.388039 m/s |
+
+Overall safe touchdown count: **75/120 (62.5%)**.
+
+Overall Wilson 95% confidence interval: **[53.6%, 70.6%]**.
+
+All 120 trials reached first contact. Every unsafe outcome failed only the vertical-speed criterion; there were no horizontal-speed, tilt, angular-rate, or drift failures.
+
+## Interpretation
+
+- M2 was safe in all 30 trials and remained below the vertical-speed threshold even in its worst trial.
+- M1 was usually safe but operated close to the vertical-speed boundary.
+- M3 showed substantial seed sensitivity, with both safe and unsafe touchdown regimes.
+- M4 failed the vertical-speed criterion in all 30 trials under the tested allocation weights.
+
+These conclusions apply to the tested fault severity, allocator weights, simulator, and landing protocol. They do not establish impossibility for M4 under other allocation objectives or landing policies.

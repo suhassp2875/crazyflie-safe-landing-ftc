@@ -1,0 +1,12 @@
+motor,rep,seed,status,expected_path
+1,1,14980001,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m1_eta0p496_seededpinv_pinv_m1_eta0p496_seed14980001.csv
+1,2,14980002,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m1_eta0p496_seededpinv_pinv_m1_eta0p496_seed14980002.csv
+2,1,24980001,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m2_eta0p496_seededpinv_pinv_m2_eta0p496_seed24980001.csv
+2,2,24980002,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m2_eta0p496_seededpinv_pinv_m2_eta0p496_seed24980002.csv
+3,1,34980001,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m3_eta0p496_seededpinv_pinv_m3_eta0p496_seed34980001.csv
+3,2,34980002,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m3_eta0p496_seededpinv_pinv_m3_eta0p496_seed34980002.csv
+3,24,34980024,missing_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m3_eta0p496_seededpinv_pinv_m3_eta0p496_seed34980024.csv
+3,28,34980028,missing_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m3_eta0p496_seededpinv_pinv_m3_eta0p496_seed34980028.csv
+4,1,44980001,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m4_eta0p496_seededpinv_pinv_m4_eta0p496_seed44980001.csv
+4,2,44980002,stale_preproduction_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m4_eta0p496_seededpinv_pinv_m4_eta0p496_seed44980002.csv
+4,4,44980004,missing_file,/home/suhas/crazysim_ws/safe-landing-ftc/logs/qp_event_allocator_m4_eta0p496_seededpinv_pinv_m4_eta0p496_seed44980004.csv
