@@ -24,7 +24,7 @@ PAIRED_OUTPUT = ROOT / "pinv_qplite_paired_trials.csv"
 AGGREGATE_OUTPUT = ROOT / "pinv_qplite_paired_by_motor.csv"
 REPORT_OUTPUT = ROOT / "pinv_qplite_paired_report.md"
 
-EXPECTED_MOTORS = (1, 3, 4)
+EXPECTED_MOTORS = (1, 2, 3, 4)
 
 VERTICAL_SPEED_LIMIT = 0.35
 HORIZONTAL_SPEED_LIMIT = 0.25
@@ -494,9 +494,9 @@ for motor in EXPECTED_MOTORS:
             )
         )
 
-if len(qplite_rows) != 90:
+if len(qplite_rows) != 120:
     raise SystemExit(
-        f"[FAIL] Expected 90 QP-lite evaluations; "
+        f"[FAIL] Expected 120 QP-lite evaluations; "
         f"found {len(qplite_rows)}"
     )
 
@@ -761,10 +761,9 @@ lines = [
     "",
     "- Fault effectiveness: `eta = 0.496`",
     "- Pairing key: identical motor and `trial_seed`",
-    "- Paired motors: M1, M3, and M4",
+    "- Paired motors: M1, M2, M3, and M4",
     "- Pairs per motor: 30",
-    "- Total paired trials: 90",
-    "- M2 excluded because no complete QP-lite block exists",
+    "- Total paired trials: 120",
     "- CEM excluded from paired inference because pairing metadata "
     "is incomplete",
     "",
@@ -811,4 +810,4 @@ print(f"[SAVED] {QP_OUTPUT}")
 print(f"[SAVED] {PAIRED_OUTPUT}")
 print(f"[SAVED] {AGGREGATE_OUTPUT}")
 print(f"[SAVED] {REPORT_OUTPUT}")
-print("[PASS] Exact 90-trial paired comparison complete.")
+print("[PASS] Exact 120-trial paired comparison complete.")

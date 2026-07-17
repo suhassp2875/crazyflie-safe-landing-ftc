@@ -1,6 +1,6 @@
 ========== COMPLETE ETA=0.496 COMPARATOR BLOCKS ==========
 qplite  M1 prefix=149800 seeds=[14980001,14980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
-qplite  M2: NO COMPLETE 30-TRIAL BLOCK
+qplite  M2 prefix=249800 seeds=[24980001,24980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 qplite  M3 prefix=349800 seeds=[34980001,34980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 qplite  M4 prefix=449800 seeds=[44980001,44980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 cem     M1 prefix=199800 seeds=[19980001,19980030] seed_overlap=0/30 parameter_overlap=0/30 status=metadata_incomplete

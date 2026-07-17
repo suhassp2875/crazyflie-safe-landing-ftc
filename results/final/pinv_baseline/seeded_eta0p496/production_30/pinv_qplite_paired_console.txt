@@ -1,5 +1,6 @@
 ========== PAIRED PINV VS QP-LITE AT ETA=0.496 ==========
 M1: PINV=26/30 QP-lite=4/30 both_safe=4 PINV_only=22 QP_only=0 both_unsafe=4 McNemar_p=0.00000048 mean_delta_vz=-0.020015
+M2: PINV=30/30 QP-lite=6/30 both_safe=6 PINV_only=24 QP_only=0 both_unsafe=0 McNemar_p=0.00000012 mean_delta_vz=-0.040318
 M3: PINV=19/30 QP-lite=28/30 both_safe=17 PINV_only=2 QP_only=11 both_unsafe=0 McNemar_p=0.02246094 mean_delta_vz=-0.034486
 M4: PINV=0/30 QP-lite=5/30 both_safe=0 PINV_only=0 QP_only=5 both_unsafe=25 McNemar_p=0.06250000 mean_delta_vz=+0.014731
 
@@ -7,4 +8,4 @@ M4: PINV=0/30 QP-lite=5/30 both_safe=0 PINV_only=0 QP_only=5 both_unsafe=25 McNe
 [SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/pinv_qplite_paired_trials.csv
 [SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/pinv_qplite_paired_by_motor.csv
 [SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/pinv_qplite_paired_report.md
-[PASS] Exact 90-trial paired comparison complete.
+[PASS] Exact 120-trial paired comparison complete.
