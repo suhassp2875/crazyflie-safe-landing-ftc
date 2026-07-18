@@ -1,0 +1,16 @@
+{
+  "name": "cem_tuned_boundary",
+  "vertical_threshold": 0.3283023144882125,
+  "hard_vertical_threshold": 0.3517372968259812,
+  "vertical_weight": 12863.496527771096,
+  "hard_vertical_weight": 7606.119773910292,
+  "drift_weight": 27.934654134842653,
+  "tilt_weight": 1.0,
+  "effort_weight": 3.43837087121562e-09,
+  "reference_weight": 1.2434570264851942e-08,
+  "support_weight": 5.661050906523099e-10,
+  "saturation_weight": 4.676305872338953,
+  "motor2_overboost_penalty": 0.6571684193849406,
+  "motor14_overboost_penalty": 0.10086822095671559,
+  "motor3_overboost_penalty": 0.3491238028970362
+}

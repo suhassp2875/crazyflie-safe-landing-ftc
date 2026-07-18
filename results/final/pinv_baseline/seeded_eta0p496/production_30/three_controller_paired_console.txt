@@ -1,0 +1,26 @@
+========== EXACT MATCHED THREE-CONTROLLER COMPARISON ==========
+M1: PINV=26/30 QP-lite=4/30 CEM-tuned=30/30 Cochran_Q=45.230769 p=0.00000000
+M2: PINV=30/30 QP-lite=6/30 CEM-tuned=3/30 Cochran_Q=43.800000 p=0.00000000
+M3: PINV=19/30 QP-lite=28/30 CEM-tuned=29/30 Cochran_Q=13.000000 p=0.00150344
+M4: PINV=0/30 QP-lite=5/30 CEM-tuned=23/30 Cochran_Q=38.173913 p=0.00000001
+
+========== PAIRWISE TESTS ==========
+M1 pinv vs qplite: 26/30 vs 4/30 discordant=22:0 p=0.00000048 Holm12=0.00000381 mean_delta_vz=-0.020015 CI=[-0.024104, -0.015780]
+M1 pinv vs cem_tuned: 26/30 vs 30/30 discordant=0:4 p=0.12500000 Holm12=0.37500000 mean_delta_vz=+0.013445 CI=[+0.009911, +0.017280]
+M1 qplite vs cem_tuned: 4/30 vs 30/30 discordant=0:26 p=0.00000003 Holm12=0.00000033 mean_delta_vz=+0.033460 CI=[+0.027470, +0.039602]
+M2 pinv vs qplite: 30/30 vs 6/30 discordant=24:0 p=0.00000012 Holm12=0.00000119 mean_delta_vz=-0.040318 CI=[-0.054248, -0.028655]
+M2 pinv vs cem_tuned: 30/30 vs 3/30 discordant=27:0 p=0.00000001 Holm12=0.00000018 mean_delta_vz=-0.044808 CI=[-0.057805, -0.034411]
+M2 qplite vs cem_tuned: 6/30 vs 3/30 discordant=6:3 p=0.50781250 Holm12=1.00000000 mean_delta_vz=-0.004490 CI=[-0.008652, -0.000358]
+M3 pinv vs qplite: 19/30 vs 28/30 discordant=2:11 p=0.02246094 Holm12=0.11230469 mean_delta_vz=-0.034486 CI=[-0.055259, -0.013184]
+M3 pinv vs cem_tuned: 19/30 vs 29/30 discordant=1:11 p=0.00634766 Holm12=0.03808594 mean_delta_vz=-0.026522 CI=[-0.046037, -0.006593]
+M3 qplite vs cem_tuned: 28/30 vs 29/30 discordant=1:2 p=1.00000000 Holm12=1.00000000 mean_delta_vz=+0.007963 CI=[+0.002109, +0.013364]
+M4 pinv vs qplite: 0/30 vs 5/30 discordant=0:5 p=0.06250000 Holm12=0.25000000 mean_delta_vz=+0.014731 CI=[+0.010743, +0.018746]
+M4 pinv vs cem_tuned: 0/30 vs 23/30 discordant=0:23 p=0.00000024 Holm12=0.00000215 mean_delta_vz=+0.030012 CI=[+0.023650, +0.034613]
+M4 qplite vs cem_tuned: 5/30 vs 23/30 discordant=0:18 p=0.00000763 Holm12=0.00005341 mean_delta_vz=+0.015282 CI=[+0.007655, +0.021603]
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/qplite_cem_recomputed_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_paired_trials.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_summary_by_motor.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_pairwise_by_motor.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_paired_report.md
+[PASS] Exact 360-observation paired analysis complete.

@@ -3,8 +3,11 @@ qplite  M1 prefix=149800 seeds=[14980001,14980030] seed_overlap=30/30 parameter_
 qplite  M2 prefix=249800 seeds=[24980001,24980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 qplite  M3 prefix=349800 seeds=[34980001,34980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 qplite  M4 prefix=449800 seeds=[44980001,44980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
+cem     M1 prefix=149800 seeds=[14980001,14980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 cem     M1 prefix=199800 seeds=[19980001,19980030] seed_overlap=0/30 parameter_overlap=0/30 status=metadata_incomplete
-cem     M2: NO COMPLETE 30-TRIAL BLOCK
+cem     M2 prefix=249800 seeds=[24980001,24980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
+cem     M3 prefix=349800 seeds=[34980001,34980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 cem     M3 prefix=399800 seeds=[39980001,39980030] seed_overlap=0/30 parameter_overlap=0/30 status=metadata_incomplete
+cem     M4 prefix=449800 seeds=[44980001,44980030] seed_overlap=30/30 parameter_overlap=0/30 status=exact_seed_paired
 cem     M4 prefix=499800 seeds=[49980001,49980030] seed_overlap=0/30 parameter_overlap=0/30 status=metadata_incomplete
 [SAVED] results/final/pinv_baseline/seeded_eta0p496/production_30/comparator_pairing_audit.csv
