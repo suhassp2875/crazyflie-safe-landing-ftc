@@ -1,0 +1,10 @@
+expected_trials=120
+validated_trials=120
+contact_trials=120
+eta=0.496
+protocol_id=seeded_ic_v1
+base_seed=120000
+holdout_seed_offset=5080000
+policy=M1:CEM-tuned,M2:PINV,M3:CEM-tuned,M4:CEM-tuned
+cem_tuned_trials=90
+pinv_trials=30

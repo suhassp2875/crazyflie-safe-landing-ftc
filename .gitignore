@@ -31,3 +31,14 @@ archive/
 /results/final/pinv_baseline/seeded_eta0p496/production_30/batch_console.txt
 /results/final/pinv_baseline/seeded_eta0p496/production_30/validation_console.txt
 /results/final/pinv_baseline/seeded_eta0p496/production_30/repair_console.txt
+# Large/transient seeded allocator outputs
+results/final/pinv_baseline/seeded_eta0p496/cem_matched_30/trials/
+results/final/pinv_baseline/seeded_eta0p496/cem_matched_30/batch_console.txt
+results/final/pinv_baseline/seeded_eta0p496/cem_matched_30/pilot_console.txt
+results/final/pinv_baseline/seeded_eta0p496/cem_matched_30/production_start_time.txt
+results/final/pinv_baseline/seeded_eta0p496/cem_matched_30/production_end_time.txt
+results/final/pinv_baseline/seeded_eta0p496/qplite_m2_30/batch_console.txt
+results/final/pinv_baseline/seeded_eta0p496/qplite_m2_30/start_time.txt
+results/final/pinv_baseline/seeded_eta0p496/qplite_m2_30/end_time.txt
+results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/cem_m134_console.txt
+results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/pinv_m2_console.txt

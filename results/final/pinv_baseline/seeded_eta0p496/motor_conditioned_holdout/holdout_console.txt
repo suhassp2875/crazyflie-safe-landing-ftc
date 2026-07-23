@@ -1,0 +1,28 @@
+[PROGRESS] audited=20/120
+[PROGRESS] audited=40/120
+[PROGRESS] audited=60/120
+[PROGRESS] audited=80/120
+[PROGRESS] audited=100/120
+[PROGRESS] audited=120/120
+
+========== MOTOR-CONDITIONED FRESH-SEED HOLDOUT ==========
+M1: policy=cem_tuned contact=30/30 safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.328511 range=[0.252904, 0.346443] vertical_failures=0
+M2: policy=pinv contact=30/30 safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.329233 range=[0.317033, 0.341929] vertical_failures=0
+M3: policy=cem_tuned contact=30/30 safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.325385 range=[0.304214, 0.337124] vertical_failures=0
+M4: policy=cem_tuned contact=30/30 safe=27/30 rate=0.900 Wilson95=[0.744, 0.965] mean_vz=0.340405 range=[0.318534, 0.358561] vertical_failures=3
+
+========== OVERALL HOLDOUT ==========
+contact=120/120
+safe=117/120
+safe_rate=0.975000
+Wilson95=[0.929070, 0.991462]
+development_selected_policy=112/120
+holdout_minus_development_safe_count=5
+non_vertical_safety_failures=0
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_aggregate_by_motor.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_manifest.txt
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_audit.txt
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_report.md
+[PASS] Fresh-seed motor-conditioned holdout evaluation complete.
