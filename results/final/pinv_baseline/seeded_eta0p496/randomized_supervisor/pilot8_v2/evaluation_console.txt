@@ -1,0 +1,20 @@
+
+========== RANDOMIZED MOTOR SUPERVISOR ==========
+M1: policy=cem_tuned_qplite safe=2/2 rate=1.000 Wilson95=[0.342, 1.000] mean_vz=0.334212 range=[0.332453, 0.335972] vertical_failures=0
+M2: policy=pinv_bounded_wls safe=2/2 rate=1.000 Wilson95=[0.342, 1.000] mean_vz=0.335485 range=[0.331218, 0.339752] vertical_failures=0
+M3: policy=cem_tuned_qplite safe=2/2 rate=1.000 Wilson95=[0.342, 1.000] mean_vz=0.319889 range=[0.318496, 0.321281] vertical_failures=0
+M4: policy=manual_opp_m2_14000 safe=2/2 rate=1.000 Wilson95=[0.342, 1.000] mean_vz=0.340536 range=[0.333856, 0.347215] vertical_failures=0
+
+========== OVERALL ==========
+validated_trials=8
+motor_counts={1: 2, 2: 2, 3: 2, 4: 2}
+safe=8/8
+safe_rate=1.000000
+Wilson95=[0.675592, 1.000000]
+non_vertical_failures=0
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/pilot8_v2/supervisor_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/pilot8_v2/supervisor_aggregate_by_motor.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/pilot8_v2/supervisor_audit.txt
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/pilot8_v2/supervisor_report.md
+[PASS] Randomized supervisor evaluation complete.

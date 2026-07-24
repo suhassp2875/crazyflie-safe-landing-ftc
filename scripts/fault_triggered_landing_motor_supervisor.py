@@ -19,7 +19,7 @@ DEFAULT_CEM_CONFIG = (
     / "configs/allocator_weights/cem_tuned_boundary.json"
 )
 
-POLICY_ID = "oracle_motor_conditioned_v1"
+POLICY_ID = "oracle_motor_conditioned_v2"
 
 
 def option_value(
@@ -86,6 +86,12 @@ def main() -> int:
     for forbidden in (
         "--controller",
         "--weight-config",
+        "--manual-residual",
+        "--manual-name",
+        "--r1",
+        "--r2",
+        "--r3",
+        "--r4",
     ):
         if contains_option(arguments, forbidden):
             raise SystemExit(
@@ -100,6 +106,26 @@ def main() -> int:
             "--controller",
             "pinv",
         ]
+
+    elif motor == 4:
+        selected_policy = "manual_opp_m2_14000"
+        forwarded = [
+            *arguments,
+            "--controller",
+            "qplite",
+            "--manual-residual",
+            "--manual-name",
+            "opp_m2_14000",
+            "--r1",
+            "0",
+            "--r2",
+            "14000",
+            "--r3",
+            "0",
+            "--r4",
+            "0",
+        ]
+
     else:
         cem_config = Path(
             os.environ.get(
