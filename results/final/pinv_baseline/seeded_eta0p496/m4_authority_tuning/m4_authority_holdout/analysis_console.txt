@@ -1,0 +1,23 @@
+[PROGRESS] audited=10/60
+[PROGRESS] audited=20/60
+[PROGRESS] audited=30/60
+[PROGRESS] audited=40/60
+[PROGRESS] audited=50/60
+[PROGRESS] audited=60/60
+
+========== M4 AUTHORITY FRESH-SEED HOLDOUT ==========
+r2=12000: safe=26/30 rate=0.867 Wilson95=[0.703, 0.947] mean_vz=0.340045 q90=0.352416 q95=0.358404 max=0.359014 vertical_failures=4 other_failures=0
+r2=14000: safe=28/30 rate=0.933 Wilson95=[0.787, 0.982] mean_vz=0.340933 q90=0.348749 q95=0.354610 max=0.356223 vertical_failures=2 other_failures=0
+
+========== PAIRED HOLDOUT COMPARISON ==========
+both_safe=24 baseline_only=2 tuned_only=4 both_unsafe=0
+McNemar_exact_p=0.68750000
+mean_delta_vz_tuned_minus_baseline=+0.000888
+bootstrap95=[-0.003559, +0.006307]
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_holdout/holdout_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_holdout/holdout_aggregate.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_holdout/holdout_paired_trials.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_holdout/holdout_pairwise_summary.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_holdout/holdout_report.md
+[PASS] M4 authority holdout evaluation complete.

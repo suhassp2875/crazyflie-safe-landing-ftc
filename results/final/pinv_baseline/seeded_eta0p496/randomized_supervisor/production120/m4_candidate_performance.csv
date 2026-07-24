@@ -1,0 +1,2 @@
+candidate,n,safe_count,unsafe_count,safe_rate,mean_actual_vz,max_actual_vz,mean_prediction_error,max_prediction_error
+opp_m2_12000,30,26,4,0.8666666666666667,0.34026927351951597,0.39882373809814453,-0.0073307264804840285,0.05122373809814451
