@@ -42,3 +42,8 @@ results/final/pinv_baseline/seeded_eta0p496/qplite_m2_30/start_time.txt
 results/final/pinv_baseline/seeded_eta0p496/qplite_m2_30/end_time.txt
 results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/cem_m134_console.txt
 results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/pinv_m2_console.txt
+results/figures/
+results/tables/
+results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/batch_console.txt
+results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/start_time.txt
+results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/end_time.txt

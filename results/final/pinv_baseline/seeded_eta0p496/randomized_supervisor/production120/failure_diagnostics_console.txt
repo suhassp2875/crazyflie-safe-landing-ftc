@@ -1,0 +1,19 @@
+sequence,motor,seed,candidate,fault_z,fault_vz,contact_vz,excess,predicted_vz,prediction_error
+18,M4,45280005,opp_m2_12000,0.711765,-0.003739,0.371158,+0.021158,0.347600,+0.023558
+30,M1,15280008,opp_m3_12000,0.732524,-0.004371,0.355181,+0.005181,0.347600,+0.007581
+71,M4,45280021,opp_m2_12000,0.706099,-0.003863,0.356131,+0.006131,0.347600,+0.008531
+93,M4,45280024,opp_m2_12000,0.727980,-0.004006,0.353684,+0.003684,0.347600,+0.006084
+109,M4,45280028,opp_m2_12000,0.702946,-0.003748,0.398824,+0.048824,0.347600,+0.051224
+
+========== CANDIDATE BREAKDOWN ==========
+M1 safe   opp_m3_12000         n=29
+M1 unsafe opp_m3_12000         n=1
+M2 safe   bounded_fault_aware_wls n=30
+M3 safe   opp_m1_13000         n=30
+M4 safe   opp_m2_12000         n=26
+M4 unsafe opp_m2_12000         n=4
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_failure_diagnostics.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_candidate_breakdown.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_failure_report.md
+[PASS] Supervisor failure diagnostics complete.

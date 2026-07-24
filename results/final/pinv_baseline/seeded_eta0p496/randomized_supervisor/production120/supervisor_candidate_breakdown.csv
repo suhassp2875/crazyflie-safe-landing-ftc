@@ -1,0 +1,7 @@
+motor,outcome,selected_candidate,count
+1,safe,opp_m3_12000,29
+1,unsafe,opp_m3_12000,1
+2,safe,bounded_fault_aware_wls,30
+3,safe,opp_m1_13000,30
+4,safe,opp_m2_12000,26
+4,unsafe,opp_m2_12000,4

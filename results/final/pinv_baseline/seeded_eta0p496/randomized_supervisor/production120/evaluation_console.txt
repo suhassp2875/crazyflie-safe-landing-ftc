@@ -1,0 +1,26 @@
+[PROGRESS] audited=20/120
+[PROGRESS] audited=40/120
+[PROGRESS] audited=60/120
+[PROGRESS] audited=80/120
+[PROGRESS] audited=100/120
+[PROGRESS] audited=120/120
+
+========== RANDOMIZED MOTOR SUPERVISOR ==========
+M1: policy=cem_tuned_qplite safe=29/30 rate=0.967 Wilson95=[0.833, 0.994] mean_vz=0.331562 range=[0.301706, 0.355181] vertical_failures=1
+M2: policy=pinv_bounded_wls safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.329101 range=[0.321558, 0.337722] vertical_failures=0
+M3: policy=cem_tuned_qplite safe=30/30 rate=1.000 Wilson95=[0.886, 1.000] mean_vz=0.322726 range=[0.283161, 0.342504] vertical_failures=0
+M4: policy=cem_tuned_qplite safe=26/30 rate=0.867 Wilson95=[0.703, 0.947] mean_vz=0.340269 range=[0.284253, 0.398824] vertical_failures=4
+
+========== OVERALL ==========
+validated_trials=120
+motor_counts={1: 30, 2: 30, 3: 30, 4: 30}
+safe=115/120
+safe_rate=0.958333
+Wilson95=[0.906159, 0.982073]
+non_vertical_failures=0
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_aggregate_by_motor.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_audit.txt
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_report.md
+[PASS] Randomized supervisor evaluation complete.

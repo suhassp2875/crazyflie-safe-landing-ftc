@@ -1,0 +1,9 @@
+run_id=production120
+scheduled_trials=120
+validated_trials=120
+overall_safe=115
+overall_unsafe=5
+eta=0.496
+policy_id=oracle_motor_conditioned_v1
+policy=M1:CEM-tuned,M2:PINV,M3:CEM-tuned,M4:CEM-tuned
+motor_counts=M1:30,M2:30,M3:30,M4:30
