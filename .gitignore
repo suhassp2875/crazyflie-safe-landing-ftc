@@ -47,3 +47,7 @@ results/tables/
 results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/batch_console.txt
 results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/start_time.txt
 results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/*/end_time.txt
+results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/batch_console.txt
+results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/pilot_console.txt
+results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/start_time.txt
+results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/end_time.txt

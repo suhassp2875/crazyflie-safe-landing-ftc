@@ -1,0 +1,22 @@
+[PROGRESS] audited=20/120
+[PROGRESS] audited=40/120
+[PROGRESS] audited=60/120
+[PROGRESS] audited=80/120
+[PROGRESS] audited=100/120
+[PROGRESS] audited=120/120
+
+========== PAIRED M4 AUTHORITY SWEEP ==========
+r2=12000: safe=24/30 rate=0.800 mean_vz=0.343408 q90=0.355894 q95=0.357665 max=0.361788 vertical_failures=6 other_failures=0
+r2=13000: safe=26/30 rate=0.867 mean_vz=0.337773 q90=0.350182 q95=0.352416 max=0.359865 vertical_failures=4 other_failures=0
+r2=14000: safe=28/30 rate=0.933 mean_vz=0.340759 q90=0.348087 q95=0.353613 max=0.354194 vertical_failures=2 other_failures=0
+r2=15000: safe=23/30 rate=0.767 mean_vz=0.347958 q90=0.355245 q95=0.362671 max=0.364404 vertical_failures=7 other_failures=0
+
+========== PAIRED VS R2=12000 ==========
+r2=13000 vs 12000: discordant=4:6 p=0.75390625 mean_delta_vz=-0.005635 CI=[-0.010843, -0.000241]
+r2=14000 vs 12000: discordant=1:5 p=0.21875000 mean_delta_vz=-0.002649 CI=[-0.006486, +0.001174]
+r2=15000 vs 12000: discordant=5:4 p=1.00000000 mean_delta_vz=+0.004551 CI=[+0.001086, +0.008178]
+
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_tuning/authority_trial_summaries.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_tuning/authority_aggregate.csv
+[SAVED] results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_authority_tuning/authority_pairwise_vs_12000.csv
+[PASS] Paired M4 authority analysis complete.
