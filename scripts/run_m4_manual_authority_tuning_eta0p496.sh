@@ -94,8 +94,8 @@ strengths = [
 if reps <= 0:
     raise SystemExit("[FAIL] REPS must be positive.")
 
-if len(strengths) < 2:
-    raise SystemExit("[FAIL] At least two strengths are required.")
+if len(strengths) < 1:
+    raise SystemExit("[FAIL] At least one strength is required.")
 
 if len(set(strengths)) != len(strengths):
     raise SystemExit("[FAIL] Duplicate strengths supplied.")

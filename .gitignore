@@ -51,3 +51,16 @@ results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/batch_console.
 results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/pilot_console.txt
 results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/start_time.txt
 results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/*/end_time.txt
+
+# Generated experiment consoles and timestamps
+results/**/analysis_console.txt
+results/**/batch_console.txt
+results/**/evaluation_console.txt
+results/**/trial_*_console.txt
+results/**/guard_*_console.txt
+results/**/start_time.txt
+results/**/end_time.txt
+results/**/runner_status.txt
+
+# Intermediate M4 baseline used to build the curated paired comparison
+results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_v2_seedmatched_baseline12000/
