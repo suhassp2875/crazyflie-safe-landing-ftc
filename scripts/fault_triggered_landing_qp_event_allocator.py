@@ -309,6 +309,25 @@ def main():
     parser.add_argument("--r3", type=int, default=0)
     parser.add_argument("--r4", type=int, default=0)
     parser.add_argument(
+        "--m4-vz-guard",
+        type=float,
+        default=None,
+        help=(
+            "Enable a one-way M4 manual-residual fallback when "
+            "stateEstimate.vz becomes less than or equal to the "
+            "negative of this positive threshold in m/s."
+        ),
+    )
+    parser.add_argument(
+        "--m4-guard-fallback-r2",
+        type=int,
+        default=12000,
+        help=(
+            "Fallback M2 residual used after the one-way M4 "
+            "vertical-speed guard triggers."
+        ),
+    )
+    parser.add_argument(
         "--controller",
         choices=["qplite", "pinv"],
         default="qplite",
@@ -348,6 +367,56 @@ def main():
 
     if args.motor not in [1, 2, 3, 4]:
         raise SystemExit("--motor must be 1, 2, 3, or 4")
+
+    m4_guard_enabled = args.m4_vz_guard is not None
+
+    if m4_guard_enabled:
+        if float(args.m4_vz_guard) <= 0.0:
+            raise SystemExit(
+                "--m4-vz-guard must be a positive downward-speed "
+                "magnitude in m/s."
+            )
+
+        if args.motor != 4:
+            raise SystemExit(
+                "--m4-vz-guard is valid only for --motor 4."
+            )
+
+        if args.controller != "qplite":
+            raise SystemExit(
+                "--m4-vz-guard requires --controller qplite."
+            )
+
+        if not args.manual_residual:
+            raise SystemExit(
+                "--m4-vz-guard requires --manual-residual."
+            )
+
+        if args.post_fault_mode != "adaptive_ramp_v1":
+            raise SystemExit(
+                "--m4-vz-guard requires "
+                "--post-fault-mode adaptive_ramp_v1."
+            )
+
+        if (
+            int(args.r1),
+            int(args.r3),
+            int(args.r4),
+        ) != (0, 0, 0):
+            raise SystemExit(
+                "The guarded M4 policy requires r1=r3=r4=0."
+            )
+
+        if not (
+            0
+            <= int(args.m4_guard_fallback_r2)
+            < int(args.r2)
+            <= 65535
+        ):
+            raise SystemExit(
+                "Guarded M4 residuals must satisfy "
+                "0 <= fallback_r2 < initial_r2 <= 65535."
+            )
 
     if args.controller == "pinv":
         if getattr(args, "manual_residual", False):
@@ -413,6 +482,19 @@ def main():
     selected_pred_vz = 0.0
     selected_pred_drift = 0.0
     selected_pred_tilt = 0.0
+
+    # One-way M4 residual-guard state.
+    m4_guard_switched = False
+    m4_guard_switch_t = None
+    m4_guard_switch_tau = None
+    m4_guard_switch_z = None
+    m4_guard_switch_vz = None
+    m4_guard_initial_r2 = (
+        int(args.r2)
+        if m4_guard_enabled
+        else 0
+    )
+
     allocator_config_name = (
         "pinv_bounded_wls_"
         f"w{args.pinv_w_thrust:g}_"
@@ -519,6 +601,10 @@ def main():
                 data = latest
                 t = time.time() - t0
 
+                # True only on the telemetry row where the
+                # one-way residual fallback is commanded.
+                m4_guard_switch_event = False
+
                 phase = "arming"
                 z_cmd = 0.05
 
@@ -603,7 +689,9 @@ def main():
 
                             selected_score = 0.0
                             allocator_config_name = (
-                                "manual_residual_sweep"
+                                "manual_residual_guarded_v1"
+                                if m4_guard_enabled
+                                else "manual_residual_sweep"
                             )
 
                         else:
@@ -685,8 +773,54 @@ def main():
                         allocated = True
 
                     if phase != "fault_event":
+                        current_vz = fget(
+                            data,
+                            "stateEstimate.vz",
+                        )
+                        current_z = fget(
+                            data,
+                            "stateEstimate.z",
+                        )
+
+                        if (
+                            m4_guard_enabled
+                            and not m4_guard_switched
+                            and current_vz
+                            <= -float(args.m4_vz_guard)
+                        ):
+                            fallback_r2 = int(
+                                args.m4_guard_fallback_r2
+                            )
+
+                            # r1, r3 and r4 remain unchanged.
+                            # Updating only r2 minimizes switching latency.
+                            set_param(
+                                cf,
+                                "sitlFtc.r2",
+                                fallback_r2,
+                            )
+
+                            selected_r[1] = fallback_r2
+                            m4_guard_switched = True
+                            m4_guard_switch_event = True
+                            m4_guard_switch_t = t
+                            m4_guard_switch_tau = tau_fault
+                            m4_guard_switch_z = current_z
+                            m4_guard_switch_vz = current_vz
+
+                            print(
+                                "[M4 RESIDUAL GUARD] "
+                                f"threshold="
+                                f"{float(args.m4_vz_guard):.6f} "
+                                f"switch_t={t:.6f} "
+                                f"tau={tau_fault:.6f} "
+                                f"z={current_z:.6f} "
+                                f"vz={current_vz:.6f} "
+                                f"r2={m4_guard_initial_r2}"
+                                f"->{fallback_r2}"
+                            )
+
                         if args.post_fault_mode == "adaptive_ramp_v1":
-                            current_vz = fget(data, "stateEstimate.vz")
                             ramp_z = max(
                                 float(args.landing_final_z),
                                 hover_z - float(args.landing_descent_rate) * tau_fault,
@@ -751,6 +885,50 @@ def main():
                     "z_cmd": z_cmd,
                     "controller": args.controller,
                     "allocator_config": allocator_config_name,
+
+                    "m4_guard_enabled":
+                        bool(m4_guard_enabled),
+                    "m4_guard_threshold_mps": (
+                        float(args.m4_vz_guard)
+                        if m4_guard_enabled
+                        else ""
+                    ),
+                    "m4_guard_initial_r2":
+                        int(m4_guard_initial_r2),
+                    "m4_guard_fallback_r2": (
+                        int(args.m4_guard_fallback_r2)
+                        if m4_guard_enabled
+                        else 0
+                    ),
+                    "m4_guard_active_r2": (
+                        int(selected_r[1])
+                        if m4_guard_enabled
+                        else 0
+                    ),
+                    "m4_guard_switched":
+                        bool(m4_guard_switched),
+                    "m4_guard_switch_event":
+                        bool(m4_guard_switch_event),
+                    "m4_guard_switch_t": (
+                        m4_guard_switch_t
+                        if m4_guard_switch_t is not None
+                        else ""
+                    ),
+                    "m4_guard_switch_tau": (
+                        m4_guard_switch_tau
+                        if m4_guard_switch_tau is not None
+                        else ""
+                    ),
+                    "m4_guard_switch_z": (
+                        m4_guard_switch_z
+                        if m4_guard_switch_z is not None
+                        else ""
+                    ),
+                    "m4_guard_switch_vz": (
+                        m4_guard_switch_vz
+                        if m4_guard_switch_vz is not None
+                        else ""
+                    ),
 
                     "pinv_w_thrust": float(
                         args.pinv_w_thrust
@@ -858,6 +1036,17 @@ def main():
         "controller",
         "allocator_config",
         "selected_candidate",
+        "m4_guard_enabled",
+        "m4_guard_threshold_mps",
+        "m4_guard_initial_r2",
+        "m4_guard_fallback_r2",
+        "m4_guard_active_r2",
+        "m4_guard_switched",
+        "m4_guard_switch_event",
+        "m4_guard_switch_t",
+        "m4_guard_switch_tau",
+        "m4_guard_switch_z",
+        "m4_guard_switch_vz",
         "pinv_w_thrust",
         "pinv_w_roll",
         "pinv_w_pitch",
@@ -918,6 +1107,16 @@ def main():
         "motor_m1", "motor_m2", "motor_m3", "motor_m4",
         "z_cmd", "controller", "selected_candidate",
         "r1", "r2", "r3", "r4",
+        "m4_guard_enabled",
+        "m4_guard_threshold_mps",
+        "m4_guard_initial_r2",
+        "m4_guard_fallback_r2",
+        "m4_guard_active_r2",
+        "m4_guard_switched",
+        "m4_guard_switch_t",
+        "m4_guard_switch_tau",
+        "m4_guard_switch_z",
+        "m4_guard_switch_vz",
         "pinv_active_mask",
         "pinv_alloc_m1", "pinv_alloc_m2",
         "pinv_alloc_m3", "pinv_alloc_m4",

@@ -1,0 +1,5 @@
+motor,selected_policy,n,safe_count,unsafe_count,safe_rate,safe_rate_wilson95_lower,safe_rate_wilson95_upper,mean_vertical_speed_mps,median_vertical_speed_mps,std_vertical_speed_mps,min_vertical_speed_mps,max_vertical_speed_mps,vertical_speed_failure_count,horizontal_speed_failure_count,tilt_failure_count,angular_rate_failure_count,drift_failure_count
+1,cem_tuned_qplite,1,1,0,1.0,0.20654931437723745,1.0,0.3303212821483612,0.3303212821483612,0.0,0.3303212821483612,0.3303212821483612,0,0,0,0,0
+2,pinv_bounded_wls,1,1,0,1.0,0.20654931437723745,1.0,0.3222159147262573,0.3222159147262573,0.0,0.3222159147262573,0.3222159147262573,0,0,0,0,0
+3,cem_tuned_qplite,1,1,0,1.0,0.20654931437723745,1.0,0.3193778991699219,0.3193778991699219,0.0,0.3193778991699219,0.3193778991699219,0,0,0,0,0
+4,cem_tuned_qplite,1,1,0,1.0,0.20654931437723745,1.0,0.31356319785118103,0.31356319785118103,0.0,0.31356319785118103,0.31356319785118103,0,0,0,0,0

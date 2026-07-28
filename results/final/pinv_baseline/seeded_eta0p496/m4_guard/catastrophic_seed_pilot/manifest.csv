@@ -1,0 +1,4 @@
+guard,trial_seed,expected_csv
+0.16,45680003,logs/qp_event_allocator_m4_eta0p496_m4_guard_seed45680003_g0p16.csv
+0.18,45680003,logs/qp_event_allocator_m4_eta0p496_m4_guard_seed45680003_g0p18.csv
+0.20,45680003,logs/qp_event_allocator_m4_eta0p496_m4_guard_seed45680003_g0p20.csv

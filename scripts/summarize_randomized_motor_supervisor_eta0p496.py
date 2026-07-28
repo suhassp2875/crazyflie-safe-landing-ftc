@@ -164,17 +164,6 @@ def evaluate_trial(
                 for value in allocators
             )
         )
-
-    elif motor == 4:
-        policy_ok = (
-            expected_policy == "manual_opp_m2_14000"
-            and controllers == {"qplite"}
-            and any(
-                "manual_residual_sweep" in value
-                for value in allocators
-            )
-        )
-
     else:
         policy_ok = (
             expected_policy == "cem_tuned_qplite"
@@ -234,32 +223,6 @@ def evaluate_trial(
         raise ValueError(
             f"{path}: no first-contact row"
         )
-
-    # Supervisor-v2 M4 structural verification.
-    if motor == 4:
-        candidate = (
-            contact_row["selected_candidate"]
-            .strip()
-        )
-
-        residual = (
-            int(float(contact_row["r1"])),
-            int(float(contact_row["r2"])),
-            int(float(contact_row["r3"])),
-            int(float(contact_row["r4"])),
-        )
-
-        if candidate != "opp_m2_14000":
-            raise ValueError(
-                f"{path}: M4 candidate={candidate!r}, "
-                "expected='opp_m2_14000'"
-            )
-
-        if residual != (0, 14000, 0, 0):
-            raise ValueError(
-                f"{path}: M4 residual={residual}, "
-                "expected=(0, 14000, 0, 0)"
-            )
 
     vertical_speed = abs(float(contact_row["vz"]))
 
@@ -550,7 +513,7 @@ audit_output.write_text(
             f"overall_safe={overall_safe}",
             f"overall_unsafe={len(trial_rows) - overall_safe}",
             "eta=0.496",
-            "policy_id=oracle_motor_conditioned_v2",
+            "policy_id=oracle_motor_conditioned_v1",
             (
                 "policy="
                 "M1:CEM-tuned,M2:PINV,"

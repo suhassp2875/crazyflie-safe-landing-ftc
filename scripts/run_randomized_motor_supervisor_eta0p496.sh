@@ -93,12 +93,11 @@ for sequence_index, motor in enumerate(
         + repetition
     )
 
-    if motor == 2:
-        selected_policy = "pinv_bounded_wls"
-    elif motor == 4:
-        selected_policy = "manual_opp_m2_14000"
-    else:
-        selected_policy = "cem_tuned_qplite"
+    selected_policy = (
+        "pinv_bounded_wls"
+        if motor == 2
+        else "cem_tuned_qplite"
+    )
 
     eta_tag = str(eta).replace(".", "p")
 

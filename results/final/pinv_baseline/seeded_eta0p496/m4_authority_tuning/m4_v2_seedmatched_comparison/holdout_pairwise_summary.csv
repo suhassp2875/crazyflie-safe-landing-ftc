@@ -1,0 +1,2 @@
+baseline_strength,tuned_strength,n_pairs,both_safe,baseline_only_safe,tuned_only_safe,both_unsafe,mcnemar_exact_two_sided_p,mean_vertical_speed_difference_tuned_minus_baseline,median_vertical_speed_difference_tuned_minus_baseline,bootstrap95_mean_difference_lower,bootstrap95_mean_difference_upper
+12000,14000,30,18,5,6,1,1.0,0.012042292952537536,0.00599314272403717,-0.000180169939994812,0.029781471689542136
