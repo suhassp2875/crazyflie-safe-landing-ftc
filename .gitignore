@@ -68,3 +68,10 @@ results/**/mechanism_console.txt
 
 # Local reversible Gazebo plant state
 .plant_ofat/
+
+# Model-sensitivity runtime artifacts
+results/final/model_sensitivity/**/trials/
+results/final/model_sensitivity/**/consoles/
+results/final/model_sensitivity/**/simulator_logs/
+results/final/model_sensitivity/**/pilot_console.txt
+results/final/model_sensitivity/**/production_console.txt
