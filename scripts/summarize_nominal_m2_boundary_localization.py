@@ -192,6 +192,7 @@ def main() -> None:
             writer = csv.DictWriter(
                 file,
                 fieldnames=fieldnames,
+                lineterminator="\n",
             )
             writer.writeheader()
             writer.writerows(trial_rows)
@@ -335,6 +336,7 @@ def main() -> None:
             fieldnames=list(
                 aggregate_rows[0]
             ),
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerows(
@@ -423,6 +425,7 @@ def main() -> None:
             fieldnames=list(
                 controller_audits[0]
             ),
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerows(

@@ -591,6 +591,7 @@ def main() -> None:
         writer = csv.DictWriter(
             file,
             fieldnames=list(summary),
+            lineterminator="\n",
         )
         writer.writeheader()
         writer.writerow(summary)
