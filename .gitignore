@@ -65,3 +65,6 @@ results/**/runner_status.txt
 # Intermediate M4 baseline used to build the curated paired comparison
 results/final/pinv_baseline/seeded_eta0p496/m4_authority_tuning/m4_v2_seedmatched_baseline12000/
 results/**/mechanism_console.txt
+
+# Local reversible Gazebo plant state
+.plant_ofat/
