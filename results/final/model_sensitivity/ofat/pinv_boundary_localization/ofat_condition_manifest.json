@@ -1,0 +1,194 @@
+{
+  "protocol_id": "crazyflie_ofat_pinv_localization_v1",
+  "baseline_manifest": "/home/suhas/crazysim_ws/safe-landing-ftc/results/final/model_sensitivity/ofat/nominal_baseline_manifest.json",
+  "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+  "condition_count": 10,
+  "conditions": [
+    {
+      "condition_id": "mass_minus10",
+      "parameter": "mass",
+      "factor": 0.9,
+      "template_sha256": "a366ed78fb465fbb0964b33f1f3c9a586ec729fc37330465328f33701d8755cf",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "mass",
+        "factor": 0.9,
+        "body_mass_kg": 0.022180000000000002,
+        "prop_mass_each_kg": 0.0008,
+        "total_mass_kg": 0.025380000000000003,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "a366ed78fb465fbb0964b33f1f3c9a586ec729fc37330465328f33701d8755cf",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:16.601057+00:00"
+      }
+    },
+    {
+      "condition_id": "mass_plus10",
+      "parameter": "mass",
+      "factor": 1.1,
+      "template_sha256": "0ad4e7a81bb28fe519cdcc54f3f9171cdc92ffd32b0776502e84aabd531e0398",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "mass",
+        "factor": 1.1,
+        "body_mass_kg": 0.027820000000000004,
+        "prop_mass_each_kg": 0.0008,
+        "total_mass_kg": 0.031020000000000006,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "0ad4e7a81bb28fe519cdcc54f3f9171cdc92ffd32b0776502e84aabd531e0398",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:16.744759+00:00"
+      }
+    },
+    {
+      "condition_id": "thrust_coefficient_minus10",
+      "parameter": "thrust_coefficient",
+      "factor": 0.9,
+      "template_sha256": "cc3905baa62024ad88f7af07d23f3de313b8a850d9af2dfeef9ddc8e82b33c77",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "thrust_coefficient",
+        "factor": 0.9,
+        "gazebo_motor_constant": 1.61685e-08,
+        "pwm_conversion_constant": 2.3375e-08,
+        "relative_to_nominal": 0.9,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "cc3905baa62024ad88f7af07d23f3de313b8a850d9af2dfeef9ddc8e82b33c77",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:16.885427+00:00"
+      }
+    },
+    {
+      "condition_id": "thrust_coefficient_plus10",
+      "parameter": "thrust_coefficient",
+      "factor": 1.1,
+      "template_sha256": "5d7069c284d7fd50362ca5bcbefc206fbdfca04f81fccca027aab46f42444fc3",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "thrust_coefficient",
+        "factor": 1.1,
+        "gazebo_motor_constant": 1.97615e-08,
+        "pwm_conversion_constant": 2.3375e-08,
+        "relative_to_nominal": 1.1,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "5d7069c284d7fd50362ca5bcbefc206fbdfca04f81fccca027aab46f42444fc3",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.022276+00:00"
+      }
+    },
+    {
+      "condition_id": "motor_time_constant_minus10",
+      "parameter": "motor_time_constant",
+      "factor": 0.9,
+      "template_sha256": "8098ad601867eef40feaeeec3a83c81a789715ab72fd4691d6e994b42f2e6d1a",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "motor_time_constant",
+        "factor": 0.9,
+        "time_constant_up_s": 0.011250000000000001,
+        "time_constant_down_s": 0.022500000000000003,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "8098ad601867eef40feaeeec3a83c81a789715ab72fd4691d6e994b42f2e6d1a",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.175991+00:00"
+      }
+    },
+    {
+      "condition_id": "motor_time_constant_plus10",
+      "parameter": "motor_time_constant",
+      "factor": 1.1,
+      "template_sha256": "9e43b2b8c92f584794c999a71613fc20d5fce76ea5113329771be78b48a42c0b",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "motor_time_constant",
+        "factor": 1.1,
+        "time_constant_up_s": 0.013750000000000002,
+        "time_constant_down_s": 0.027500000000000004,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "9e43b2b8c92f584794c999a71613fc20d5fce76ea5113329771be78b48a42c0b",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.325526+00:00"
+      }
+    },
+    {
+      "condition_id": "thrust_to_torque_ratio_minus10",
+      "parameter": "thrust_to_torque_ratio",
+      "factor": 0.9,
+      "template_sha256": "1f975f34ca73ad719392ba5304996066a0a78f66d7fbce821548741a61567699",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "thrust_to_torque_ratio",
+        "factor": 0.9,
+        "gazebo_moment_constant": 0.0053680967999999996,
+        "relative_to_nominal": 0.9,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "1f975f34ca73ad719392ba5304996066a0a78f66d7fbce821548741a61567699",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.469617+00:00"
+      }
+    },
+    {
+      "condition_id": "thrust_to_torque_ratio_plus10",
+      "parameter": "thrust_to_torque_ratio",
+      "factor": 1.1,
+      "template_sha256": "1f9b17fb7b2be244d29116b33c13001aff7f8dc472eb24d5914484bf1c522a8a",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "thrust_to_torque_ratio",
+        "factor": 1.1,
+        "gazebo_moment_constant": 0.0065610072,
+        "relative_to_nominal": 1.1,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "1f9b17fb7b2be244d29116b33c13001aff7f8dc472eb24d5914484bf1c522a8a",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.618897+00:00"
+      }
+    },
+    {
+      "condition_id": "arm_length_minus10",
+      "parameter": "arm_length",
+      "factor": 0.9,
+      "template_sha256": "48642b53e45c6e13081a9c5132e64519e1c1c67e8eeb29cb9c2610889cb13399",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "arm_length",
+        "factor": 0.9,
+        "rotor_xy_coordinate_m": 0.0279,
+        "physical_rotor_radius_m": 0.039456558390209354,
+        "firmware_arm_length_m": 0.046,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "48642b53e45c6e13081a9c5132e64519e1c1c67e8eeb29cb9c2610889cb13399",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.755877+00:00"
+      }
+    },
+    {
+      "condition_id": "arm_length_plus10",
+      "parameter": "arm_length",
+      "factor": 1.1,
+      "template_sha256": "c9ae3a49db8313ec0a0d1f7c3c40d7badb945c5ec6c07e36a1a8a35eb42ba5a8",
+      "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+      "active_state": {
+        "parameter": "arm_length",
+        "factor": 1.1,
+        "rotor_xy_coordinate_m": 0.034100000000000005,
+        "physical_rotor_radius_m": 0.048224682476922555,
+        "firmware_arm_length_m": 0.046,
+        "protocol_id": "plant_ofat_v1",
+        "nominal_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9",
+        "perturbed_sha256": "c9ae3a49db8313ec0a0d1f7c3c40d7badb945c5ec6c07e36a1a8a35eb42ba5a8",
+        "template": "/home/suhas/crazysim_ws/CrazySim/crazyflie-firmware/tools/crazyflie-simulation/simulator_files/gazebo/models/crazyflie/model.sdf.jinja",
+        "applied_utc": "2026-08-03T09:13:17.891514+00:00"
+      }
+    }
+  ]
+}
