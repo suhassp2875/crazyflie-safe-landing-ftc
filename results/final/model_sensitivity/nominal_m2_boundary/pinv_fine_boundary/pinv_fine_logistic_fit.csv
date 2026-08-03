@@ -1,0 +1,7 @@
+metric,estimate,ci95_lower,ci95_upper,ci_method,bootstrap_replicates_requested,bootstrap_replicates_accepted,bootstrap_seed
+intercept_at_eta_0p49550,-0.9989564200263602,-1.5269318078379104,-0.5364218921915562,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
+slope_per_eta_1e_minus_4,1.3346864554758524,1.1198106465106474,1.668797327563689,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
+odds_ratio_per_eta_1e_minus_4,3.7988046652680874,3.064273917396565,5.305782839670252,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
+ed10,0.4954102209996667,0.49537637713770466,0.4954533638233471,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
+ed50,0.4955748457748955,0.49553700887419666,0.49561396391829116,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
+ed90,0.4957394705501243,0.4956757804968825,0.4957948094148087,paired_seed_cluster_bootstrap_percentile,5000,5000,20260803
