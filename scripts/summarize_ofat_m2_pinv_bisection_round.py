@@ -84,6 +84,19 @@ def main() -> None:
             f"found {len(schedule)}."
         )
 
+    round_values = {
+        int(row["round"])
+        for row in schedule
+    }
+
+    if len(round_values) != 1:
+        raise SystemExit(
+            "[FAIL] Schedule contains multiple "
+            f"round numbers: {sorted(round_values)}"
+        )
+
+    round_number = next(iter(round_values))
+
     expected = {
         (
             row["condition_id"],
@@ -420,7 +433,7 @@ def main() -> None:
     )
 
     report = [
-        "# M2 PINV OFAT Bisection Round 1",
+        f"# M2 PINV OFAT Bisection Round {round_number}",
         "",
         f"- Scheduled trials: {len(schedule)}",
         f"- Completed trials: {len(observed)}",
