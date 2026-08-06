@@ -99,6 +99,14 @@ def main() -> None:
     )
 
     parser.add_argument(
+        "--ofat-protocol-id",
+        default=(
+            "crazyflie_ofat_"
+            "pinv_localization_v1"
+        ),
+    )
+
+    parser.add_argument(
         "--summary-output",
         type=Path,
         required=True,
@@ -278,8 +286,7 @@ def main() -> None:
     enriched = {
         **base_row,
         "ofat_protocol_id":
-            "crazyflie_ofat_"
-            "pinv_localization_v1",
+            args.ofat_protocol_id,
         "condition_id":
             args.condition_id,
         "plant_parameter":

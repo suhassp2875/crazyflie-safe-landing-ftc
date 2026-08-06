@@ -81,3 +81,12 @@ results/final/model_sensitivity/**/runner_status.txt
 results/final/model_sensitivity/ofat/pinv_boundary_localization/plant_states/
 results/final/model_sensitivity/ofat/pinv_boundary_localization/pilot_v0_extreme_grid/
 results/final/model_sensitivity/ofat/pinv_boundary_bisection/round*/plant_states/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/trials/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/summaries/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/plant_states/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/consoles/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/simulator_logs/
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/run_status.csv
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/runner_status.txt
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/pilot_console.txt
+results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/production_console.txt
