@@ -1,0 +1,11 @@
+condition_id,parameter,factor,previous_low,previous_high,tested_midpoint,safe_count,n_present,decision,updated_low,updated_high,updated_width
+mass_minus10,mass,0.90,0.437500,0.450000,0.443750,0,5,midpoint_majority_unsafe,0.443750,0.450000,0.006250
+mass_plus10,mass,1.10,0.537500,0.550000,0.543750,0,5,midpoint_majority_unsafe,0.543750,0.550000,0.006250
+thrust_coefficient_minus10,thrust_coefficient,0.90,0.550000,0.562500,0.556250,5,5,midpoint_majority_safe,0.550000,0.556250,0.006250
+thrust_coefficient_plus10,thrust_coefficient,1.10,0.450000,0.462500,0.456250,5,5,midpoint_majority_safe,0.450000,0.456250,0.006250
+motor_time_constant_minus10,motor_time_constant,0.90,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250
+motor_time_constant_plus10,motor_time_constant,1.10,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250
+thrust_to_torque_ratio_minus10,thrust_to_torque_ratio,0.90,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250
+thrust_to_torque_ratio_plus10,thrust_to_torque_ratio,1.10,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250
+arm_length_minus10,arm_length,0.90,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250
+arm_length_plus10,arm_length,1.10,0.487500,0.500000,0.493750,0,5,midpoint_majority_unsafe,0.493750,0.500000,0.006250

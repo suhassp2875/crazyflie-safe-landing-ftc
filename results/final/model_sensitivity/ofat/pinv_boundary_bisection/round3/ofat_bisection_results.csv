@@ -1,0 +1,11 @@
+round,condition_id,parameter,factor,bracket_low,bracket_high,midpoint_eta,n_expected,n_present,valid_prefault_count,contact_count,safe_count,safe_rate,majority_safe,decision,vertical_fail,horizontal_fail,tilt_fail,angular_fail,drift_fail,mean_vertical_speed_mps,mean_angular_rate_radps
+3,mass_minus10,mass,0.90,0.437500,0.450000,0.443750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,0,5,5,5,0,0.18484971821308135,8.590769545233217
+3,mass_plus10,mass,1.10,0.537500,0.550000,0.543750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.4028769016265869,0.3885749748523873
+3,thrust_coefficient_minus10,thrust_coefficient,0.90,0.550000,0.562500,0.556250,5,5,5,5,5,1.0,True,midpoint_majority_safe,0,0,0,0,0,0.08200833946466446,0.0035334846355512995
+3,thrust_coefficient_plus10,thrust_coefficient,1.10,0.450000,0.462500,0.456250,5,5,5,5,5,1.0,True,midpoint_majority_safe,0,0,0,0,0,0.08121599406003951,0.0017343385783130637
+3,motor_time_constant_minus10,motor_time_constant,0.90,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.42138105630874634,0.4058667787626354
+3,motor_time_constant_plus10,motor_time_constant,1.10,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.42674232125282285,0.408904791923728
+3,thrust_to_torque_ratio_minus10,thrust_to_torque_ratio,0.90,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.424780136346817,0.3877552270210622
+3,thrust_to_torque_ratio_plus10,thrust_to_torque_ratio,1.10,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.42410531640052795,0.42060717434455347
+3,arm_length_minus10,arm_length,0.90,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.42805004119873047,0.4205807680908117
+3,arm_length_plus10,arm_length,1.10,0.487500,0.500000,0.493750,5,5,5,5,0,0.0,False,midpoint_majority_unsafe,5,0,0,0,0,0.42234812378883363,0.3948704933363441
