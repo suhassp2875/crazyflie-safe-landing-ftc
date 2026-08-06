@@ -78,3 +78,6 @@ results/final/model_sensitivity/**/production_console.txt
 results/final/model_sensitivity/**/summaries/
 results/final/model_sensitivity/**/run_status.csv
 results/final/model_sensitivity/**/runner_status.txt
+results/final/model_sensitivity/ofat/pinv_boundary_localization/plant_states/
+results/final/model_sensitivity/ofat/pinv_boundary_localization/pilot_v0_extreme_grid/
+results/final/model_sensitivity/ofat/pinv_boundary_bisection/round*/plant_states/
