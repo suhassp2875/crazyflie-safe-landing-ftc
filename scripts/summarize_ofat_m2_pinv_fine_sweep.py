@@ -121,23 +121,98 @@ def main() -> None:
 
         row = rows[0]
 
+        condition_id = row[
+            "condition_id"
+        ]
+
+        trial_seed = int(
+            row["trial_seed"]
+        )
+
+        observed_eta = float(
+            row["eta"]
+        )
+
+        candidates = [
+            schedule_row
+            for schedule_row in schedule
+            if (
+                schedule_row["condition_id"]
+                == condition_id
+                and int(
+                    schedule_row["trial_seed"]
+                )
+                == trial_seed
+            )
+        ]
+
+        if len(candidates) != 7:
+            raise SystemExit(
+                "[FAIL] Expected seven scheduled "
+                "eta candidates for "
+                f"condition={condition_id}, "
+                f"seed={trial_seed}; "
+                f"found {len(candidates)}."
+            )
+
+        matched = min(
+            candidates,
+            key=lambda schedule_row: abs(
+                float(schedule_row["eta"])
+                - observed_eta
+            ),
+        )
+
+        scheduled_eta = float(
+            matched["eta"]
+        )
+
+        eta_match_error = abs(
+            scheduled_eta
+            - observed_eta
+        )
+
+        # Existing validator summaries rounded eta
+        # to six decimals. The largest expected
+        # quantization error is < 5e-7. Keep a
+        # conservative 1e-6 matching tolerance,
+        # still far below the ~1.04e-3 grid spacing.
+        if eta_match_error > 1.0e-6:
+            raise SystemExit(
+                "[FAIL] Summary eta does not match "
+                "any scheduled eta within tolerance: "
+                f"condition={condition_id}, "
+                f"seed={trial_seed}, "
+                f"summary_eta={observed_eta:.9f}, "
+                f"nearest_schedule_eta="
+                f"{scheduled_eta:.9f}, "
+                f"error={eta_match_error:.3e}"
+            )
+
         key = (
-            row["condition_id"],
-            round(float(row["eta"]), 8),
-            int(row["trial_seed"]),
+            condition_id,
+            round(scheduled_eta, 8),
+            trial_seed,
         )
 
         if key not in expected:
             raise SystemExit(
-                "[FAIL] Unexpected summary "
-                f"key: {key}"
+                "[FAIL] Canonicalized summary key "
+                f"is not scheduled: {key}"
             )
 
         if key in observed:
             raise SystemExit(
-                "[FAIL] Duplicate summary "
-                f"key: {key}"
+                "[FAIL] Duplicate canonicalized "
+                f"summary key: {key}"
             )
+
+        # Restore the exact scheduled eta so all
+        # downstream analyses retain the designed
+        # eight-decimal grid rather than the
+        # validator's historical six-decimal value.
+        row = dict(row)
+        row["eta"] = matched["eta"]
 
         observed[key] = row
 

@@ -285,6 +285,7 @@ def main() -> None:
 
     enriched = {
         **base_row,
+        "eta": f"{args.eta:.8f}",
         "ofat_protocol_id":
             args.ofat_protocol_id,
         "condition_id":

@@ -1,0 +1,11 @@
+condition_id,parameter,factor,n_expected,n_present,valid_prefault_count,contact_count,safe_count,minimum_safe_rate,maximum_safe_rate,monotonicity_violations,vertical_fail_total,horizontal_fail_total,tilt_fail_total,angular_fail_total,drift_fail_total
+mass_minus10,mass,0.90,210,210,210,210,60,0.0,1.0,0,0,72,46,150,0
+mass_plus10,mass,1.10,210,210,210,210,150,0.0,1.0,0,60,0,0,0,0
+thrust_coefficient_minus10,thrust_coefficient,0.90,210,210,210,210,180,0.0,1.0,0,30,0,0,0,0
+thrust_coefficient_plus10,thrust_coefficient,1.10,210,210,210,210,188,0.26666666666666666,1.0,0,0,0,0,22,0
+motor_time_constant_minus10,motor_time_constant,0.90,210,210,210,210,150,0.0,1.0,0,60,0,0,0,0
+motor_time_constant_plus10,motor_time_constant,1.10,210,210,210,210,154,0.0,1.0,1,56,0,0,0,0
+thrust_to_torque_ratio_minus10,thrust_to_torque_ratio,0.90,210,210,210,210,147,0.0,1.0,0,63,0,0,0,0
+thrust_to_torque_ratio_plus10,thrust_to_torque_ratio,1.10,210,210,210,210,150,0.0,1.0,0,60,0,0,0,0
+arm_length_minus10,arm_length,0.90,210,210,210,210,150,0.0,1.0,0,60,0,0,0,0
+arm_length_plus10,arm_length,1.10,210,210,210,210,149,0.0,1.0,0,61,0,0,0,0
