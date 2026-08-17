@@ -1,0 +1,2 @@
+estimator,eta_scale,bootstrap_type,bootstrap_requested,bootstrap_accepted,bootstrap_attempted,bootstrap_seed,nominal_seed_count,ofat_seed_count
+firth_bias_reduced_logistic,10000.0,seed_cluster_bootstrap;paired_across_ofat_conditions;independent_nominal_reference,5000,5000,5000,20260817,30,30
