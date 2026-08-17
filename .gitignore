@@ -90,3 +90,11 @@ results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/run_status.csv
 results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/runner_status.txt
 results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/pilot_console.txt
 results/final/model_sensitivity/ofat/pinv_boundary_fine_sweep/production_console.txt
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/trials/
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/summaries/
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/consoles/
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/simulator_logs/
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/run_status.csv
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/runner_status.txt
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/pilot_console.txt
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/production_console.txt

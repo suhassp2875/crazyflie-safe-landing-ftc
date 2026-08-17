@@ -1,0 +1,94 @@
+{
+  "experiment_protocol_id": "m2_routing_stability_eta0p496_v1",
+  "purpose": "Test whether the nominal M2 routing choice PINV over frozen CEM remains preferable under +/-10% OFAT plant perturbations.",
+  "base_project_commit": "8f4ab0bf067e565002946b54c30515c6709391c9",
+  "failed_motor": 2,
+  "eta": 0.496,
+  "trial_seed_start": 63400001,
+  "trial_seed_end": 63400030,
+  "seed_count": 30,
+  "plant_condition_count": 11,
+  "controller_count": 2,
+  "scheduled_trials": 660,
+  "seed_protocol": "seeded_ic_v1",
+  "controller_order": "counterbalanced: odd rep PINV then CEM; even rep CEM then PINV",
+  "pinv_configuration": {
+    "w_thrust": 1.0,
+    "w_roll": 1.0,
+    "w_pitch": 1.0,
+    "w_yaw": 0.2,
+    "lambda": 1e-06
+  },
+  "cem_configuration": {
+    "path": "configs/allocator_weights/cem_tuned_boundary.json",
+    "sha256": "705310dda32718993a3df38353caa567d4ca1387b0652b507130c889ea713a5b"
+  },
+  "plant_conditions": [
+    {
+      "condition_id": "nominal",
+      "parameter": "nominal",
+      "factor": 1.0,
+      "plant_sha256": "849b83459d1c2d9ea365d7e743ed7fe5a00151aa39505ec9f6294777881dfee9"
+    },
+    {
+      "condition_id": "mass_minus10",
+      "parameter": "mass",
+      "factor": 0.9,
+      "plant_sha256": "a366ed78fb465fbb0964b33f1f3c9a586ec729fc37330465328f33701d8755cf"
+    },
+    {
+      "condition_id": "mass_plus10",
+      "parameter": "mass",
+      "factor": 1.1,
+      "plant_sha256": "0ad4e7a81bb28fe519cdcc54f3f9171cdc92ffd32b0776502e84aabd531e0398"
+    },
+    {
+      "condition_id": "thrust_coefficient_minus10",
+      "parameter": "thrust_coefficient",
+      "factor": 0.9,
+      "plant_sha256": "cc3905baa62024ad88f7af07d23f3de313b8a850d9af2dfeef9ddc8e82b33c77"
+    },
+    {
+      "condition_id": "thrust_coefficient_plus10",
+      "parameter": "thrust_coefficient",
+      "factor": 1.1,
+      "plant_sha256": "5d7069c284d7fd50362ca5bcbefc206fbdfca04f81fccca027aab46f42444fc3"
+    },
+    {
+      "condition_id": "motor_time_constant_minus10",
+      "parameter": "motor_time_constant",
+      "factor": 0.9,
+      "plant_sha256": "8098ad601867eef40feaeeec3a83c81a789715ab72fd4691d6e994b42f2e6d1a"
+    },
+    {
+      "condition_id": "motor_time_constant_plus10",
+      "parameter": "motor_time_constant",
+      "factor": 1.1,
+      "plant_sha256": "9e43b2b8c92f584794c999a71613fc20d5fce76ea5113329771be78b48a42c0b"
+    },
+    {
+      "condition_id": "thrust_to_torque_ratio_minus10",
+      "parameter": "thrust_to_torque_ratio",
+      "factor": 0.9,
+      "plant_sha256": "1f975f34ca73ad719392ba5304996066a0a78f66d7fbce821548741a61567699"
+    },
+    {
+      "condition_id": "thrust_to_torque_ratio_plus10",
+      "parameter": "thrust_to_torque_ratio",
+      "factor": 1.1,
+      "plant_sha256": "1f9b17fb7b2be244d29116b33c13001aff7f8dc472eb24d5914484bf1c522a8a"
+    },
+    {
+      "condition_id": "arm_length_minus10",
+      "parameter": "arm_length",
+      "factor": 0.9,
+      "plant_sha256": "48642b53e45c6e13081a9c5132e64519e1c1c67e8eeb29cb9c2610889cb13399"
+    },
+    {
+      "condition_id": "arm_length_plus10",
+      "parameter": "arm_length",
+      "factor": 1.1,
+      "plant_sha256": "c9ae3a49db8313ec0a0d1f7c3c40d7badb945c5ec6c07e36a1a8a35eb42ba5a8"
+    }
+  ]
+}
