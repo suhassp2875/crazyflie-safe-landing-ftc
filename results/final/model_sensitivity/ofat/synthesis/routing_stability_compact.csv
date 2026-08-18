@@ -1,0 +1,12 @@
+condition_id,parameter,factor,pinv_safe,cem_safe,pinv_only_safe,cem_only_safe,neither_safe,routing_state,mcnemar_exact_p
+nominal,nominal,1.00,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+mass_minus10,mass,0.90,30,27,3,0,0,pinv_preferred,0.25
+mass_plus10,mass,1.10,0,0,0,0,30,tie,1.0
+thrust_coefficient_minus10,thrust_coefficient,0.90,0,0,0,0,30,tie,1.0
+thrust_coefficient_plus10,thrust_coefficient,1.10,30,18,12,0,0,pinv_preferred,0.00048828125
+motor_time_constant_minus10,motor_time_constant,0.90,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+motor_time_constant_plus10,motor_time_constant,1.10,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+thrust_to_torque_ratio_minus10,thrust_to_torque_ratio,0.90,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+thrust_to_torque_ratio_plus10,thrust_to_torque_ratio,1.10,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+arm_length_minus10,arm_length,0.90,30,0,30,0,0,pinv_preferred,1.862645149230957e-09
+arm_length_plus10,arm_length,1.10,30,0,30,0,0,pinv_preferred,1.862645149230957e-09

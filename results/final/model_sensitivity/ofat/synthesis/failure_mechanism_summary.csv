@@ -1,0 +1,11 @@
+condition_id,parameter,factor,safe_count,trial_count,vertical_fail,horizontal_fail,tilt_fail,angular_fail,drift_fail,primary_failure_mechanism
+mass_minus10,mass,0.90,60,210,0,72,46,150,0,angular_rate
+mass_plus10,mass,1.10,150,210,60,0,0,0,0,vertical_speed
+thrust_coefficient_minus10,thrust_coefficient,0.90,180,210,30,0,0,0,0,vertical_speed
+thrust_coefficient_plus10,thrust_coefficient,1.10,188,210,0,0,0,22,0,angular_rate
+motor_time_constant_minus10,motor_time_constant,0.90,150,210,60,0,0,0,0,vertical_speed
+motor_time_constant_plus10,motor_time_constant,1.10,154,210,56,0,0,0,0,vertical_speed
+thrust_to_torque_ratio_minus10,thrust_to_torque_ratio,0.90,147,210,63,0,0,0,0,vertical_speed
+thrust_to_torque_ratio_plus10,thrust_to_torque_ratio,1.10,150,210,60,0,0,0,0,vertical_speed
+arm_length_minus10,arm_length,0.90,150,210,60,0,0,0,0,vertical_speed
+arm_length_plus10,arm_length,1.10,149,210,61,0,0,0,0,vertical_speed
