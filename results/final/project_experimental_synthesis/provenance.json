@@ -1,0 +1,15 @@
+{
+  "builder_commit": "ced14d92078588a72add9c95b52a119f7aead2ac",
+  "eta": 0.496,
+  "development_source": "results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_paired_trials.csv",
+  "holdout_source": "results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_aggregate_by_motor.csv",
+  "supervisor_v1_source": "results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/supervisor_aggregate_by_motor.csv",
+  "model_sensitivity_source": "results/final/model_sensitivity/ofat/synthesis/parameter_sensitivity_ranking.csv",
+  "m2_routing_stability_source": "results/final/model_sensitivity/ofat/synthesis/routing_stability_compact.csv",
+  "selected_policy": {
+    "M1": "CEM-tuned QP-lite",
+    "M2": "bounded WLS/PINV",
+    "M3": "CEM-tuned QP-lite",
+    "M4": "CEM-tuned QP-lite"
+  }
+}

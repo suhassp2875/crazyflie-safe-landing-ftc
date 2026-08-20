@@ -1,0 +1,5 @@
+motor,selected_controller,development_safe,development_n,fresh_holdout_safe,fresh_holdout_n,supervisor_v1_safe,supervisor_v1_n
+1,cem,30,30,30,30,29,30
+2,pinv,30,30,30,30,30,30
+3,cem,29,30,30,30,30,30
+4,cem,23,30,27,30,26,30

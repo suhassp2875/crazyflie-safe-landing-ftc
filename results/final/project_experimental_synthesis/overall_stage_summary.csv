@@ -1,0 +1,4 @@
+stage,safe,n,rate,wilson95_lower,wilson95_upper,role
+development_selected_policy,112,120,0.9333333333333333,0.8739486959646967,0.9658346931390938,policy_selection_in_sample
+fresh_seed_holdout,117,120,0.975,0.9290699666721339,0.9914618252300978,fresh_seed_validation_same_simulator_distribution
+randomized_supervisor_v1,115,120,0.9583333333333334,0.9061591476629647,0.9820732831198906,integrated_randomized_order_validation_known_motor_identity

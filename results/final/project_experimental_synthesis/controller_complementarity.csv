@@ -1,0 +1,5 @@
+motor,n,pinv_safe,qplite_safe,cem_tuned_safe,selected_controller,selected_safe
+1,30,26,4,30,cem,30
+2,30,30,6,3,pinv,30
+3,30,19,28,29,cem,29
+4,30,0,5,23,cem,23
