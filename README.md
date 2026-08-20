@@ -1,248 +1,675 @@
-# Fault-Triggered Safe Touchdown Control for Crazyflie-Class Quadrotors
+# Fault-Geometry-Aware Control Allocation for Emergency Quadrotor Landing under Single-Motor Loss of Effectiveness
 
-## 1. Project Goal
+This repository contains the simulation framework, controller implementations, experiment orchestration, and curated results for **fault-tolerant emergency landing of a Crazyflie-class quadrotor under partial single-motor loss of effectiveness (LoE)**.
 
-This project studies emergency touchdown control for a Crazyflie-class quadrotor under single-motor loss-of-effectiveness, abbreviated as LoE. The goal is to determine whether safe first-contact touchdown can be recovered after a motor fault by moving beyond high-level altitude commands and applying low-level residual control at the motor PWM level.
+The central experimental finding is:
 
-Central research question:
+> **No single tested control-allocation strategy is best across all single-motor fault geometries.**
 
-Can a fault-triggered residual motor-level controller expand the safe touchdown recoverability boundary under partial actuator loss?
+A bounded weighted-least-squares allocator is strongest for the M2 failure geometry, while a CEM-tuned residual allocator is stronger for M1, M3, and M4. This motivates a **fault-geometry-aware supervisor** that selects the allocation strategy using the known failed-motor identity.
+
+The frozen routing policy achieved:
+
+| Evaluation | Safe first-contact touchdowns |
+|---|---:|
+| Development-selected routing | 112/120 (93.3%) |
+| **Fresh-seed holdout** | **117/120 (97.5%)** |
+| **Randomized integrated supervisor** | **115/120 (95.8%)** |
+
+The development result is used to select the routing map and is therefore **not an independent validation result**. The 117/120 result is the primary fresh-seed validation after the routing policy was frozen.
+
+A subsequent plant-model sensitivity study shows that the safety boundary is dominated by **mass and thrust coefficient uncertainty**, and that model mismatch can change not only where failure occurs but also **which safety constraint becomes active**.
+
+> **Scope assumption:** failed-motor identity is supplied to the supervisor. This work studies control allocation and reconfiguration after the failed motor is known; it does not implement or validate online fault detection or fault isolation.
 
 ---
 
-## 2. Simulation Platform
+## Contents
 
-Experiments were conducted using:
-
-- CrazySim / Crazyflie SITL
-- Gazebo Sim
-- cflib Python control interface
-- Low-level hover setpoints through send_hover_setpoint
-- Custom SITL firmware fault injection and residual motor-control hooks
-
-This phase is simulation-only. No physical Crazyflie hardware is used.
+- [Problem formulation](#problem-formulation)
+- [Safety definition](#safety-definition)
+- [Allocation methods](#allocation-methods)
+- [Result 1: allocator complementarity](#result-1-allocator-complementarity)
+- [Result 2: frozen-policy validation](#result-2-frozen-policy-validation)
+- [Result 3: integrated supervisor](#result-3-integrated-supervisor)
+- [Result 4: model mismatch changes the failure mode](#result-4-model-mismatch-changes-the-failure-mode)
+- [Result 5: M2/PINV safety boundary](#result-5-m2pinv-safety-boundary)
+- [Result 6: plant-model sensitivity](#result-6-plant-model-sensitivity)
+- [Result 7: routing stability under plant mismatch](#result-7-routing-stability-under-plant-mismatch)
+- [Simulation platform](#simulation-platform)
+- [Repository structure](#repository-structure)
+- [Paper-facing result packages](#paper-facing-result-packages)
+- [Reproducibility](#reproducibility)
+- [Result provenance](#result-provenance)
+- [Limitations](#limitations)
 
 ---
 
-## 3. Fault Model
+## Problem formulation
 
-A single-motor loss-of-effectiveness fault is injected in the Crazyflie SITL motor pipeline.
+For a faulted motor \(i\), remaining effectiveness is modeled as
 
-For a selected faulted motor i, the effective PWM is modeled as:
-
-    u_i_effective = eta * u_i
+\[
+u_i^{\mathrm{effective}} = \eta u_i,
+\]
 
 where:
 
-- eta = 1.0 means healthy motor
-- eta < 1.0 means partial loss of effectiveness
-- lower eta means more severe motor degradation
+- \(\eta = 1\) denotes a healthy motor,
+- \(0 < \eta < 1\) denotes partial loss of effectiveness,
+- smaller \(\eta\) denotes a more severe fault.
 
-The fault is applied after the nominal firmware motor command is generated.
+The study considers one failed motor at a time: **M1, M2, M3, or M4**.
 
----
+The primary controller-complementarity and supervisor experiments are performed at:
 
-## 4. Touchdown Safety Metric
+\[
+\eta = 0.496.
+\]
 
-A key correction made during the project was replacing late touchdown or settled-state evaluation with first-contact evaluation.
-
-The official touchdown row is:
-
-    first row after the fault event where z <= 0.03 m
-
-A touchdown is considered safe only if all checks pass:
-
-- vertical speed <= 0.35 m/s
-- horizontal speed <= 0.25 m/s
-- roll/pitch tilt <= 12 deg
-- angular rate <= 1.5 rad/s
-- horizontal drift <= 0.75 m
-
-The dominant failure mode observed near the recoverability boundary was excessive first-contact vertical speed. Horizontal drift, tilt, angular rate, and horizontal velocity generally remained within limits near the final boundary.
+For the single-motor LoE setting studied here, the failed-motor index determines the corresponding actuator/control-authority geometry. The implemented supervisor therefore instantiates **fault-geometry-aware routing through discrete failed-motor identity**.
 
 ---
 
-## 5. Baseline: High-Level Emergency Landing
+## Safety definition
 
-The first controller used high-level hover/altitude commands only. After fault injection, the vehicle was commanded to perform a max-brake landing using:
+Safety is evaluated at the **first post-fault ground-contact sample**, defined as the first row satisfying:
 
-    z_cmd = 0.95 m
+\[
+z \le 0.03\ \mathrm{m}.
+\]
 
-This high-level interface was not sufficient near the boundary.
+A touchdown is considered safe only when **all** criteria pass:
 
-For motor 1 at eta = 0.50, high-level max-brake first-contact vertical speed remained unsafe:
+| Quantity | Safety limit |
+|---|---:|
+| Vertical speed | \(\le 0.35\) m/s |
+| Horizontal speed | \(\le 0.25\) m/s |
+| Roll/pitch magnitude | \(\le 12^\circ\) |
+| Angular rate | \(\le 1.5\) rad/s |
+| Horizontal drift | \(\le 0.75\) m |
+| Ground contact | Required |
 
-    vz approximately 0.44 m/s > 0.35 m/s
+Safety-criterion violations are **not mutually exclusive**. A single unsafe trial may violate more than one constraint.
 
-This showed that simply commanding a higher altitude target could not reliably recover safe touchdown under the degraded actuator condition.
-
----
-
-## 6. Level 2 Method: Healthy-Motor Residual FTC
-
-To move beyond high-level control, a firmware-level residual controller was added.
-
-For a faulted motor i, equal residual PWM boost is applied only to healthy motors:
-
-    u_j' = u_j + b,  for j != i
-    u_i' = u_i,      for i = faulted motor
-
-where b is the healthy-motor residual boost.
-
-The main tested value was:
-
-    b = 10000 PWM
-
-This is a simple fault-aware residual FTC strategy. It does not replace the nominal controller, but it adds low-level authority after the nominal controller computes motor commands.
+This multidimensional first-contact definition is used throughout the final evaluation.
 
 ---
 
-## 7. Eta = 0.50 Result
+## Allocation methods
 
-At eta = 0.50, high-level landing alone was unsafe for all single-motor faults.
+### Bounded WLS/PINV
 
-With healthy-motor residual boost, the same fault severity became safe.
+The model-informed allocator performs bounded weighted least-squares allocation in the Crazyflie PWM-command domain.
 
-Minimum safe boost values observed at eta = 0.50:
+The final configuration uses:
 
-| Faulted Motor | Minimum Safe Boost |
-|---:|---:|
-| 1 | 5000 |
-| 2 | 3000 |
-| 3 | 5000 |
-| 4 | 3000 |
+\[
+w_T=w_R=w_P=1,\qquad w_Y=0.2,
+\]
 
-A common boost of 5000 PWM was sufficient to recover safe touchdown for all four motors at eta = 0.50.
+with regularization:
 
-Main result from this stage:
+\[
+\lambda=10^{-6}.
+\]
 
-Low-level healthy-motor residual control can recover safe touchdown cases that high-level emergency braking cannot.
+The implementation compensates for known motor effectiveness while respecting motor-command limits.
 
----
+This is a **PWM-domain command-effectiveness allocator**. It is not presented as a complete physical force-domain or attainable-wrench allocator.
 
-## 8. Eta = 0.45 Result
+### QP-lite residual allocation
 
-The severe case eta = 0.45 was tested next.
+QP-lite evaluates an empirical library of bounded motor-residual candidates and selects one using a quadratic state-dependent score.
 
-Equal healthy-motor boost did not recover safe touchdown. Increasing boost reduced impact speed only modestly and eventually destabilized the vehicle at high boost.
+It is **not a formal continuous CBF-QP**, and no formal CBF-QP safety guarantee is claimed.
 
-Asymmetric residual patterns were also tested for motor 1. The best pattern was approximately:
+### CEM-tuned QP-lite
 
-    r = [0, 6000, 18000, 6000]
+The Cross-Entropy Method (CEM) is used **offline** to tune the QP-lite scoring configuration.
 
-but first-contact vertical speed was still approximately:
+At runtime:
 
-    vz = 0.90 m/s
+- CEM is not executed,
+- no reinforcement-learning policy is used,
+- the residual candidate library remains fixed,
+- the controller selects candidates using frozen scoring weights.
 
-This remained far above the safe limit of 0.35 m/s.
+Final configuration:
 
-Conclusion:
-
-Additive residual allocation improves the boundary region but is not sufficient for severe LoE such as eta = 0.45.
-
-For eta substantially below the boundary, a more structural controller is likely needed, such as fault-aware control allocation, yaw-sacrificing degraded-mode control, or birotor-style emergency control.
-
----
-
-## 9. Final Recoverability Boundary
-
-The final boundary experiment used:
-
-- boost = 10000 PWM
-- 3 repeats per motor per eta
-- all four single-motor LoE cases
-
-Tested eta values:
-
-- eta = 0.496
-- eta = 0.497
-- eta = 0.498
-
-Aggregate result:
-
-| Eta | Motor 1 | Motor 2 | Motor 3 | Motor 4 |
-|---:|---:|---:|---:|---:|
-| 0.496 | 0/3 safe | 0/3 safe | 0/3 safe | 0/3 safe |
-| 0.497 | 3/3 safe | 0/3 safe | 3/3 safe | 3/3 safe |
-| 0.498 | 3/3 safe | 3/3 safe | 3/3 safe | 3/3 safe |
-
-Motor 2 was the limiting case at eta = 0.497.
-
-The conservative all-motor recoverability boundary is therefore:
-
-    0.497 < eta_boundary <= 0.498
-
-Main result:
-
-Equal healthy-motor residual FTC with boost = 10000 PWM robustly recovers safe first-contact touchdown for all four single-motor LoE cases at eta = 0.498, while eta = 0.496 remains unsafe for all motors.
+```text
+configs/allocator_weights/cem_tuned_boundary.json
+```
 
 ---
 
-## 10. Key Figures and Tables
+## Result 1: allocator complementarity
 
-Curated final results are stored in:
+The three controllers are compared using the same 30-seed development block for each failed motor at \(\eta=0.496\).
 
-- results/final/tables/
-- results/final/figures/
+| Failed motor | Bounded WLS/PINV | QP-lite | CEM-tuned | Selected |
+|---|---:|---:|---:|---|
+| M1 | 26/30 | 4/30 | **30/30** | CEM |
+| M2 | **30/30** | 6/30 | 3/30 | PINV |
+| M3 | 19/30 | 28/30 | **29/30** | CEM |
+| M4 | 0/30 | 5/30 | **23/30** | CEM |
 
-Important files:
+The resulting frozen routing policy is:
 
-- results/final/tables/final_recoverability_boundary_table.csv
-- results/final/tables/final_recoverability_boundary_summary.md
-- results/final/tables/ftcboost_boundary_repeats_allmotors_aggregate.csv
-- results/final/tables/ftcboost_boundary_repeats_allmotors_summary.csv
-- results/final/figures/ftcboost_boundary_repeats_allmotors.png
-- results/final/figures/ftcboost_fine_boundary_m1.png
-- results/final/figures/ftcboost_allmotors_eta0p50_vertical_speed.png
-- results/final/figures/ftcresid_m1_eta0p45_patterns.png
+```text
+M1 -> CEM
+M2 -> PINV
+M3 -> CEM
+M4 -> CEM
+```
+
+The main conclusion is not that one allocator globally dominates. It is the opposite:
+
+> **Allocator suitability depends strongly on the failed-motor geometry.**
+
+The M2 preference for bounded WLS/PINV is particularly strong. M3 is the closest development comparison: CEM achieves 29/30 while ordinary QP-lite achieves 28/30. This near-tie is retained explicitly rather than presented as a large separation.
+
+Applying the selected policy back to the same development data gives:
+
+\[
+112/120 = 93.3\%.
+\]
+
+This is an **in-sample controller-selection result**, not independent validation.
+
+Authoritative development table:
+
+```text
+results/final/project_experimental_synthesis/controller_complementarity.csv
+```
 
 ---
 
-## 11. Current Contribution
+## Result 2: frozen-policy validation
 
-The project currently demonstrates:
+After the routing map was selected, it was frozen and evaluated on a fresh 30-seed block for each failed motor.
 
-1. High-level emergency landing is insufficient near the single-motor LoE boundary.
-2. First-contact touchdown evaluation is necessary to avoid false-safe conclusions.
-3. Low-level residual motor control can shift the recoverability boundary.
-4. Equal healthy-motor residual FTC robustly recovers all single-motor LoE cases at eta = 0.498.
-5. More severe faults such as eta = 0.45 require a structural degraded-mode controller rather than additive boost tuning.
+| Failed motor | Frozen controller | Safe touchdowns |
+|---|---|---:|
+| M1 | CEM | 30/30 |
+| M2 | PINV | 30/30 |
+| M3 | CEM | 30/30 |
+| M4 | CEM | 27/30 |
+| **Overall** | — | **117/120** |
+
+Overall:
+
+\[
+\boxed{117/120 = 97.5\%}
+\]
+
+with Wilson 95% confidence interval approximately:
+
+\[
+[92.9\%,\,99.1\%].
+\]
+
+This is a **fresh-seed validation under the same simulator and initial-condition distribution**. It does not establish transfer to physical hardware or to a different fault distribution.
+
+Authoritative holdout results:
+
+```text
+results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/
+```
 
 ---
 
-<!-- RL_GAIN_TUNING_SUMMARY_START -->
+## Result 3: integrated supervisor
 
-## CEM-Based Gain-Tuning Extension
+The same frozen routing policy was then evaluated as an integrated supervisor with randomized motor-case execution order.
 
-This section investigates whether offline evolutionary gain tuning can improve the state-aware QP-lite residual allocator without replacing the constrained runtime controller with a black-box neural policy.
+| Failed motor | Selected controller | Safe touchdowns |
+|---|---|---:|
+| M1 | CEM | 29/30 |
+| M2 | PINV | 30/30 |
+| M3 | CEM | 30/30 |
+| M4 | CEM | 26/30 |
+| **Overall** | — | **115/120** |
 
-The approach is deliberately conservative:
+Overall:
 
-- The runtime controller still selects from constrained residual candidates.
-- The faulted motor receives zero residual command.
-- CEM/evolutionary search tunes allocator scoring weights offline.
-- The learned configuration is validated in CrazySim/SITL using the same first-contact safety metric.
+\[
+\boxed{115/120 = 95.8\%}.
+\]
 
-### Main CEM gain-tuning result
+The failed-motor identity is supplied by the experiment. This result validates **controller selection and execution under known fault identity**, not online fault diagnosis.
 
-| Controller | eta | Safe trials | Interpretation |
-|---|---:|---:|---|
-| Baseline state-aware QP-lite | 0.496 | 7/20 | Below robust boundary |
-| CEM-tuned state-aware QP-lite | 0.496 | 15/20 | Gain tuning improves recoverability |
-| CEM-tuned motor 1 | 0.496 | 5/5 | Recovered |
-| CEM-tuned motor 2 | 0.496 | 0/5 | Still limiting |
-| CEM-tuned motor 3 | 0.496 | 5/5 | Recovered |
-| CEM-tuned motor 4 | 0.496 | 5/5 | Recovered |
+Authoritative retained-supervisor results:
 
-### Motor-2 bottleneck check
+```text
+results/final/pinv_baseline/seeded_eta0p496/randomized_supervisor/production120/
+```
 
-A focused motor-2 residual-candidate expansion was run at `eta=0.496`.
+A later M4 modification was also evaluated. That supervisor-v2 experiment achieved **113/120**, below the retained 115/120 result, so the original frozen policy was kept.
 
-| Test | Result | Interpretation |
+The negative result is retained in the repository as part of the experimental record rather than omitted.
+
+---
+
+## Result 4: model mismatch changes the failure mode
+
+The final sensitivity study perturbs five plant parameters independently by \(\pm10\%\):
+
+- total mass,
+- physical thrust coefficient,
+- motor time constant,
+- thrust-to-torque ratio,
+- physical arm length.
+
+The sensitivity study reveals a non-obvious result:
+
+> **Plant mismatch can change not only where the safety boundary lies, but also how the landing becomes unsafe.**
+
+For the **mass -10%** fine-boundary sweep:
+
+| Violated criterion | Count |
+|---|---:|
+| Vertical speed | 0 |
+| Horizontal speed | 72 |
+| Tilt | 46 |
+| Angular rate | **150** |
+| Drift | 0 |
+
+Angular rate is therefore the most frequent violated safety criterion in this condition, with additional horizontal-speed and tilt violations.
+
+For the **thrust-coefficient +10%** condition, unsafe trials are likewise associated with angular-rate violation rather than vertical-speed violation.
+
+Most of the remaining tested perturbations are primarily vertical-speed limited.
+
+Because criterion counts overlap, these values must not be interpreted as mutually exclusive failure classes.
+
+This result shows that model uncertainty can alter the **active safety limitation**, rather than merely translating a fixed vertical-impact-speed boundary.
+
+---
+
+## Result 5: M2/PINV safety boundary
+
+M2 is the failure geometry for which bounded WLS/PINV most strongly outperforms the residual controllers, so its LoE boundary is characterized in greater detail.
+
+Using Firth bias-reduced logistic regression, the nominal simulator gives approximately:
+
+\[
+\boxed{\eta_{50} \approx 0.4956}
+\]
+
+with a within-model paired-seed bootstrap 95% interval of approximately:
+
+\[
+\boxed{[0.4955,\ 0.4956]}.
+\]
+
+Because \(\eta\) represents **remaining motor effectiveness**:
+
+> **Lower ED50 is better.**
+
+A lower ED50 means that the controller remains safe under a more severe motor LoE.
+
+The narrow nominal interval characterizes repeated-trial uncertainty **within the fixed plant model and tested seed distribution**. It should not be interpreted as equivalent uncertainty about a physical vehicle.
+
+---
+
+## Result 6: plant-model sensitivity
+
+Applying the same boundary analysis under the ten \(\pm10\%\) one-factor-at-a-time plant perturbations gives:
+
+| Rank | Parameter | Maximum \(|\Delta \mathrm{ED50}|\) |
+|---:|---|---:|
+| 1 | **Thrust coefficient** | **0.05495** |
+| 2 | **Mass** | **0.04974** |
+| 3 | Motor time constant | 0.000404 |
+| 4 | Arm length | 0.000262 |
+| 5 | Thrust-to-torque ratio | 0.000262 |
+
+Representative shifts:
+
+| Perturbation | \(\Delta \mathrm{ED50}\) | Interpretation |
 |---|---:|---|
-| Expanded motor-2 candidates | 1/60 safe | Almost all residual patterns fail |
-| Best-looking candidate `m4only_13000` retest | 0/10 safe | The earlier safe case was not reliable |
+| Mass -10% | -0.04714 | Improved LoE tolerance |
+| Mass +10% | +0.04974 | Reduced LoE tolerance |
+| Thrust coefficient -10% | +0.05495 | Reduced LoE tolerance |
+| Thrust coefficient +10% | -0.04538 | Improved LoE tolerance |
 
-Conclusion: CEM-based gain tuning improves the allocator for recoverable fault geometries, but motor 2 at `eta=0.496` remains outside the current residual-allocation envelope. This supports treating `eta≈0.497` as the conservative robust boundary for the current CrazySim/SITL setup, while motivating future work on model-based CBF-QP/MPC or structural degraded-mode control for the motor-2 limiting case.
+Because lower ED50 corresponds to greater LoE tolerance, increased mass and reduced thrust coefficient degrade the boundary, whereas reduced mass and increased thrust coefficient improve it.
 
-<!-- RL_GAIN_TUNING_SUMMARY_END -->
+The important contrast is:
+
+> **The safety transition can be localized sharply within a fixed plant model, but plausible plant mismatch moves the estimated boundary by roughly two orders of magnitude more. Practical boundary uncertainty is therefore dominated by model uncertainty rather than repeated-trial uncertainty in the nominal simulator.**
+
+Paper-facing sensitivity outputs:
+
+```text
+results/final/model_sensitivity/ofat/synthesis/
+```
+
+> **ED50 convention:** \(\eta\) is remaining effectiveness; therefore lower ED50 means better fault tolerance.
+
+---
+
+## Result 7: routing stability under plant mismatch
+
+A separate fixed-operating-point experiment tests whether the nominal M2 routing choice between PINV and frozen CEM reverses under the same plant perturbations.
+
+The comparison is performed at:
+
+\[
+\eta = 0.496.
+\]
+
+Across the nominal plant plus ten perturbed plants:
+
+| Routing outcome | Plant states |
+|---|---:|
+| PINV higher safe-touchdown count | **9/11** |
+| Tie | **2/11** |
+| CEM higher safe-touchdown count | **0/11** |
+
+Considering only the ten perturbed plant models:
+
+| Routing outcome | Perturbed states |
+|---|---:|
+| PINV higher safe-touchdown count | **8/10** |
+| Tie | **2/10** |
+| CEM higher safe-touchdown count | **0/10** |
+
+PINV's paired advantage reaches McNemar \(p<0.05\) in 7 of the 10 perturbed conditions.
+
+The two tied adverse cases are:
+
+| Perturbation | PINV | CEM |
+|---|---:|---:|
+| Mass +10% | 0/30 | 0/30 |
+| Thrust coefficient -10% | 0/30 | 0/30 |
+
+No tested perturbation reverses the M2 routing direction in favor of CEM at \(\eta=0.496\).
+
+However:
+
+> **Stable controller ordering does not imply safety robustness.**
+
+For +10% mass and -10% thrust coefficient, neither tested controller achieves a safe touchdown in any of the 30 paired trials at the tested operating point.
+
+This is consistent with an **available-control-authority limitation rather than merely a controller-selection limitation**. No formal attainable-wrench-set proof is claimed.
+
+Authoritative routing-stability results:
+
+```text
+results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/
+```
+
+---
+
+## Experimental story
+
+The completed experiments support the following evidence chain:
+
+```text
+Single-motor partial LoE
+          |
+          v
+Different failed motors induce different
+actuator/control-authority geometries
+          |
+          v
+Allocator performance depends on fault geometry
+          |
+          +--> M1 -> CEM
+          +--> M2 -> PINV
+          +--> M3 -> CEM
+          +--> M4 -> CEM
+          |
+          v
+Freeze routing policy
+          |
+          +--> Development selection: 112/120
+          |
+          +--> Fresh-seed holdout: 117/120
+          |
+          +--> Randomized integrated supervisor: 115/120
+          |
+          v
+Stress the critical M2/PINV branch
+          |
+          +--> Mass and thrust coefficient dominate ED50 shifts
+          |
+          +--> Active touchdown-safety constraint can change
+          |
+          +--> PINV-vs-CEM routing direction does not reverse
+          |    at eta = 0.496 in tested OFAT states
+          |
+          +--> Adverse plant mismatch can defeat both allocators
+```
+
+The resulting claim is intentionally narrower than a generic robustness claim:
+
+> **Fault-geometry-aware allocator selection improves emergency-landing reliability in the tested single-motor LoE setting, while controller selection and available plant authority remain distinct limitations.**
+
+---
+
+## Simulation platform
+
+The final experiments use:
+
+- Ubuntu 22.04
+- ROS 2 Humble
+- Gazebo Sim 7
+- CrazySim / Crazyflie SITL
+- Python 3.10
+- `cflib`
+- custom single-motor LoE fault injection
+- firmware-level residual-control hooks
+- bounded fault-aware WLS allocation
+
+The work reported here is **simulation-only**.
+
+The main experiment runner is:
+
+```text
+scripts/fault_triggered_landing_qp_event_allocator.py
+```
+
+Plant perturbations are managed by:
+
+```text
+scripts/plant_ofat.py
+```
+
+Seeded initial-condition generation is provided by:
+
+```text
+scripts/seeded_trial_params.py
+```
+
+Relevant Crazyflie firmware modifications are preserved under:
+
+```text
+patches/
+```
+
+---
+
+## Repository structure
+
+```text
+.
+├── configs/
+│   └── controller and allocator configurations
+│
+├── patches/
+│   └── Crazyflie firmware modifications
+│
+├── results/
+│   └── final/
+│       ├── project_experimental_synthesis/
+│       ├── model_sensitivity/
+│       ├── pinv_baseline/
+│       ├── figures/
+│       └── tables/
+│
+├── scripts/
+│   ├── experiment runners
+│   ├── analysis utilities
+│   ├── sensitivity tools
+│   └── paper-level synthesis builders
+│
+├── src/
+│   └── project source modules
+│
+└── README.md
+```
+
+Large simulator logs, temporary files, local plant-state backups, and many raw/intermediate trial outputs are intentionally excluded from version control.
+
+---
+
+## Paper-facing result packages
+
+Two generated synthesis layers provide the shortest path from frozen experiment outputs to the paper-level claims.
+
+### Whole-project synthesis
+
+```text
+results/final/project_experimental_synthesis/
+```
+
+Key files:
+
+```text
+controller_complementarity.csv
+validation_summary_by_motor.csv
+overall_stage_summary.csv
+model_sensitivity_ranking.csv
+whole_project_claims.md
+experimental_results_narrative.md
+provenance.json
+```
+
+Regenerate with:
+
+```bash
+python scripts/build_project_experimental_synthesis.py
+```
+
+This command performs no new simulation. It rebuilds the paper-facing summary from the authoritative result files.
+
+### Model-sensitivity synthesis
+
+```text
+results/final/model_sensitivity/ofat/synthesis/
+```
+
+Key files:
+
+```text
+model_sensitivity_master_table.csv
+parameter_sensitivity_ranking.csv
+failure_mechanism_summary.csv
+routing_stability_compact.csv
+model_sensitivity_claims.md
+model_sensitivity_results.md
+ofat_ed50_tornado.png
+```
+
+Regenerate with:
+
+```bash
+python scripts/build_model_sensitivity_synthesis.py
+```
+
+---
+
+## Reproducibility
+
+From the repository root, the curated paper-level summaries can be regenerated with:
+
+```bash
+conda activate crazysim310
+
+python scripts/plant_ofat.py verify
+python scripts/build_model_sensitivity_synthesis.py
+python scripts/build_project_experimental_synthesis.py
+```
+
+Full simulator reproduction additionally requires a compatible CrazySim/Crazyflie SITL environment and the firmware modifications under `patches/`.
+
+The primary runner is:
+
+```text
+scripts/fault_triggered_landing_qp_event_allocator.py
+```
+
+The frozen CEM configuration is:
+
+```text
+configs/allocator_weights/cem_tuned_boundary.json
+```
+
+---
+
+## Result provenance
+
+The release deliberately separates development, validation, and robustness evidence:
+
+```text
+112/120  development data used to select the routing policy
+117/120  fresh-seed frozen-policy validation
+115/120  separate randomized integrated supervisor evaluation
+```
+
+The repository also retains supporting and negative experiments, including the M4 modification that reduced integrated performance to 113/120.
+
+The exact experimental state immediately before paper/repository cleanup is preserved by the Git tag:
+
+```text
+experimental-freeze
+```
+
+The release-development branch is:
+
+```text
+crazyflie-v1.0
+```
+
+---
+
+## Limitations
+
+This repository does **not** claim:
+
+- physical Crazyflie hardware validation,
+- online motor-fault detection or isolation,
+- robustness to unknown failed-motor identity,
+- simultaneous multiple-motor failures,
+- simultaneous multi-parameter plant mismatch,
+- universal robustness outside the tested simulator and distributions,
+- formal closed-loop safety guarantees,
+- formal attainable-wrench feasibility,
+- globally optimal residual allocation,
+- a formal CBF-QP implementation,
+- reinforcement-learning-based fault-tolerant control.
+
+The experimental question is intentionally narrower:
+
+> **Given known partial LoE of one motor, can fault-dependent control allocation improve safe emergency first-contact landing, and how sensitive is that conclusion to plant-model mismatch?**
+
+---
+
+## Manuscript
+
+The associated manuscript is in preparation.
+
+**Working title**
+
+*Fault-Geometry-Aware Control Allocation for Emergency Quadrotor Landing under Single-Motor Loss of Effectiveness*
+
+Citation information will be added when a public manuscript record is available.
+
+---
+
+## License
+
+A release license will be specified before the public paper repository is finalized.

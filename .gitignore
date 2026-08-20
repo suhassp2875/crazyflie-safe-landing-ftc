@@ -98,3 +98,6 @@ results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/run_status.cs
 results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/runner_status.txt
 results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/pilot_console.txt
 results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/production_console.txt
+
+# Local cache
+cache/
