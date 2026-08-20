@@ -101,3 +101,6 @@ results/final/model_sensitivity/ofat/m2_routing_stability_eta0p496/production_co
 
 # Local cache
 cache/
+
+# Superseded pre-fix experiment outputs
+results/**/pre_cadence_fix/
