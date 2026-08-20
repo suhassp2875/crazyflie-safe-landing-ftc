@@ -1,9 +1,0 @@
-run_id=pilot8_v2
-scheduled_trials=8
-validated_trials=8
-overall_safe=8
-overall_unsafe=0
-eta=0.496
-policy_id=oracle_motor_conditioned_v2
-policy=M1:CEM-tuned,M2:PINV,M3:CEM-tuned,M4:CEM-tuned
-motor_counts=M1:2,M2:2,M3:2,M4:2

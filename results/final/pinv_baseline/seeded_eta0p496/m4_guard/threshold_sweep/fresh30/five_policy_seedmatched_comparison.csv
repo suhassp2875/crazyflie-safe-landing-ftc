@@ -1,5 +1,0 @@
-comparison_policy,reference_policy,n_pairs,both_safe,reference_only_safe,comparison_only_safe,both_unsafe,mcnemar_exact_two_sided_p,mean_vertical_speed_difference_comparison_minus_reference
-fixed_14000,fixed_12000,30,24,4,2,0,0.6875,0.00027062545220057167
-guard_0.16,fixed_12000,30,23,5,1,1,0.21875,0.0051207353671391806
-guard_0.18,fixed_12000,30,21,7,2,0,0.1796875,0.007077918450037638
-guard_0.20,fixed_12000,30,22,6,1,1,0.125,0.004991014798482259

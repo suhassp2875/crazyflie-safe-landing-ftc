@@ -1,4 +1,0 @@
-condition_a,condition_b,paired_n,both_safe,both_unsafe,a_safe_b_unsafe,a_unsafe_b_safe,safe_rate_difference_a_minus_b,exact_mcnemar_p,mean_vertical_speed_difference_a_minus_b,mean_angular_rate_difference_a_minus_b
-fixed_balanced1000,fixed_opp_m4_11000,30,1,3,0,26,-0.8666666666666667,2.9802322387695312e-08,0.023555914560953777,0.056641533587971644
-fixed_balanced1000,fixed_opp_m4_10000,30,1,0,0,29,-0.9666666666666667,3.725290298461914e-09,0.02581527680158615,0.09814497224215157
-fixed_opp_m4_11000,fixed_opp_m4_10000,30,27,0,0,3,-0.1,0.25,0.002259362240632375,0.04150343865417993

@@ -1,162 +1,113 @@
-# Scripts
+# Paper and Reproduction Scripts
 
-This directory contains the experiment runners, analysis utilities, validation tools, and paper-level synthesis builders used during development of the Crazyflie emergency-landing study.
+This directory contains the **33 retained scripts** required to support the final paper-facing experiment and analysis workflow.
 
-The repository intentionally keeps the historical script paths stable. Many experiment records were generated with these exact paths, so the release does **not** reorganize the directory purely for aesthetics.
+Early exploratory runners, obsolete controller variants, pre-final boundary studies, and scripts tied only to removed development artifacts were intentionally removed from the release branch. They remain recoverable through Git history and the `experimental-freeze` tag.
 
-For the paper/release workflow, start with the five entry points below.
+The retained scripts fall into five groups.
 
----
-
-## Core paper-facing entry points
-
-### `fault_triggered_landing_qp_event_allocator.py`
-
-Primary experiment runner for the final allocation experiments.
-
-Used for the controller families reported in the paper, including:
-
-- bounded WLS/PINV allocation,
-- QP-lite residual allocation,
-- frozen CEM-tuned QP-lite.
-
-The runner is the main simulation-side entry point for the final single-motor LoE experiments.
-
----
-
-### `seeded_trial_params.py`
-
-Defines the seeded initial-condition protocol used for repeated and paired experiments.
-
-The final seeded protocol randomizes quantities such as:
-
-- spawn x,
-- spawn y,
-- hover altitude,
-- fault time.
-
-Spawn yaw is generated/logged but is not applied by the current launcher, so it should not be described as an applied randomized initial condition.
-
----
-
-### `plant_ofat.py`
-
-Manages reversible one-factor-at-a-time plant perturbations for the model-sensitivity study.
-
-The supported final sensitivity parameters are:
-
-- mass,
-- thrust coefficient,
-- motor time constant,
-- thrust-to-torque ratio,
-- arm length.
-
-Use its verification command before rebuilding or rerunning sensitivity analyses to confirm that the CrazySim plant is restored to the nominal state.
-
----
-
-### `build_model_sensitivity_synthesis.py`
-
-Builds the curated paper-facing model-sensitivity package from the frozen experiment outputs.
-
-It does **not** launch new simulation.
-
-Primary output directory:
+## 1. Core experiment execution
 
 ```text
-results/final/model_sensitivity/ofat/synthesis/
+fault_triggered_landing_qp_event_allocator.py
+fault_triggered_landing_motor_supervisor.py
+seeded_trial_params.py
 ```
 
-This package contains the final ED50 sensitivity ranking, failure-mechanism summary, routing-stability summary, and paper-facing sensitivity narrative.
+`fault_triggered_landing_qp_event_allocator.py` is the main final experiment runner for PINV, QP-lite, and frozen CEM-tuned QP-lite.
 
----
+`fault_triggered_landing_motor_supervisor.py` implements the motor-conditioned integrated supervisor under supplied failed-motor identity.
 
-### `build_project_experimental_synthesis.py`
+`seeded_trial_params.py` provides deterministic seeded initial-condition generation for repeated and paired experiments.
 
-Builds the whole-project paper-facing synthesis from the authoritative final result files.
-
-It does **not** launch new simulation.
-
-Primary output directory:
+## 2. PINV / controller-complementarity pipeline
 
 ```text
-results/final/project_experimental_synthesis/
+run_seeded_pinv_eta0p496.sh
+run_seeded_cem_matched_eta0p496.sh
+compare_pinv_qplite_paired_eta0p496.py
+report_pinv_seeded_eta0p496.py
+summarize_pinv_seeded_eta0p496.py
+summarize_seeded_trials.py
 ```
 
-This package contains the controller-complementarity table, frozen-policy validation summary, stage summary, model-sensitivity ranking, claims, narrative, and provenance metadata.
-
----
-
-## Recommended release workflow
-
-For readers interested in the final paper results, the normal order is:
+These scripts support the matched development comparison used to select:
 
 ```text
-1. Verify the nominal plant
-   scripts/plant_ofat.py
-
-2. Inspect or reproduce seeded trial settings
-   scripts/seeded_trial_params.py
-
-3. Run final controller experiments when full simulation reproduction is required
-   scripts/fault_triggered_landing_qp_event_allocator.py
-
-4. Rebuild the model-sensitivity synthesis
-   scripts/build_model_sensitivity_synthesis.py
-
-5. Rebuild the whole-project synthesis
-   scripts/build_project_experimental_synthesis.py
+M1 -> CEM
+M2 -> PINV
+M3 -> CEM
+M4 -> CEM
 ```
 
-For paper-level result inspection only, steps 4 and 5 are sufficient when the authoritative experiment outputs are already present.
-
----
-
-## Supporting scripts
-
-The remaining scripts support earlier or narrower parts of the experimental program, including:
-
-- experiment batch orchestration,
-- controller-specific sweeps,
-- boundary localization,
-- CEM candidate studies,
-- M2 selector and phase validation,
-- M4 authority tuning,
-- supervisor experiments,
-- statistical fitting,
-- auditing,
-- plotting,
-- summarization,
-- intermediate validation.
-
-These scripts are retained for scientific provenance and to preserve the paths used by historical experiment records.
-
-They are **not all required to reproduce the headline paper results**.
-
----
-
-## Why the directory is not reorganized
-
-The release deliberately avoids moving the historical scripts into new subdirectories such as `run/`, `analysis/`, or `legacy/`.
-
-That choice is intentional:
-
-1. existing experiment commands and records may refer to current paths;
-2. moving files would create unnecessary path churn;
-3. the paper-facing workflow only needs a small number of clearly identified entry points;
-4. Git history and the `experimental-freeze` tag already preserve development provenance.
-
-The release therefore prioritizes **path stability and reproducibility** over cosmetic reorganization.
-
----
-
-## Related documentation
-
-See:
+## 3. Holdout and integrated supervisor
 
 ```text
-../README.md
-../docs/REPRODUCIBILITY.md
+summarize_motor_conditioned_holdout_eta0p496.py
+run_randomized_motor_supervisor_eta0p496.sh
+summarize_randomized_motor_supervisor_eta0p496.py
+analyze_randomized_supervisor_failures_eta0p496.py
 ```
 
-for the scientific results, software revisions, firmware patch information, safety definition, frozen routing policy, and final result provenance.
+These support the final:
+
+```text
+fresh holdout:        117/120
+integrated supervisor: 115/120
+```
+
+## 4. M2 boundary and model sensitivity
+
+```text
+plant_ofat.py
+run_nominal_m2_pinv_fine_boundary.sh
+validate_nominal_m2_boundary_trial.py
+summarize_nominal_m2_pinv_fine_boundary.py
+analyze_nominal_m2_pinv_fine_boundary.py
+run_ofat_m2_pinv_fine_sweep.sh
+summarize_ofat_m2_pinv_fine_sweep.py
+analyze_ofat_m2_pinv_sensitivity.py
+plot_ofat_m2_pinv_tornado.py
+run_m2_routing_stability_eta0p496.sh
+summarize_m2_routing_stability.py
+```
+
+These support:
+
+- the nominal M2/PINV ED50 result,
+- the +/-10% OFAT plant-sensitivity experiment,
+- the active-constraint analysis,
+- the fixed-eta PINV-vs-CEM routing-stability experiment.
+
+## 5. CEM tuning, verification, and synthesis
+
+```text
+cem_tune_allocator_weights.py
+smoke_test_pinv_fault.py
+summarize_pinv_smoke_matrix.py
+test_fault_aware_pinv_reference.py
+validate_pinv_firmware_reference.py
+validate_pinv_healthy_invariance.py
+build_model_sensitivity_synthesis.py
+build_project_experimental_synthesis.py
+```
+
+CEM is used offline for tuning. It is not reinforcement learning and is not executed as an online optimizer in the final runtime controller.
+
+The two synthesis builders produce the paper-facing result packages without launching new simulation.
+
+## Recommended reading order
+
+For a reviewer or reproducer:
+
+```text
+1. ../README.md
+2. ../docs/REPRODUCIBILITY.md
+3. fault_triggered_landing_qp_event_allocator.py
+4. fault_triggered_landing_motor_supervisor.py
+5. plant_ofat.py
+6. build_model_sensitivity_synthesis.py
+7. build_project_experimental_synthesis.py
+```
+
+The retained script paths are intentionally stable so that the final result provenance remains easy to trace.

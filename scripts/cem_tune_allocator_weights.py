@@ -252,7 +252,7 @@ def main():
 
     rng = np.random.default_rng(args.seed)
 
-    out_dir = Path("results/rl_tuning")
+    out_dir = Path("results/cem_tuning")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     baseline_cfg = load_weight_config(args.baseline)

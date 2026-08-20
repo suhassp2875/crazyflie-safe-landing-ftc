@@ -1,6 +1,0 @@
-expected_trials=30
-validated_trials=30
-seed_min=24980001
-seed_max=24980030
-minimum_rows=4158
-maximum_rows=4233

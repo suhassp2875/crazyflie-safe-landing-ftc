@@ -1,5 +1,5 @@
 {
-  "builder_commit": "ced14d92078588a72add9c95b52a119f7aead2ac",
+  "builder_commit": "504ed5e5b8f163264d15797df46d6b7da7e09b87",
   "eta": 0.496,
   "development_source": "results/final/pinv_baseline/seeded_eta0p496/production_30/three_controller_paired_trials.csv",
   "holdout_source": "results/final/pinv_baseline/seeded_eta0p496/motor_conditioned_holdout/holdout_aggregate_by_motor.csv",

@@ -1,9 +1,0 @@
-run_id=v1_restore_regression4
-scheduled_trials=4
-validated_trials=4
-overall_safe=4
-overall_unsafe=0
-eta=0.496
-policy_id=oracle_motor_conditioned_v1
-policy=M1:CEM-tuned,M2:PINV,M3:CEM-tuned,M4:CEM-tuned
-motor_counts=M1:1,M2:1,M3:1,M4:1

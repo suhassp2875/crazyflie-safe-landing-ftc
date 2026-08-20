@@ -1,4 +1,0 @@
-first_threshold_mps,second_threshold_mps,n_pairs,both_safe,first_only_safe,second_only_safe,both_unsafe,mcnemar_exact_two_sided_p,mean_vertical_speed_difference_second_minus_first,bootstrap95_difference_lower,bootstrap95_difference_upper
-0.16,0.18,30,20,4,3,3,1.0,0.001957183082898458,-0.001755639910697937,0.005922257900238037
-0.16,0.2,30,20,4,3,3,1.0,-0.00012972056865692138,-0.004245439171791076,0.0037690629561742146
-0.18,0.2,30,18,5,5,2,1.0,-0.0020869036515553793,-0.006949528058369955,0.0026374836762746174

@@ -1,1 +1,0 @@
-pilot_v2_exit_status=0

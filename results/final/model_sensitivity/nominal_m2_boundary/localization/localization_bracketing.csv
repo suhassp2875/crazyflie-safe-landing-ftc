@@ -1,3 +1,0 @@
-controller,complete_eta_conditions,bracketed_50,minimum_safe_rate,maximum_safe_rate
-pinv,6,True,0.0,1.0
-cem,6,True,0.0,1.0
